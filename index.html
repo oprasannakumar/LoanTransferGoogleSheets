@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Loan Entry</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background:#f5f5f5;
+  padding:20px;
+}
+form{
+  background:#fff;
+  max-width:420px;
+  margin:auto;
+  padding:20px;
+  border-radius:8px;
+  box-shadow:0 0 10px rgba(0,0,0,.1);
+}
+label{
+  font-weight:bold;
+  display:block;
+  margin-top:12px;
+}
+input, select, button{
+  width:100%;
+  height:42px;
+  margin-top:6px;
+  padding:8px;
+  box-sizing:border-box;
+}
+button{
+  background:#28a745;
+  color:#fff;
+  border:none;
+  border-radius:4px;
+  margin-top:16px;
+  cursor:pointer;
+}
+button:hover{background:#1e7e34}
+.hidden{display:none}
+input:disabled{background:#eee}
+</style>
+</head>
+
+<body>
+
+<form id="loanForm">
+  <h3>Loan Entry</h3>
+
+  <label>Date</label>
+  <input type="date" id="date" required>
+
+  <label>Borrower</label>
+  <select id="borrower" required>
+    <option value="">Select</option>
+    <option>Chinnama</option>
+    <option>Grand Father</option>
+    <option>Mother</option>
+    <option>Pedhamma</option>
+    <option>Ravi Babai</option>
+    <option>Srinivas Babai</option>
+    <option>Vasavi</option>
+    <option>Other</option>
+  </select>
+
+  <input type="text" id="borrower_other" class="hidden" placeholder="Enter borrower name">
+
+  <label>Narration</label>
+  <input type="text" id="narration" required>
+
+  <label>Invoice No.</label>
+  <input type="text" id="invoice">
+
+  <label>Transaction Type</label>
+  <select id="trtype" required>
+    <option value="">Select</option>
+    <option value="loan_given">Loan Given</option>
+    <option value="loan_received">Loan Received</option>
+  </select>
+
+  <label>Payment Mode</label>
+  <select id="mode" required>
+    <option value="">Select</option>
+    <option value="cash">Cash</option>
+    <option value="debit">Debit</option>
+    <option value="upi">UPI</option>
+    <option value="net">Net</option>
+    <option value="credit">Credit</option>
+  </select>
+
+  <div id="accountBlock">
+    <label>Account</label>
+    <select id="account"></select>
+  </div>
+
+  <label>Given Amount</label>
+  <input type="number" id="given" step="0.01">
+
+  <label>Received Amount</label>
+  <input type="number" id="received" step="0.01">
+
+  <button type="submit">Save Loan</button>
+</form>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyWRafCfPABsx3BRLIWrZY4dd4p8SNpfixc7-HcxLOidLFbXTw589SrXcmVCuTQx2-C/exec";
+
+/* DOM elements */
+const dateEl = document.getElementById("date");
+const borrower = document.getElementById("borrower");
+const borrowerOther = document.getElementById("borrower_other");
+const narration = document.getElementById("narration");
+const invoice = document.getElementById("invoice");
+const trtype = document.getElementById("trtype");
+const mode = document.getElementById("mode");
+const accountBlock = document.getElementById("accountBlock");
+const account = document.getElementById("account");
+const given = document.getElementById("given");
+const received = document.getElementById("received");
+
+/* Accounts */
+const bankAccounts = ["FI","HDFC Old","HDFC New","ICICI","RBL","Kotak","SBI","IndusInd"];
+const creditCards = [
+  "Axis Flipkart","Axis MyZone","Axis Neo",
+  "HDFC PhonePe","HDFC Tata Neu","HDFC Millennia",
+  "HSBC","IDFC First Millenia",
+  "ICICI Amazon","ICICI Coral","ICICI Expressions",
+  "Indusind Plat Aura EDGE","Indusind Legend",
+  "Yes Finbooster","Kotak League","Kotak Image",
+  "SBI BPCL","Standard Chartered"
+];
+
+/* Borrower Other logic */
+borrower.addEventListener("change", () => {
+  borrowerOther.classList.toggle("hidden", borrower.value !== "Other");
+});
+
+/* Account logic */
+mode.addEventListener("change", () => {
+  account.innerHTML = "";
+  if (mode.value === "cash") {
+    accountBlock.classList.add("hidden");
+    return;
+  }
+  accountBlock.classList.remove("hidden");
+  const list = mode.value === "credit" ? creditCards : bankAccounts;
+  list.forEach(a => account.add(new Option(a, a)));
+});
+
+/* Enable / Disable amounts */
+trtype.addEventListener("change", () => {
+  if (trtype.value === "loan_given") {
+    given.disabled = false;
+    received.value = "";
+    received.disabled = true;
+  } else if (trtype.value === "loan_received") {
+    received.disabled = false;
+    given.value = "";
+    given.disabled = true;
+  }
+});
+
+/* Date format */
+function formatDateToDDMMMYYYY(dateStr) {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return String(d.getDate()).padStart(2,"0")+"-"+months[d.getMonth()]+"-"+d.getFullYear();
+}
+
+/* Submit */
+document.getElementById("loanForm").addEventListener("submit", e => {
+  e.preventDefault();
+
+  const payload = new URLSearchParams({
+    category: "loan",
+    date: formatDateToDDMMMYYYY(dateEl.value),
+    borrower: borrower.value === "Other" ? borrowerOther.value : borrower.value,
+    narration: narration.value,
+    invoice: invoice.value,
+    mode: mode.value,
+    account: mode.value === "cash" ? "Cash" : account.value,
+    withdrawn: given.value,
+    deposit: received.value
+  });
+
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: payload
+  })
+  .then(() => {
+    alert("Loan saved successfully");
+    e.target.reset();
+    given.disabled = false;
+    received.disabled = false;
+    accountBlock.classList.add("hidden");
+    borrowerOther.classList.add("hidden");
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Error saving loan");
+  });
+});
+</script>
+
+</body>
+</html>
