@@ -9,7 +9,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
 body{
-  font-family: 'Inter', Arial, sans-serif;
+  font-family:'Inter',Arial,sans-serif;
   background:linear-gradient(135deg,#eef2f7,#f9fafb);
   padding:20px;
 }
@@ -23,32 +23,28 @@ form{
   box-shadow:0 18px 40px rgba(0,0,0,.08);
 }
 
-h3{
-  text-align:center;
-  margin-bottom:16px;
-  font-weight:600;
-}
+h3{text-align:center;margin-bottom:16px}
 
 label{
   font-size:13px;
   font-weight:600;
-  display:block;
   margin-top:14px;
+  display:block;
   color:#374151;
 }
 
-input, select, button{
+input,select,button{
   width:100%;
   height:44px;
   margin-top:6px;
-  padding:0 12px;
+  padding:0 14px;
   border-radius:10px;
   border:1px solid #d1d5db;
-  box-sizing:border-box;
   font-size:14px;
+  box-sizing:border-box;
 }
 
-input:focus, select:focus{
+input:focus,select:focus{
   outline:none;
   border-color:#22c55e;
   box-shadow:0 0 0 3px rgba(34,197,94,.15);
@@ -59,106 +55,175 @@ button{
   color:#fff;
   border:none;
   margin-top:20px;
-  font-size:15px;
   font-weight:600;
   cursor:pointer;
 }
 
-button:hover{
-  background:#16a34a;
-}
+button:hover{background:#16a34a}
 
 .hidden{display:none}
 input:disabled{background:#f3f4f6}
+
+/* Cash section */
+.cash-box{
+  margin-top:16px;
+  padding:16px;
+  border-radius:12px;
+  background:#f9fafb;
+  border:1px solid #e5e7eb;
+}
+
+.cash-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.cash-item{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.cash-item span{
+  width:36px;
+  text-align:right;
+  font-weight:600;
+}
+
+.cash-item input{
+  width:100%;
+  height:40px;
+  padding:0 10px;
+  border-radius:8px;
+  border:1px solid #d1d5db;
+}
+
+.cash-total{
+  margin-top:14px;
+  font-weight:600;
+  text-align:right;
+}
 </style>
 </head>
 
 <body>
 
 <form id="loanForm">
-  <h3>Loan Entry</h3>
+<h3>Loan Entry</h3>
 
-  <label>Date</label>
-  <input type="date" id="date" required>
+<label>Date</label>
+<input type="date" id="date" required>
 
-  <label>Borrower</label>
-  <select id="borrower" required>
-    <option value="">Select</option>
-    <option>Chinnama</option>
-    <option>Grand Father</option>
-    <option>Mother</option>
-    <option>Pedhamma</option>
-    <option>Ravi Babai</option>
-    <option>Srinivas Babai</option>
-    <option>Vasavi</option>
-    <option>Other</option>
-  </select>
+<label>Borrower</label>
+<select id="borrower" required>
+<option value="">Select</option>
+<option>Chinnama</option>
+<option>Grand Father</option>
+<option>Mother</option>
+<option>Pedhamma</option>
+<option>Ravi Babai</option>
+<option>Srinivas Babai</option>
+<option>Vasavi</option>
+<option>Other</option>
+</select>
 
-  <input type="text" id="borrower_other" class="hidden" placeholder="Enter borrower name">
+<input type="text" id="borrower_other" class="hidden" placeholder="Enter borrower name">
 
-  <label>Narration</label>
-  <input type="text" id="narration" required>
+<label>Narration</label>
+<input type="text" id="narration" required>
 
-  <label>Invoice No.</label>
-  <input type="text" id="invoice">
+<label>Invoice No.</label>
+<input type="text" id="invoice">
 
-  <label>Transaction Type</label>
-  <select id="trtype" required>
-    <option value="">Select</option>
-    <option value="loan_given">Loan Given</option>
-    <option value="loan_received">Loan Received</option>
-  </select>
+<label>Transaction Type</label>
+<select id="trtype" required>
+<option value="">Select</option>
+<option value="loan_given">Loan Given</option>
+<option value="loan_received">Loan Received</option>
+</select>
 
-  <label>Payment Mode</label>
-  <select id="mode" required>
-    <option value="">Select</option>
-    <option value="cash">Cash</option>
-    <option value="debit">Debit</option>
-    <option value="upi">UPI</option>
-    <option value="net">Net</option>
-    <option value="credit">Credit</option>
-  </select>
+<label>Payment Mode</label>
+<select id="mode" required>
+<option value="">Select</option>
+<option value="cash">Cash</option>
+<option value="debit">Debit</option>
+<option value="upi">UPI</option>
+<option value="net">Net</option>
+<option value="credit">Credit</option>
+</select>
 
-  <div id="accountBlock" class="hidden">
-    <label>Account</label>
-    <select id="account"></select>
-  </div>
+<div id="accountBlock" class="hidden">
+<label>Account</label>
+<select id="account"></select>
+</div>
 
-  <!-- Amount blocks (hidden initially) -->
-  <div id="givenBlock" class="hidden">
-    <label>Given Amount</label>
-    <input type="number" id="given" step="0.01">
-  </div>
+<div id="cashBlock" class="cash-box hidden">
+  <div class="cash-grid" id="cashGrid"></div>
+  <div class="cash-total">Total: ₹ <span id="cashTotal">0</span></div>
+</div>
 
-  <div id="receivedBlock" class="hidden">
-    <label>Received Amount</label>
-    <input type="number" id="received" step="0.01">
-  </div>
+<div id="givenBlock" class="hidden">
+<label>Given Amount</label>
+<input type="number" id="given">
+</div>
 
-  <button type="submit">Save Loan</button>
+<div id="receivedBlock" class="hidden">
+<label>Received Amount</label>
+<input type="number" id="received">
+</div>
+
+<button type="submit">Save Loan</button>
 </form>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyfmJ2VjND4cLt8aZGZFWR6jJdjDnD_VPTlwr0gLh9ojZ3xbM5uGJRcmj4v_YKTZ0o3/exec";
+/* 🔗 YOUR WEB APP URL */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwyTfn2IpNxL4TRotdjxoHBWehfYOvWQTHnj7hBSHXWzpLabnTpJmf1RKRaA8nnEMMP/exec";
 
-/* DOM elements */
-const dateEl = document.getElementById("date");
-const borrower = document.getElementById("borrower");
-const borrowerOther = document.getElementById("borrower_other");
-const narration = document.getElementById("narration");
-const invoice = document.getElementById("invoice");
-const trtype = document.getElementById("trtype");
-const mode = document.getElementById("mode");
-const accountBlock = document.getElementById("accountBlock");
-const account = document.getElementById("account");
-const given = document.getElementById("given");
-const received = document.getElementById("received");
-const givenBlock = document.getElementById("givenBlock");
-const receivedBlock = document.getElementById("receivedBlock");
+/* Set today's date */
+document.getElementById("date").value =
+  new Date().toISOString().split("T")[0];
+
+/* Cash denominations */
+const denoms=[500,200,100,50,20,10,5,2,1];
+const cashGrid=document.getElementById("cashGrid");
+const cashBlock=document.getElementById("cashBlock");
+const cashTotal=document.getElementById("cashTotal");
+
+denoms.forEach(d=>{
+  cashGrid.innerHTML+=`
+    <div class="cash-item">
+      <span>₹${d}</span>
+      <input type="number" min="0" data-val="${d}">
+    </div>`;
+});
+
+function calcCash(){
+  let total=0;
+  document.querySelectorAll("#cashGrid input").forEach(i=>{
+    total+=Number(i.value||0)*Number(i.dataset.val);
+  });
+  cashTotal.textContent=total;
+  if(trtype.value==="loan_given") given.value=total||"";
+  if(trtype.value==="loan_received") received.value=total||"";
+}
+cashGrid.addEventListener("input",calcCash);
+
+/* Elements */
+const borrower=document.getElementById("borrower");
+const borrowerOther=document.getElementById("borrower_other");
+const trtype=document.getElementById("trtype");
+const mode=document.getElementById("mode");
+const accountBlock=document.getElementById("accountBlock");
+const account=document.getElementById("account");
+const given=document.getElementById("given");
+const received=document.getElementById("received");
+const givenBlock=document.getElementById("givenBlock");
+const receivedBlock=document.getElementById("receivedBlock");
 
 /* Accounts */
-const bankAccounts = ["FI","HDFC Old","HDFC New","ICICI","RBL","Kotak","SBI","IndusInd"];
-const creditCards = [
+const bankAccounts=["FI","HDFC Old","HDFC New","ICICI","RBL","Kotak","SBI","IndusInd"];
+const creditCards=[
   "Axis Flipkart","Axis MyZone","Axis Neo",
   "HDFC PhonePe","HDFC Tata Neu","HDFC Millennia",
   "HSBC","IDFC First Millenia",
@@ -168,87 +233,79 @@ const creditCards = [
   "SBI BPCL","Standard Chartered"
 ];
 
-/* Borrower Other logic */
-borrower.addEventListener("change", () => {
-  borrowerOther.classList.toggle("hidden", borrower.value !== "Other");
-});
+/* Borrower */
+borrower.onchange=()=>borrowerOther.classList.toggle("hidden",borrower.value!=="Other");
 
-/* Account logic */
-mode.addEventListener("change", () => {
-  account.innerHTML = "";
-  if (mode.value === "cash") {
+/* Mode change */
+mode.onchange=()=>{
+  account.innerHTML="";
+  cashBlock.classList.add("hidden");
+
+  document.querySelectorAll("#cashGrid input").forEach(i=>i.value="");
+  cashTotal.textContent=0;
+
+  if(mode.value==="cash"){
     accountBlock.classList.add("hidden");
+    cashBlock.classList.remove("hidden");
+    given.disabled=true;
+    received.disabled=true;
     return;
   }
+
   accountBlock.classList.remove("hidden");
-  const list = mode.value === "credit" ? creditCards : bankAccounts;
-  list.forEach(a => account.add(new Option(a, a)));
-});
+  const list = mode.value==="credit"?creditCards:bankAccounts;
+  list.forEach(a=>account.add(new Option(a,a)));
 
-/* Enable / Disable + show/hide amounts */
-trtype.addEventListener("change", () => {
-  given.value = "";
-  received.value = "";
+  given.disabled=false;
+  received.disabled=false;
+};
 
+/* Transaction type */
+trtype.onchange=()=>{
+  given.value=received.value="";
   givenBlock.classList.add("hidden");
   receivedBlock.classList.add("hidden");
 
-  if (trtype.value === "loan_given") {
-    given.disabled = false;
-    received.disabled = true;
+  if(trtype.value==="loan_given"){
     givenBlock.classList.remove("hidden");
-  } else if (trtype.value === "loan_received") {
-    received.disabled = false;
-    given.disabled = true;
-    receivedBlock.classList.remove("hidden");
+    given.disabled=mode.value==="cash";
   }
-});
+  if(trtype.value==="loan_received"){
+    receivedBlock.classList.remove("hidden");
+    received.disabled=mode.value==="cash";
+  }
+};
 
-/* Date format */
-function formatDateToDDMMMYYYY(dateStr) {
-  if (!dateStr) return "";
-  const d = new Date(dateStr);
-  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  return d.getDate() + "-" + months[d.getMonth()] + "-" + d.getFullYear();
-}
-
-/* Submit */
-document.getElementById("loanForm").addEventListener("submit", e => {
+/* ✅ SUBMIT */
+document.getElementById("loanForm").addEventListener("submit",e=>{
   e.preventDefault();
 
-  const payload = new URLSearchParams({
-    category: "loan",
-    date: formatDateToDDMMMYYYY(dateEl.value),
-    borrower: borrower.value === "Other" ? borrowerOther.value : borrower.value,
-    narration: narration.value,
-    invoice: invoice.value,
-    mode: mode.value,
-    account: mode.value === "cash" ? "Cash" : account.value,
-    withdrawn: given.value,
-    deposit: received.value
+  const payload=new URLSearchParams({
+    date:date.value,
+    borrower:borrower.value==="Other"?borrowerOther.value:borrower.value,
+    narration:narration.value,
+    invoice:invoice.value,
+    mode:mode.value,
+    account:mode.value==="cash"?"Cash":account.value,
+    withdrawn:given.value,
+    deposit:received.value
   });
 
-  fetch(SCRIPT_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: payload
+  /* Send cash denominations */
+  document.querySelectorAll("#cashGrid input").forEach(i=>{
+    payload.append("c"+i.dataset.val,i.value||0);
+  });
+
+  fetch(SCRIPT_URL,{
+    method:"POST",
+    headers:{"Content-Type":"application/x-www-form-urlencoded"},
+    body:payload
   })
-  .then(() => {
-    alert("Loan saved successfully");
-    e.target.reset();
-    givenBlock.classList.add("hidden");
-    receivedBlock.classList.add("hidden");
-    accountBlock.classList.add("hidden");
-    borrowerOther.classList.add("hidden");
-  })
-  .catch(() => alert("Error saving loan"));
+  .then(r=>r.text())
+  .then(t=>alert(t))
+  .catch(()=>alert("Error saving loan"));
 });
 </script>
 
 </body>
 </html>
-
-
-
-
-
