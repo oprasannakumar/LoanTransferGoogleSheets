@@ -303,7 +303,33 @@ document.getElementById("loanForm").addEventListener("submit",e=>{
     body:payload
   })
   .then(r=>r.text())
-  .then(t=>alert(t))
+ .then(t => {
+  alert(t);
+
+  // ✅ Preserve date
+  const currentDate = date.value;
+
+  // Reset full form
+  loanForm.reset();
+
+  // Restore date
+  date.value = currentDate;
+
+  // Hide conditional blocks
+  borrowerOther.classList.add("hidden");
+  accountBlock.classList.add("hidden");
+  cashBlock.classList.add("hidden");
+  givenBlock.classList.add("hidden");
+  receivedBlock.classList.add("hidden");
+
+  // Reset cash denominations
+  document.querySelectorAll("#cashGrid input").forEach(i => i.value = 0);
+
+  // Reset amounts
+  given.value = "";
+  received.value = "";
+})
+
   .catch(()=>alert("Error saving loan"));
 });
 </script>
