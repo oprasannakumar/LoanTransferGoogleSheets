@@ -19,7 +19,7 @@ form{
   max-width:420px;
   margin:auto;
   padding:22px;
-  border-radius:14px;
+  border-radius:16px;
   box-shadow:0 18px 40px rgba(0,0,0,.08);
 }
 
@@ -64,45 +64,53 @@ button:hover{background:#16a34a}
 .hidden{display:none}
 input:disabled{background:#f3f4f6}
 
-/* Cash section */
+/* ---------- Cash Denominations (NEW UI) ---------- */
 .cash-box{
   margin-top:16px;
-  padding:16px;
-  border-radius:12px;
-  background:#f9fafb;
+  padding:18px;
+  border-radius:16px;
+  background:#ffffff;
   border:1px solid #e5e7eb;
 }
 
-.cash-grid{
+.cash-title{
+  font-weight:600;
+  color:#2563eb;
+  margin-bottom:14px;
+}
+
+.denom-grid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:12px;
+  gap:14px;
 }
 
-.cash-item{
-  display:flex;
-  align-items:center;
-  gap:8px;
+.denom-card{
+  background:#f9fafb;
+  border:1px solid #e5e7eb;
+  border-radius:14px;
+  padding:14px 10px;
+  text-align:center;
 }
 
-.cash-item span{
-  width:36px;
-  text-align:right;
+.denom-label{
   font-weight:600;
+  margin-bottom:8px;
 }
 
-.cash-item input{
+.denom-card input{
   width:100%;
-  height:40px;
-  padding:0 10px;
-  border-radius:8px;
+  height:38px;
+  border-radius:10px;
   border:1px solid #d1d5db;
+  text-align:center;
+  font-weight:600;
 }
 
-.cash-total{
-  margin-top:14px;
-  font-weight:600;
-  text-align:right;
+.denom-card input:focus{
+  outline:none;
+  border-color:#22c55e;
+  box-shadow:0 0 0 2px rgba(34,197,94,.15);
 }
 </style>
 </head>
@@ -158,9 +166,10 @@ input:disabled{background:#f3f4f6}
 <select id="account"></select>
 </div>
 
+<!-- 💵 Cash Denominations -->
 <div id="cashBlock" class="cash-box hidden">
-  <div class="cash-grid" id="cashGrid"></div>
-  <div class="cash-total">Total: ₹ <span id="cashTotal">0</span></div>
+  <div class="cash-title">Cash Denominations</div>
+  <div class="denom-grid" id="cashGrid"></div>
 </div>
 
 <div id="givenBlock" class="hidden">
@@ -177,37 +186,25 @@ input:disabled{background:#f3f4f6}
 </form>
 
 <script>
-/* 🔗 YOUR WEB APP URL */
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwyTfn2IpNxL4TRotdjxoHBWehfYOvWQTHnj7hBSHXWzpLabnTpJmf1RKRaA8nnEMMP/exec";
+/* Web App URL */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyfrhubGkIdQuhAIi04Bz7JfTzL9DEIPVfryjoFgopWZJoEV694GRr5RINzbf1gmer_/exec";
 
-/* Set today's date */
+/* Set today */
 document.getElementById("date").value =
   new Date().toISOString().split("T")[0];
 
-/* Cash denominations */
+/* Denominations */
 const denoms=[500,200,100,50,20,10,5,2,1];
 const cashGrid=document.getElementById("cashGrid");
 const cashBlock=document.getElementById("cashBlock");
-const cashTotal=document.getElementById("cashTotal");
 
 denoms.forEach(d=>{
   cashGrid.innerHTML+=`
-    <div class="cash-item">
-      <span>₹${d}</span>
-      <input type="number" min="0" data-val="${d}">
+    <div class="denom-card">
+      <div class="denom-label">₹${d}</div>
+      <input type="number" min="0" value="0" data-val="${d}">
     </div>`;
 });
-
-function calcCash(){
-  let total=0;
-  document.querySelectorAll("#cashGrid input").forEach(i=>{
-    total+=Number(i.value||0)*Number(i.dataset.val);
-  });
-  cashTotal.textContent=total;
-  if(trtype.value==="loan_given") given.value=total||"";
-  if(trtype.value==="loan_received") received.value=total||"";
-}
-cashGrid.addEventListener("input",calcCash);
 
 /* Elements */
 const borrower=document.getElementById("borrower");
@@ -224,25 +221,31 @@ const receivedBlock=document.getElementById("receivedBlock");
 /* Accounts */
 const bankAccounts=["FI","HDFC Old","HDFC New","ICICI","RBL","Kotak","SBI","IndusInd"];
 const creditCards=[
-  "Axis Flipkart","Axis MyZone","Axis Neo",
-  "HDFC PhonePe","HDFC Tata Neu","HDFC Millennia",
-  "HSBC","IDFC First Millenia",
-  "ICICI Amazon","ICICI Coral","ICICI Expressions",
-  "Indusind Plat Aura EDGE","Indusind Legend",
-  "Yes Finbooster","Kotak League","Kotak Image",
-  "SBI BPCL","Standard Chartered"
+"Axis Flipkart","Axis MyZone","Axis Neo","HDFC PhonePe","HDFC Tata Neu",
+"HDFC Millennia","HSBC","IDFC First Millenia","ICICI Amazon","ICICI Coral",
+"ICICI Expressions","Indusind Plat Aura EDGE","Indusind Legend",
+"Yes Finbooster","Kotak League","Kotak Image","SBI BPCL","Standard Chartered"
 ];
 
 /* Borrower */
 borrower.onchange=()=>borrowerOther.classList.toggle("hidden",borrower.value!=="Other");
 
+/* Calculate cash → amount (no total shown) */
+function calcCash(){
+  let total=0;
+  document.querySelectorAll("#cashGrid input").forEach(i=>{
+    total+=Number(i.value||0)*Number(i.dataset.val);
+  });
+  if(trtype.value==="loan_given") given.value=total||"";
+  if(trtype.value==="loan_received") received.value=total||"";
+}
+cashGrid.addEventListener("input",calcCash);
+
 /* Mode change */
 mode.onchange=()=>{
   account.innerHTML="";
   cashBlock.classList.add("hidden");
-
-  document.querySelectorAll("#cashGrid input").forEach(i=>i.value="");
-  cashTotal.textContent=0;
+  document.querySelectorAll("#cashGrid input").forEach(i=>i.value=0);
 
   if(mode.value==="cash"){
     accountBlock.classList.add("hidden");
@@ -255,7 +258,6 @@ mode.onchange=()=>{
   accountBlock.classList.remove("hidden");
   const list = mode.value==="credit"?creditCards:bankAccounts;
   list.forEach(a=>account.add(new Option(a,a)));
-
   given.disabled=false;
   received.disabled=false;
 };
@@ -276,7 +278,7 @@ trtype.onchange=()=>{
   }
 };
 
-/* ✅ SUBMIT */
+/* Submit */
 document.getElementById("loanForm").addEventListener("submit",e=>{
   e.preventDefault();
 
@@ -291,7 +293,6 @@ document.getElementById("loanForm").addEventListener("submit",e=>{
     deposit:received.value
   });
 
-  /* Send cash denominations */
   document.querySelectorAll("#cashGrid input").forEach(i=>{
     payload.append("c"+i.dataset.val,i.value||0);
   });
