@@ -12,6 +12,7 @@
       font-family: 'Inter', Arial, sans-serif;
       background: linear-gradient(135deg, #eef2f7, #f9fafb);
       padding: 20px;
+      margin: 0;
     }
 
     form {
@@ -26,6 +27,7 @@
     h3 {
       text-align: center;
       margin-bottom: 16px;
+      margin-top: 0;
     }
 
     label {
@@ -36,9 +38,7 @@
       color: #374151;
     }
 
-    input,
-    select,
-    button {
+    input, select, button {
       width: 100%;
       height: 44px;
       margin-top: 6px;
@@ -47,10 +47,11 @@
       border: 1px solid #d1d5db;
       font-size: 14px;
       box-sizing: border-box;
+      background: #fff;
+      color: #111827;
     }
 
-    input:focus,
-    select:focus {
+    input:focus, select:focus {
       outline: none;
       border-color: #22c55e;
       box-shadow: 0 0 0 3px rgba(34,197,94,.15);
@@ -65,19 +66,13 @@
       cursor: pointer;
     }
 
-    button:hover {
-      background: #16a34a;
-    }
+    button:hover { background: #16a34a; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    .hidden {
-      display: none;
-    }
+    .hidden { display: none; }
+    input:disabled { background: #f3f4f6; }
 
-    input:disabled {
-      background: #f3f4f6;
-    }
-
-    /* ---------- Cash Denominations ---------- */
+    /* Cash Denominations */
     .cash-box {
       margin-top: 16px;
       padding: 18px;
@@ -109,105 +104,25 @@
     .denom-label {
       font-weight: 600;
       margin-bottom: 8px;
+      font-size: 12px;
     }
 
     .denom-card input {
       width: 100%;
       height: 38px;
-      border-radius: 10px;
-      border: 1px solid #d1d5db;
       text-align: center;
       font-weight: 600;
     }
 
-    .denom-card input:focus {
-      outline: none;
-      border-color: #22c55e;
-      box-shadow: 0 0 0 2px rgba(34,197,94,.15);
-    }
-/* =========================
-   🌓 DOUBLE CLICK / DOUBLE TAP DARK MODE
-========================= */
-
-let lastTap = 0;
-
-/* Desktop double click */
-document.addEventListener("dblclick", () => {
-  document.body.classList.toggle("dark");
-});
-
-/* Mobile double tap */
-document.addEventListener("touchend", () => {
-  const now = Date.now();
-  if (now - lastTap < 300) {
-    document.body.classList.toggle("dark");
-  }
-  lastTap = now;
-});
-/* =========================
-   🌙 COMPLETE DARK MODE FIX
-========================= */
-
-body.dark {
-  background: linear-gradient(135deg, #020617, #0f172a);
-}
-
-/* Form */
-body.dark form {
-  background: #020617;
-  box-shadow: 0 18px 40px rgba(0,0,0,.6);
-}
-
-/* Labels & headings */
-body.dark h3,
-body.dark label,
-body.dark .cash-title,
-body.dark .denom-label {
-  color: #e5e7eb;
-}
-
-/* ALL inputs + selects */
-body.dark input,
-body.dark select {
-  background: #020617;
-  color: #f9fafb;
-  border-color: #334155;
-}
-
-/* Placeholder text */
-body.dark input::placeholder {
-  color: #94a3b8;
-}
-
-/* Buttons */
-body.dark button {
-  background: #22c55e;
-  color: #022c22;
-}
-
-/* Cash UI */
-body.dark .cash-box,
-body.dark .denom-card {
-  background: #020617;
-  border-color: #334155;
-}
-
-/* Focus highlight */
-body.dark input:focus,
-body.dark select:focus {
-  border-color: #22c55e;
-  box-shadow: 0 0 0 3px rgba(34,197,94,.25);
-}
-
-/* Date picker icon */
-body.dark input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(1);
-}
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
+    /* Dark Mode */
+    body.dark { background: linear-gradient(135deg, #020617, #0f172a); color: #e5e7eb; }
+    body.dark form { background: #020617; box-shadow: 0 18px 40px rgba(0,0,0,.6); border: 1px solid #334155; }
+    body.dark h3, body.dark label, body.dark .cash-title, body.dark .denom-label { color: #e5e7eb; }
+    body.dark input, body.dark select { background: #020617; color: #f9fafb; border-color: #334155; }
+    body.dark input::placeholder { color: #94a3b8; }
+    body.dark button { background: #22c55e; color: #022c22; }
+    body.dark .cash-box, body.dark .denom-card { background: #020617; border-color: #334155; }
+    body.dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
   </style>
 </head>
 
@@ -232,12 +147,7 @@ button:disabled {
     <option>Other</option>
   </select>
 
-  <input
-    type="text"
-    id="borrower_other"
-    class="hidden"
-    placeholder="Enter borrower name"
-  >
+  <input type="text" id="borrower_other" class="hidden" placeholder="Enter borrower name">
 
   <label>Narration</label>
   <input type="text" id="narration" required>
@@ -267,7 +177,6 @@ button:disabled {
     <select id="account"></select>
   </div>
 
-  <!-- 💵 Cash Denominations -->
   <div id="cashBlock" class="cash-box hidden">
     <div class="cash-title">Cash Denominations</div>
     <div class="denom-grid" id="cashGrid"></div>
@@ -284,101 +193,39 @@ button:disabled {
   </div>
 
   <button type="submit">Save Loan</button>
-  <div id="syncIndicator" style="
-  margin-top:10px;
-  font-size:12px;
-  color:#6b7280;
-  text-align:center;
-  display:none
-"></div>
 </form>
 
 <script>
-  /* Web App URL */
-  const SCRIPT_URL =
-    "https://script.google.com/macros/s/AKfycbyfrhubGkIdQuhAIi04Bz7JfTzL9DEIPVfryjoFgopWZJoEV694GRr5RINzbf1gmer_/exec";
-let isSubmitting = false;
-/* ===== OFFLINE QUEUE (INDEXED DB) ===== */
-const DB_NAME = "loanQueueDB";
-const STORE_NAME = "loanQueue";
-let loanDB;
+  /* ⚠️ REPLACE THIS WITH YOUR NEW DEPLOYED SCRIPT URL */
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwkXPnWFXc9DCEF-p0P-tyO7bfs5TMh3WDmordo3YvVr5KcQ7Dr5wHljA1NlZZwtBtY/exec";
+  
+  let isSubmitting = false;
 
-(function initLoanDB(){
-  const req = indexedDB.open(DB_NAME, 1);
-  req.onupgradeneeded = e => {
-    e.target.result.createObjectStore(STORE_NAME, { autoIncrement: true });
-  };
-  req.onsuccess = e => {
-    loanDB = e.target.result;
-  };
-})();
-
-function saveLoanOffline(data){
-  if (!loanDB) return;
-  const tx = loanDB.transaction(STORE_NAME, "readwrite");
-  tx.objectStore(STORE_NAME).add(data);
-}
-
-function getAllOfflineLoans(){
-  return new Promise(resolve => {
-    if (!loanDB) return resolve([]);
-    const tx = loanDB.transaction(STORE_NAME, "readonly");
-    const req = tx.objectStore(STORE_NAME).getAll();
-    req.onsuccess = () => resolve(req.result || []);
-  });
-}
-
-function clearOfflineLoans(){
-  if (!loanDB) return;
-  const tx = loanDB.transaction(STORE_NAME, "readwrite");
-  tx.objectStore(STORE_NAME).clear();
-}
-const syncIndicator = document.getElementById("syncIndicator");
-
-async function updateLoanPendingCount(){
-  const items = await getAllOfflineLoans();
-  if (!items.length) {
-    syncIndicator.style.display = "none";
-    return;
-  }
-  syncIndicator.textContent = `⏳ ${items.length} pending sync`;
-  syncIndicator.style.display = "block";
-}
-
-async function syncOfflineLoans(){
-  if (!navigator.onLine) return;
-
-  const items = await getAllOfflineLoans();
-  if (!items.length) return;
-
-  syncIndicator.textContent = "🔄 Syncing offline data…";
-  syncIndicator.style.display = "block";
-
-  for (let body of items) {
-    try {
-      await fetch(SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body
-      });
-    } catch {
-      updateLoanPendingCount();
-      return;
-    }
-  }
-
-  clearOfflineLoans();
-  syncIndicator.style.display = "none";
-}
-  /* Set today */
-  document.getElementById("date").value =
-    new Date().toISOString().split("T")[0];
-
-  /* Denominations */
-  const denoms = [500,200,100,50,20,10,5,2,1];
+  /* ===== FORM LOGIC ===== */
+  
+  // Elements
+  const date = document.getElementById("date");
+  const borrower = document.getElementById("borrower");
+  const borrowerOther = document.getElementById("borrower_other");
+  const narration = document.getElementById("narration");
+  const invoice = document.getElementById("invoice");
+  const trtype = document.getElementById("trtype");
+  const mode = document.getElementById("mode");
+  const account = document.getElementById("account");
+  const accountBlock = document.getElementById("accountBlock");
   const cashGrid = document.getElementById("cashGrid");
   const cashBlock = document.getElementById("cashBlock");
+  const given = document.getElementById("given");
+  const received = document.getElementById("received");
+  const givenBlock = document.getElementById("givenBlock");
+  const receivedBlock = document.getElementById("receivedBlock");
+  const loanForm = document.getElementById("loanForm");
 
+  // Init Date
+  date.value = new Date().toISOString().split("T")[0];
+
+  // Denominations
+  const denoms = [500,200,100,50,20,10,5,2,1];
   denoms.forEach(d => {
     cashGrid.innerHTML += `
       <div class="denom-card">
@@ -388,54 +235,27 @@ async function syncOfflineLoans(){
     `;
   });
 
-  /* Elements */
-  const borrower = document.getElementById("borrower");
-  const borrowerOther = document.getElementById("borrower_other");
-  const trtype = document.getElementById("trtype");
-  const mode = document.getElementById("mode");
-  const accountBlock = document.getElementById("accountBlock");
-  const account = document.getElementById("account");
-  const given = document.getElementById("given");
-  const received = document.getElementById("received");
-  const givenBlock = document.getElementById("givenBlock");
-  const receivedBlock = document.getElementById("receivedBlock");
+  // Accounts
+  const bankAccounts = ["FI","HDFC Old","HDFC New","ICICI","RBL","Kotak","SBI","IndusInd"];
+  const creditCards = ["Axis Flipkart","Axis MyZone","Axis Neo","HDFC PhonePe","HDFC Tata Neu","HDFC Millennia","HSBC","IDFC First Millenia","ICICI Amazon","ICICI Coral","ICICI Expressions","Indusind Plat Aura EDGE","Indusind Legend","Yes Finbooster","Kotak League","Kotak Image","SBI BPCL","Standard Chartered"];
 
-  /* Accounts */
-  const bankAccounts = [
-    "FI","HDFC Old","HDFC New","ICICI","RBL","Kotak","SBI","IndusInd"
-  ];
+  // Logic
+  borrower.onchange = () => borrowerOther.classList.toggle("hidden", borrower.value !== "Other");
 
-  const creditCards = [
-    "Axis Flipkart","Axis MyZone","Axis Neo",
-    "HDFC PhonePe","HDFC Tata Neu","HDFC Millennia",
-    "HSBC","IDFC First Millenia",
-    "ICICI Amazon","ICICI Coral","ICICI Expressions",
-    "Indusind Plat Aura EDGE","Indusind Legend",
-    "Yes Finbooster","Kotak League","Kotak Image",
-    "SBI BPCL","Standard Chartered"
-  ];
-
-  /* Borrower */
-  borrower.onchange = () =>
-    borrowerOther.classList.toggle("hidden", borrower.value !== "Other");
-
-  /* Calculate cash → amount */
-  function calcCash() {
+  // Cash Calculation
+  cashGrid.addEventListener("input", () => {
     let total = 0;
-    document.querySelectorAll("#cashGrid input").forEach(i => {
+    cashGrid.querySelectorAll("input").forEach(i => {
       total += Number(i.value || 0) * Number(i.dataset.val);
     });
-
     if (trtype.value === "loan_given") given.value = total || "";
     if (trtype.value === "loan_received") received.value = total || "";
-  }
-  cashGrid.addEventListener("input", calcCash);
+  });
 
-  /* Mode change */
   mode.onchange = () => {
     account.innerHTML = "";
     cashBlock.classList.add("hidden");
-    document.querySelectorAll("#cashGrid input").forEach(i => i.value = 0);
+    cashGrid.querySelectorAll("input").forEach(i => i.value = 0);
 
     if (mode.value === "cash") {
       accountBlock.classList.add("hidden");
@@ -448,12 +268,10 @@ async function syncOfflineLoans(){
     accountBlock.classList.remove("hidden");
     const list = mode.value === "credit" ? creditCards : bankAccounts;
     list.forEach(a => account.add(new Option(a, a)));
-
     given.disabled = false;
     received.disabled = false;
   };
 
-  /* Transaction type */
   trtype.onchange = () => {
     given.value = received.value = "";
     givenBlock.classList.add("hidden");
@@ -463,125 +281,87 @@ async function syncOfflineLoans(){
       givenBlock.classList.remove("hidden");
       given.disabled = mode.value === "cash";
     }
-
     if (trtype.value === "loan_received") {
       receivedBlock.classList.remove("hidden");
       received.disabled = mode.value === "cash";
     }
   };
 
-  /* Submit */
- document.getElementById("loanForm").addEventListener("submit", async e => {
-  e.preventDefault();
+  /* ===== SUBMIT HANDLER ===== */
+  loanForm.addEventListener("submit", async e => {
+    e.preventDefault();
 
-  /* 🚫 Prevent double submission */
-  if (isSubmitting) return;
-const payload = new URLSearchParams({
-    date: date.value,
-    borrower: borrower.value === "Other" ? borrowerOther.value : borrower.value,
-    narration: narration.value,
-    invoice: invoice.value,
-    mode: mode.value,
-    account: mode.value === "cash" ? "Cash" : account.value,
-    withdrawn: given.value,
-    deposit: received.value
-  });
+    // 1. ONLINE CHECK
+    if (!navigator.onLine) {
+      alert("⚠️ No internet connection.\nPlease connect to the network to save data.");
+      return;
+    }
 
-  document.querySelectorAll("#cashGrid input").forEach(i => {
-    payload.append("c" + i.dataset.val, i.value || 0);
-  });
-  
-  /* 🌐 Network check */
-  if (!navigator.onLine) {
-  saveLoanOffline(payload.toString());
-  updateLoanPendingCount();
-  alert("No internet. Loan saved offline.");
+    if (isSubmitting) return;
 
-  const keepDate = date.value;
-  loanForm.reset();
-  date.value = keepDate;
+    const payload = {
+      date: date.value,
+      borrower: borrower.value === "Other" ? borrowerOther.value : borrower.value,
+      narration: narration.value,
+      invoice: invoice.value,
+      mode: mode.value,
+      trtype: trtype.value,
+      account: mode.value === "cash" ? "Cash" : account.value,
+      withdrawn: given.value,
+      deposit: received.value
+    };
 
-  borrowerOther.classList.add("hidden");
-  accountBlock.classList.add("hidden");
-  cashBlock.classList.add("hidden");
-  givenBlock.classList.add("hidden");
-  receivedBlock.classList.add("hidden");
-
-  document.querySelectorAll("#cashGrid input").forEach(i => i.value = 0);
-  given.value = "";
-  received.value = "";
-
-  return;
-}
-  isSubmitting = true;
-
-  const submitBtn = loanForm.querySelector("button");
-  submitBtn.disabled = true;
-  submitBtn.textContent = "Saving...";
-
-  
-  try {
-    const response = await fetch(SCRIPT_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: payload
+    // Add cash denoms
+    cashGrid.querySelectorAll("input").forEach(i => {
+      payload["c" + i.dataset.val] = i.value || 0;
     });
 
-    if (!response.ok) throw new Error("Server error");
+    isSubmitting = true;
+    const submitBtn = loanForm.querySelector("button");
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Saving...";
 
-    const text = await response.text();
-    alert(text);
+    try {
+      const response = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
 
-    /* ✅ Reset but keep date */
-    const currentDate = date.value;
-    loanForm.reset();
-    date.value = currentDate;
+      if (!response.ok) throw new Error("Server error");
+      const text = await response.text();
+      alert(text);
+      
+      // Reset Form
+      const keepDate = date.value;
+      loanForm.reset();
+      date.value = keepDate;
+      borrowerOther.classList.add("hidden");
+      accountBlock.classList.add("hidden");
+      cashBlock.classList.add("hidden");
+      givenBlock.classList.add("hidden");
+      receivedBlock.classList.add("hidden");
+      cashGrid.querySelectorAll("input").forEach(i => i.value = 0);
 
-    borrowerOther.classList.add("hidden");
-    accountBlock.classList.add("hidden");
-    cashBlock.classList.add("hidden");
-    givenBlock.classList.add("hidden");
-    receivedBlock.classList.add("hidden");
+    } catch (err) {
+      console.error(err);
+      alert("❌ Submission failed.\nPlease check your connection and try again.");
+    } finally {
+      isSubmitting = false;
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
+    }
+  });
 
-    document.querySelectorAll("#cashGrid input").forEach(i => i.value = 0);
-    given.value = "";
-    received.value = "";
+  /* Dark Mode Toggle */
+  let lastTap = 0;
+  document.addEventListener("dblclick", () => document.body.classList.toggle("dark"));
+  document.addEventListener("touchend", () => {
+    const now = Date.now();
+    if (now - lastTap < 300) document.body.classList.toggle("dark");
+    lastTap = now;
+  });
 
-  } catch (err) {
-    alert("Failed to save. Please check your internet and try again.");
-  } finally {
-    /* 🔓 Unlock submit */
-    isSubmitting = false;
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Save Loan";
-  }
-});
-
-/* =========================
-   🌓 DOUBLE CLICK / DOUBLE TAP DARK MODE
-========================= */
-
-let lastTap = 0;
-
-/* Desktop double click */
-document.addEventListener("dblclick", () => {
-  document.body.classList.toggle("dark");
-});
-
-/* Mobile double tap */
-document.addEventListener("touchend", () => {
-  const now = Date.now();
-  if (now - lastTap < 300) {
-    document.body.classList.toggle("dark");
-  }
-  lastTap = now;
-});
-document.addEventListener("DOMContentLoaded", () => {
-  updateLoanPendingCount();
-  syncOfflineLoans();
-});
-
-window.addEventListener("online", syncOfflineLoans);
 </script>
 
 </body>
