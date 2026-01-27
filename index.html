@@ -196,7 +196,7 @@
 </form>
 
 <script>
-  /* ⚠️ REPLACE THIS WITH YOUR NEW DEPLOYED SCRIPT URL */
+  /* ⚠️ REPLACE THIS WITH YOUR DEPLOYED SCRIPT URL */
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwkXPnWFXc9DCEF-p0P-tyO7bfs5TMh3WDmordo3YvVr5KcQ7Dr5wHljA1NlZZwtBtY/exec";
   
   let isSubmitting = false;
@@ -291,7 +291,24 @@
   loanForm.addEventListener("submit", async e => {
     e.preventDefault();
 
-    // 1. ONLINE CHECK
+    // 1. AMOUNT VALIDATION (NEW)
+    const type = trtype.value;
+    const gVal = Number(given.value);
+    const rVal = Number(received.value);
+
+    if (type === "loan_given" && (gVal <= 0 || !given.value)) {
+      alert("⚠️ You selected 'Loan Given'.\nPlease enter a valid Given Amount.");
+      given.focus();
+      return;
+    }
+
+    if (type === "loan_received" && (rVal <= 0 || !received.value)) {
+      alert("⚠️ You selected 'Loan Received'.\nPlease enter a valid Received Amount.");
+      received.focus();
+      return;
+    }
+
+    // 2. ONLINE CHECK
     if (!navigator.onLine) {
       alert("⚠️ No internet connection.\nPlease connect to the network to save data.");
       return;
