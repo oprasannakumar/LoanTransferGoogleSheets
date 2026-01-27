@@ -1,1 +1,489 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <title>Loan Entry</title> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <style> @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap'); body{ font-family:'Inter',Arial,sans-serif; background:linear-gradient(135deg,#eef2f7,#f9fafb); padding:20px; } form{ background:#ffffff; max-width:420px; margin:auto; padding:22px; border-radius:16px; box-shadow:0 18px 40px rgba(0,0,0,.08); } h3{text-align:center;margin-bottom:16px} label{ font-size:13px; font-weight:600; margin-top:14px; display:block; color:#374151; } input,select,button{ width:100%; height:44px; margin-top:6px; padding:0 14px; border-radius:10px; border:1px solid #d1d5db; font-size:14px; box-sizing:border-box; } input:focus,select:focus{ outline:none; border-color:#22c55e; box-shadow:0 0 0 3px rgba(34,197,94,.15); } button{ background:#22c55e; color:#fff; border:none; margin-top:20px; font-weight:600; cursor:pointer; } button:hover{background:#16a34a} .hidden{display:none} input:disabled{background:#f3f4f6} /* ---------- Cash Denominations (NEW UI) ---------- */ .cash-box{ margin-top:16px; padding:18px; border-radius:16px; background:#ffffff; border:1px solid #e5e7eb; } .cash-title{ font-weight:600; color:#2563eb; margin-bottom:14px; } .denom-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; } .denom-card{ background:#f9fafb; border:1px solid #e5e7eb; border-radius:14px; padding:14px 10px; text-align:center; } .denom-label{ font-weight:600; margin-bottom:8px; } .denom-card input{ width:100%; height:38px; border-radius:10px; border:1px solid #d1d5db; text-align:center; font-weight:600; } .denom-card input:focus{ outline:none; border-color:#22c55e; box-shadow:0 0 0 2px rgba(34,197,94,.15); } </style> </head> <body> <form id="loanForm"> <h3>Loan Entry</h3> <label>Date</label> <input type="date" id="date" required> <label>Borrower</label> <select id="borrower" required> <option value="">Select</option> <option>Chinnama</option> <option>Grand Father</option> <option>Mother</option> <option>Pedhamma</option> <option>Ravi Babai</option> <option>Srinivas Babai</option> <option>Vasavi</option> <option>Other</option> </select> <input type="text" id="borrower_other" class="hidden" placeholder="Enter borrower name"> <label>Narration</label> <input type="text" id="narration" required> <label>Invoice No.</label> <input type="text" id="invoice"> <label>Transaction Type</label> <select id="trtype" required> <option value="">Select</option> <option value="loan_given">Loan Given</option> <option value="loan_received">Loan Received</option> </select> <label>Payment Mode</label> <select id="mode" required> <option value="">Select</option> <option value="cash">Cash</option> <option value="debit">Debit</option> <option value="upi">UPI</option> <option value="net">Net</option> <option value="credit">Credit</option> </select> <div id="accountBlock" class="hidden"> <label>Account</label> <select id="account"></select> </div> <!-- 💵 Cash Denominations --> <div id="cashBlock" class="cash-box hidden"> <div class="cash-title">Cash Denominations</div> <div class="denom-grid" id="cashGrid"></div> </div> <div id="givenBlock" class="hidden"> <label>Given Amount</label> <input type="number" id="given"> </div> <div id="receivedBlock" class="hidden"> <label>Received Amount</label> <input type="number" id="received"> </div> <button type="submit">Save Loan</button> </form> <script> /* Web App URL */ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyfrhubGkIdQuhAIi04Bz7JfTzL9DEIPVfryjoFgopWZJoEV694GRr5RINzbf1gmer_/exec"; /* Set today */ document.getElementById("date").value = new Date().toISOString().split("T")[0]; /* Denominations */ const denoms=[500,200,100,50,20,10,5,2,1]; const cashGrid=document.getElementById("cashGrid"); const cashBlock=document.getElementById("cashBlock"); denoms.forEach(d=>{ cashGrid.innerHTML+= <div class="denom-card"> <div class="denom-label">₹${d}</div> <input type="number" min="0" value="0" data-val="${d}"> </div>; }); /* Elements */ const borrower=document.getElementById("borrower"); const borrowerOther=document.getElementById("borrower_other"); const trtype=document.getElementById("trtype"); const mode=document.getElementById("mode"); const accountBlock=document.getElementById("accountBlock"); const account=document.getElementById("account"); const given=document.getElementById("given"); const received=document.getElementById("received"); const givenBlock=document.getElementById("givenBlock"); const receivedBlock=document.getElementById("receivedBlock"); /* Accounts */ const bankAccounts=["FI","HDFC Old","HDFC New","ICICI","RBL","Kotak","SBI","IndusInd"]; const creditCards=[ "Axis Flipkart","Axis MyZone","Axis Neo","HDFC PhonePe","HDFC Tata Neu", "HDFC Millennia","HSBC","IDFC First Millenia","ICICI Amazon","ICICI Coral", "ICICI Expressions","Indusind Plat Aura EDGE","Indusind Legend", "Yes Finbooster","Kotak League","Kotak Image","SBI BPCL","Standard Chartered" ]; /* Borrower */ borrower.onchange=()=>borrowerOther.classList.toggle("hidden",borrower.value!=="Other"); /* Calculate cash → amount (no total shown) */ function calcCash(){ let total=0; document.querySelectorAll("#cashGrid input").forEach(i=>{ total+=Number(i.value||0)*Number(i.dataset.val); }); if(trtype.value==="loan_given") given.value=total||""; if(trtype.value==="loan_received") received.value=total||""; } cashGrid.addEventListener("input",calcCash); /* Mode change */ mode.onchange=()=>{ account.innerHTML=""; cashBlock.classList.add("hidden"); document.querySelectorAll("#cashGrid input").forEach(i=>i.value=0); if(mode.value==="cash"){ accountBlock.classList.add("hidden"); cashBlock.classList.remove("hidden"); given.disabled=true; received.disabled=true; return; } accountBlock.classList.remove("hidden"); const list = mode.value==="credit"?creditCards:bankAccounts; list.forEach(a=>account.add(new Option(a,a))); given.disabled=false; received.disabled=false; }; /* Transaction type */ trtype.onchange=()=>{ given.value=received.value=""; givenBlock.classList.add("hidden"); receivedBlock.classList.add("hidden"); if(trtype.value==="loan_given"){ givenBlock.classList.remove("hidden"); given.disabled=mode.value==="cash"; } if(trtype.value==="loan_received"){ receivedBlock.classList.remove("hidden"); received.disabled=mode.value==="cash"; } }; /* Submit */ document.getElementById("loanForm").addEventListener("submit",e=>{ e.preventDefault(); const payload=new URLSearchParams({ date:date.value, borrower:borrower.value==="Other"?borrowerOther.value:borrower.value, narration:narration.value, invoice:invoice.value, mode:mode.value, account:mode.value==="cash"?"Cash":account.value, withdrawn:given.value, deposit:received.value }); document.querySelectorAll("#cashGrid input").forEach(i=>{ payload.append("c"+i.dataset.val,i.value||0); }); fetch(SCRIPT_URL,{ method:"POST", headers:{"Content-Type":"application/x-www-form-urlencoded"}, body:payload }) .then(r=>r.text()) .then(t => { alert(t); // ✅ Preserve date const currentDate = date.value; // Reset full form loanForm.reset(); // Restore date date.value = currentDate; // Hide conditional blocks borrowerOther.classList.add("hidden"); accountBlock.classList.add("hidden"); cashBlock.classList.add("hidden"); givenBlock.classList.add("hidden"); receivedBlock.classList.add("hidden"); // Reset cash denominations document.querySelectorAll("#cashGrid input").forEach(i => i.value = 0); // Reset amounts given.value = ""; received.value = ""; }) .catch(()=>alert("Error saving loan")); }); </script> </body> </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Loan Entry</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: linear-gradient(135deg, #eef2f7, #f9fafb);
+      padding: 20px;
+    }
+
+    form {
+      background: #ffffff;
+      max-width: 420px;
+      margin: auto;
+      padding: 22px;
+      border-radius: 16px;
+      box-shadow: 0 18px 40px rgba(0,0,0,.08);
+    }
+
+    h3 {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 14px;
+      display: block;
+      color: #374151;
+    }
+
+    input,
+    select,
+    button {
+      width: 100%;
+      height: 44px;
+      margin-top: 6px;
+      padding: 0 14px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #22c55e;
+      box-shadow: 0 0 0 3px rgba(34,197,94,.15);
+    }
+
+    button {
+      background: #22c55e;
+      color: #fff;
+      border: none;
+      margin-top: 20px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #16a34a;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    input:disabled {
+      background: #f3f4f6;
+    }
+
+    /* ---------- Cash Denominations ---------- */
+    .cash-box {
+      margin-top: 16px;
+      padding: 18px;
+      border-radius: 16px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+    }
+
+    .cash-title {
+      font-weight: 600;
+      color: #2563eb;
+      margin-bottom: 14px;
+    }
+
+    .denom-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .denom-card {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 14px 10px;
+      text-align: center;
+    }
+
+    .denom-label {
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .denom-card input {
+      width: 100%;
+      height: 38px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .denom-card input:focus {
+      outline: none;
+      border-color: #22c55e;
+      box-shadow: 0 0 0 2px rgba(34,197,94,.15);
+    }
+/* =========================
+   🌓 DOUBLE CLICK / DOUBLE TAP DARK MODE
+========================= */
+
+let lastTap = 0;
+
+/* Desktop double click */
+document.addEventListener("dblclick", () => {
+  document.body.classList.toggle("dark");
+});
+
+/* Mobile double tap */
+document.addEventListener("touchend", () => {
+  const now = Date.now();
+  if (now - lastTap < 300) {
+    document.body.classList.toggle("dark");
+  }
+  lastTap = now;
+});
+/* =========================
+   🌙 COMPLETE DARK MODE FIX
+========================= */
+
+body.dark {
+  background: linear-gradient(135deg, #020617, #0f172a);
+}
+
+/* Form */
+body.dark form {
+  background: #020617;
+  box-shadow: 0 18px 40px rgba(0,0,0,.6);
+}
+
+/* Labels & headings */
+body.dark h3,
+body.dark label,
+body.dark .cash-title,
+body.dark .denom-label {
+  color: #e5e7eb;
+}
+
+/* ALL inputs + selects */
+body.dark input,
+body.dark select {
+  background: #020617;
+  color: #f9fafb;
+  border-color: #334155;
+}
+
+/* Placeholder text */
+body.dark input::placeholder {
+  color: #94a3b8;
+}
+
+/* Buttons */
+body.dark button {
+  background: #22c55e;
+  color: #022c22;
+}
+
+/* Cash UI */
+body.dark .cash-box,
+body.dark .denom-card {
+  background: #020617;
+  border-color: #334155;
+}
+
+/* Focus highlight */
+body.dark input:focus,
+body.dark select:focus {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34,197,94,.25);
+}
+
+/* Date picker icon */
+body.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+  </style>
+</head>
+
+<body>
+
+<form id="loanForm">
+  <h3>Loan Entry</h3>
+
+  <label>Date</label>
+  <input type="date" id="date" required>
+
+  <label>Borrower</label>
+  <select id="borrower" required>
+    <option value="">Select</option>
+    <option>Chinnama</option>
+    <option>Grand Father</option>
+    <option>Mother</option>
+    <option>Pedhamma</option>
+    <option>Ravi Babai</option>
+    <option>Srinivas Babai</option>
+    <option>Vasavi</option>
+    <option>Other</option>
+  </select>
+
+  <input
+    type="text"
+    id="borrower_other"
+    class="hidden"
+    placeholder="Enter borrower name"
+  >
+
+  <label>Narration</label>
+  <input type="text" id="narration" required>
+
+  <label>Invoice No.</label>
+  <input type="text" id="invoice">
+
+  <label>Transaction Type</label>
+  <select id="trtype" required>
+    <option value="">Select</option>
+    <option value="loan_given">Loan Given</option>
+    <option value="loan_received">Loan Received</option>
+  </select>
+
+  <label>Payment Mode</label>
+  <select id="mode" required>
+    <option value="">Select</option>
+    <option value="cash">Cash</option>
+    <option value="debit">Debit</option>
+    <option value="upi">UPI</option>
+    <option value="net">Net</option>
+    <option value="credit">Credit</option>
+  </select>
+
+  <div id="accountBlock" class="hidden">
+    <label>Account</label>
+    <select id="account"></select>
+  </div>
+
+  <!-- 💵 Cash Denominations -->
+  <div id="cashBlock" class="cash-box hidden">
+    <div class="cash-title">Cash Denominations</div>
+    <div class="denom-grid" id="cashGrid"></div>
+  </div>
+
+  <div id="givenBlock" class="hidden">
+    <label>Given Amount</label>
+    <input type="number" id="given">
+  </div>
+
+  <div id="receivedBlock" class="hidden">
+    <label>Received Amount</label>
+    <input type="number" id="received">
+  </div>
+
+  <button type="submit">Save Loan</button>
+</form>
+
+<script>
+  /* Web App URL */
+  const SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbyfrhubGkIdQuhAIi04Bz7JfTzL9DEIPVfryjoFgopWZJoEV694GRr5RINzbf1gmer_/exec";
+let isSubmitting = false;
+
+  /* Set today */
+  document.getElementById("date").value =
+    new Date().toISOString().split("T")[0];
+
+  /* Denominations */
+  const denoms = [500,200,100,50,20,10,5,2,1];
+  const cashGrid = document.getElementById("cashGrid");
+  const cashBlock = document.getElementById("cashBlock");
+
+  denoms.forEach(d => {
+    cashGrid.innerHTML += `
+      <div class="denom-card">
+        <div class="denom-label">₹${d}</div>
+        <input type="number" min="0" value="0" data-val="${d}">
+      </div>
+    `;
+  });
+
+  /* Elements */
+  const borrower = document.getElementById("borrower");
+  const borrowerOther = document.getElementById("borrower_other");
+  const trtype = document.getElementById("trtype");
+  const mode = document.getElementById("mode");
+  const accountBlock = document.getElementById("accountBlock");
+  const account = document.getElementById("account");
+  const given = document.getElementById("given");
+  const received = document.getElementById("received");
+  const givenBlock = document.getElementById("givenBlock");
+  const receivedBlock = document.getElementById("receivedBlock");
+
+  /* Accounts */
+  const bankAccounts = [
+    "FI","HDFC Old","HDFC New","ICICI","RBL","Kotak","SBI","IndusInd"
+  ];
+
+  const creditCards = [
+    "Axis Flipkart","Axis MyZone","Axis Neo",
+    "HDFC PhonePe","HDFC Tata Neu","HDFC Millennia",
+    "HSBC","IDFC First Millenia",
+    "ICICI Amazon","ICICI Coral","ICICI Expressions",
+    "Indusind Plat Aura EDGE","Indusind Legend",
+    "Yes Finbooster","Kotak League","Kotak Image",
+    "SBI BPCL","Standard Chartered"
+  ];
+
+  /* Borrower */
+  borrower.onchange = () =>
+    borrowerOther.classList.toggle("hidden", borrower.value !== "Other");
+
+  /* Calculate cash → amount */
+  function calcCash() {
+    let total = 0;
+    document.querySelectorAll("#cashGrid input").forEach(i => {
+      total += Number(i.value || 0) * Number(i.dataset.val);
+    });
+
+    if (trtype.value === "loan_given") given.value = total || "";
+    if (trtype.value === "loan_received") received.value = total || "";
+  }
+  cashGrid.addEventListener("input", calcCash);
+
+  /* Mode change */
+  mode.onchange = () => {
+    account.innerHTML = "";
+    cashBlock.classList.add("hidden");
+    document.querySelectorAll("#cashGrid input").forEach(i => i.value = 0);
+
+    if (mode.value === "cash") {
+      accountBlock.classList.add("hidden");
+      cashBlock.classList.remove("hidden");
+      given.disabled = true;
+      received.disabled = true;
+      return;
+    }
+
+    accountBlock.classList.remove("hidden");
+    const list = mode.value === "credit" ? creditCards : bankAccounts;
+    list.forEach(a => account.add(new Option(a, a)));
+
+    given.disabled = false;
+    received.disabled = false;
+  };
+
+  /* Transaction type */
+  trtype.onchange = () => {
+    given.value = received.value = "";
+    givenBlock.classList.add("hidden");
+    receivedBlock.classList.add("hidden");
+
+    if (trtype.value === "loan_given") {
+      givenBlock.classList.remove("hidden");
+      given.disabled = mode.value === "cash";
+    }
+
+    if (trtype.value === "loan_received") {
+      receivedBlock.classList.remove("hidden");
+      received.disabled = mode.value === "cash";
+    }
+  };
+
+  /* Submit */
+ document.getElementById("loanForm").addEventListener("submit", async e => {
+  e.preventDefault();
+
+  /* 🚫 Prevent double submission */
+  if (isSubmitting) return;
+
+  /* 🌐 Network check */
+  if (!navigator.onLine) {
+    alert("No internet connection. Please check your network and try again.");
+    return;
+  }
+
+  isSubmitting = true;
+
+  const submitBtn = loanForm.querySelector("button");
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Saving...";
+
+  const payload = new URLSearchParams({
+    date: date.value,
+    borrower: borrower.value === "Other" ? borrowerOther.value : borrower.value,
+    narration: narration.value,
+    invoice: invoice.value,
+    mode: mode.value,
+    account: mode.value === "cash" ? "Cash" : account.value,
+    withdrawn: given.value,
+    deposit: received.value
+  });
+
+  document.querySelectorAll("#cashGrid input").forEach(i => {
+    payload.append("c" + i.dataset.val, i.value || 0);
+  });
+
+  try {
+    const response = await fetch(SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: payload
+    });
+
+    if (!response.ok) throw new Error("Server error");
+
+    const text = await response.text();
+    alert(text);
+
+    /* ✅ Reset but keep date */
+    const currentDate = date.value;
+    loanForm.reset();
+    date.value = currentDate;
+
+    borrowerOther.classList.add("hidden");
+    accountBlock.classList.add("hidden");
+    cashBlock.classList.add("hidden");
+    givenBlock.classList.add("hidden");
+    receivedBlock.classList.add("hidden");
+
+    document.querySelectorAll("#cashGrid input").forEach(i => i.value = 0);
+    given.value = "";
+    received.value = "";
+
+  } catch (err) {
+    alert("Failed to save. Please check your internet and try again.");
+  } finally {
+    /* 🔓 Unlock submit */
+    isSubmitting = false;
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Save Loan";
+  }
+});
+
+/* =========================
+   🌓 DOUBLE CLICK / DOUBLE TAP DARK MODE
+========================= */
+
+let lastTap = 0;
+
+/* Desktop double click */
+document.addEventListener("dblclick", () => {
+  document.body.classList.toggle("dark");
+});
+
+/* Mobile double tap */
+document.addEventListener("touchend", () => {
+  const now = Date.now();
+  if (now - lastTap < 300) {
+    document.body.classList.toggle("dark");
+  }
+  lastTap = now;
+});
+
+</script>
+
+</body>
+</html>
