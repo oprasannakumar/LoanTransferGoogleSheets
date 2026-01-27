@@ -284,6 +284,13 @@ button:disabled {
   </div>
 
   <button type="submit">Save Loan</button>
+  <div id="syncIndicator" style="
+  margin-top:10px;
+  font-size:12px;
+  color:#6b7280;
+  text-align:center;
+  display:none
+"></div>
 </form>
 
 <script>
@@ -291,7 +298,78 @@ button:disabled {
   const SCRIPT_URL =
     "https://script.google.com/macros/s/AKfycbyfrhubGkIdQuhAIi04Bz7JfTzL9DEIPVfryjoFgopWZJoEV694GRr5RINzbf1gmer_/exec";
 let isSubmitting = false;
+/* ===== OFFLINE QUEUE (INDEXED DB) ===== */
+const DB_NAME = "loanQueueDB";
+const STORE_NAME = "loanQueue";
+let loanDB;
 
+(function initLoanDB(){
+  const req = indexedDB.open(DB_NAME, 1);
+  req.onupgradeneeded = e => {
+    e.target.result.createObjectStore(STORE_NAME, { autoIncrement: true });
+  };
+  req.onsuccess = e => {
+    loanDB = e.target.result;
+  };
+})();
+
+function saveLoanOffline(data){
+  if (!loanDB) return;
+  const tx = loanDB.transaction(STORE_NAME, "readwrite");
+  tx.objectStore(STORE_NAME).add(data);
+}
+
+function getAllOfflineLoans(){
+  return new Promise(resolve => {
+    if (!loanDB) return resolve([]);
+    const tx = loanDB.transaction(STORE_NAME, "readonly");
+    const req = tx.objectStore(STORE_NAME).getAll();
+    req.onsuccess = () => resolve(req.result || []);
+  });
+}
+
+function clearOfflineLoans(){
+  if (!loanDB) return;
+  const tx = loanDB.transaction(STORE_NAME, "readwrite");
+  tx.objectStore(STORE_NAME).clear();
+}
+const syncIndicator = document.getElementById("syncIndicator");
+
+async function updateLoanPendingCount(){
+  const items = await getAllOfflineLoans();
+  if (!items.length) {
+    syncIndicator.style.display = "none";
+    return;
+  }
+  syncIndicator.textContent = `⏳ ${items.length} pending sync`;
+  syncIndicator.style.display = "block";
+}
+
+async function syncOfflineLoans(){
+  if (!navigator.onLine) return;
+
+  const items = await getAllOfflineLoans();
+  if (!items.length) return;
+
+  syncIndicator.textContent = "🔄 Syncing offline data…";
+  syncIndicator.style.display = "block";
+
+  for (let body of items) {
+    try {
+      await fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body
+      });
+    } catch {
+      updateLoanPendingCount();
+      return;
+    }
+  }
+
+  clearOfflineLoans();
+  syncIndicator.style.display = "none";
+}
   /* Set today */
   document.getElementById("date").value =
     new Date().toISOString().split("T")[0];
@@ -398,20 +476,7 @@ let isSubmitting = false;
 
   /* 🚫 Prevent double submission */
   if (isSubmitting) return;
-
-  /* 🌐 Network check */
-  if (!navigator.onLine) {
-    alert("No internet connection. Please check your network and try again.");
-    return;
-  }
-
-  isSubmitting = true;
-
-  const submitBtn = loanForm.querySelector("button");
-  submitBtn.disabled = true;
-  submitBtn.textContent = "Saving...";
-
-  const payload = new URLSearchParams({
+const payload = new URLSearchParams({
     date: date.value,
     borrower: borrower.value === "Other" ? borrowerOther.value : borrower.value,
     narration: narration.value,
@@ -425,7 +490,36 @@ let isSubmitting = false;
   document.querySelectorAll("#cashGrid input").forEach(i => {
     payload.append("c" + i.dataset.val, i.value || 0);
   });
+  
+  /* 🌐 Network check */
+  if (!navigator.onLine) {
+  saveLoanOffline(payload.toString());
+  updateLoanPendingCount();
+  alert("No internet. Loan saved offline.");
 
+  const keepDate = date.value;
+  loanForm.reset();
+  date.value = keepDate;
+
+  borrowerOther.classList.add("hidden");
+  accountBlock.classList.add("hidden");
+  cashBlock.classList.add("hidden");
+  givenBlock.classList.add("hidden");
+  receivedBlock.classList.add("hidden");
+
+  document.querySelectorAll("#cashGrid input").forEach(i => i.value = 0);
+  given.value = "";
+  received.value = "";
+
+  return;
+}
+  isSubmitting = true;
+
+  const submitBtn = loanForm.querySelector("button");
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Saving...";
+
+  
   try {
     const response = await fetch(SCRIPT_URL, {
       method: "POST",
@@ -482,7 +576,12 @@ document.addEventListener("touchend", () => {
   }
   lastTap = now;
 });
+document.addEventListener("DOMContentLoaded", () => {
+  updateLoanPendingCount();
+  syncOfflineLoans();
+});
 
+window.addEventListener("online", syncOfflineLoans);
 </script>
 
 </body>
