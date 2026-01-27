@@ -330,6 +330,8 @@ body.dark button:hover{
 <script>
 /* Web App URL */
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyfrhubGkIdQuhAIi04Bz7JfTzL9DEIPVfryjoFgopWZJoEV694GRr5RINzbf1gmer_/exec";
+let isSubmitting = false;
+const submitBtn = document.querySelector('#loanForm button[type="submit"]');
 
 /* Set today */
 document.getElementById("date").value =
@@ -421,59 +423,80 @@ trtype.onchange=()=>{
 };
 
 /* Submit */
-document.getElementById("loanForm").addEventListener("submit",e=>{
+document.getElementById("loanForm").addEventListener("submit", e => {
   e.preventDefault();
 
-  const payload=new URLSearchParams({
-    date:date.value,
-    borrower:borrower.value==="Other"?borrowerOther.value:borrower.value,
-    narration:narration.value,
-    invoice:invoice.value,
-    mode:mode.value,
-    account:mode.value==="cash"?"Cash":account.value,
-    withdrawn:given.value,
-    deposit:received.value
+  /* 🔒 Duplicate submit protection */
+  if (isSubmitting) return;
+
+  /* 🌐 Offline protection */
+  if (!navigator.onLine) {
+    alert("No internet connection. Loan not saved.");
+    return;
+  }
+
+  isSubmitting = true;
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Saving...";
+
+  const payload = new URLSearchParams({
+    date: date.value,
+    borrower: borrower.value === "Other" ? borrowerOther.value : borrower.value,
+    narration: narration.value,
+    invoice: invoice.value,
+    mode: mode.value,
+    account: mode.value === "cash" ? "Cash" : account.value,
+    withdrawn: given.value || 0,
+    deposit: received.value || 0
   });
 
-  document.querySelectorAll("#cashGrid input").forEach(i=>{
-    payload.append("c"+i.dataset.val,i.value||0);
+  /* Cash denominations */
+  document.querySelectorAll("#cashGrid input").forEach(i => {
+    payload.append("c" + i.dataset.val, i.value || 0);
   });
 
-  fetch(SCRIPT_URL,{
-    method:"POST",
-    headers:{"Content-Type":"application/x-www-form-urlencoded"},
-    body:payload
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: payload
   })
-  .then(r=>r.text())
- .then(t => {
-  alert(t);
+  .then(r => {
+    if (!r.ok) throw new Error("Network error");
+    return r.text();
+  })
+  .then(t => {
+    alert(t);
 
-  // ✅ Preserve date
-  const currentDate = date.value;
+    /* ✅ Preserve date */
+    const currentDate = date.value;
 
-  // Reset full form
-  loanForm.reset();
+    loanForm.reset();
+    date.value = currentDate;
 
-  // Restore date
-  date.value = currentDate;
+    borrowerOther.classList.add("hidden");
+    accountBlock.classList.add("hidden");
+    cashBlock.classList.add("hidden");
+    givenBlock.classList.add("hidden");
+    receivedBlock.classList.add("hidden");
 
-  // Hide conditional blocks
-  borrowerOther.classList.add("hidden");
-  accountBlock.classList.add("hidden");
-  cashBlock.classList.add("hidden");
-  givenBlock.classList.add("hidden");
-  receivedBlock.classList.add("hidden");
-
-  // Reset cash denominations
-  document.querySelectorAll("#cashGrid input").forEach(i => i.value = 0);
-
-  // Reset amounts
-  given.value = "";
-  received.value = "";
-})
-
-  .catch(()=>alert("Error saving loan"));
+    document.querySelectorAll("#cashGrid input").forEach(i => i.value = 0);
+    given.value = "";
+    received.value = "";
+  })
+  .catch(() => {
+    alert("Error saving loan. Please try again.");
+  })
+  .finally(() => {
+    resetSubmitState();
+  });
 });
+
+/* 🔁 Reset submit safely */
+function resetSubmitState() {
+  isSubmitting = false;
+  submitBtn.disabled = false;
+  submitBtn.textContent = "Save Loan";
+}
 /* ===== Double Tap / Double Click Theme Toggle ===== */
 let lastTap = 0;
 const loanForm = document.getElementById("loanForm");
@@ -489,4 +512,3 @@ loanForm.addEventListener("click", () => {
 
 </body>
 </html>
-
