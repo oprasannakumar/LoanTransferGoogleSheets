@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Loan Entry</title>
+  <title>Loan Entry (Offline Capable)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
@@ -71,6 +71,19 @@
 
     .hidden { display: none; }
     input:disabled { background: #f3f4f6; }
+
+    /* Sync Indicator */
+    #syncStatus {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      text-align: center;
+      display: none;
+    }
+    .sync-pending { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
+    .sync-success { background: #f0fdf4; color: #15803d; border: 1px solid #dcfce7; }
+    .sync-progress { background: #eff6ff; color: #1d4ed8; border: 1px solid #dbeafe; }
 
     /* Cash Denominations */
     .cash-box {
@@ -193,6 +206,8 @@
   </div>
 
   <button type="submit">Save Loan</button>
+  
+  <div id="syncStatus"></div>
 </form>
 
 <script>
@@ -201,9 +216,118 @@
   
   let isSubmitting = false;
 
-  /* ===== FORM LOGIC ===== */
+  /* ===== 1. INDEXED DB SETUP (OFFLINE STORAGE) ===== */
+  const DB_NAME = "LoanAppDB";
+  const STORE_NAME = "loanQueue";
+  let db;
+
+  const initDB = () => {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, 1);
+      
+      request.onupgradeneeded = (event) => {
+        db = event.target.result;
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          db.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
+        }
+      };
+
+      request.onsuccess = (event) => {
+        db = event.target.result;
+        resolve(db);
+        checkPendingSync(); // Check for pending items on load
+      };
+
+      request.onerror = (event) => {
+        console.error("DB Error", event);
+        reject("DB Error");
+      };
+    });
+  };
+
+  const saveToQueue = (data) => {
+    const transaction = db.transaction([STORE_NAME], "readwrite");
+    const store = transaction.objectStore(STORE_NAME);
+    store.add(data);
+    updateSyncStatus("pending", "Saved offline. Will sync when online.");
+  };
+
+  const getQueue = () => {
+    return new Promise((resolve) => {
+      const transaction = db.transaction([STORE_NAME], "readonly");
+      const store = transaction.objectStore(STORE_NAME);
+      const request = store.getAll();
+      request.onsuccess = () => resolve(request.result);
+    });
+  };
+
+  const clearItem = (id) => {
+    const transaction = db.transaction([STORE_NAME], "readwrite");
+    const store = transaction.objectStore(STORE_NAME);
+    store.delete(id);
+  };
+
+  /* ===== 2. SYNC LOGIC ===== */
+  const syncStatusDiv = document.getElementById("syncStatus");
+
+  function updateSyncStatus(type, msg) {
+    syncStatusDiv.style.display = "block";
+    syncStatusDiv.className = ""; // clear classes
+    syncStatusDiv.textContent = msg;
+    
+    if (type === "pending") syncStatusDiv.classList.add("sync-pending");
+    if (type === "progress") syncStatusDiv.classList.add("sync-progress");
+    if (type === "success") syncStatusDiv.classList.add("sync-success");
+  }
+
+  async function checkPendingSync() {
+    const queue = await getQueue();
+    if (queue.length > 0) {
+      if (navigator.onLine) {
+        processQueue(queue);
+      } else {
+        updateSyncStatus("pending", `⚠️ ${queue.length} entries waiting for network.`);
+      }
+    } else {
+      syncStatusDiv.style.display = "none";
+    }
+  }
+
+  async function processQueue(queue) {
+    updateSyncStatus("progress", "🔄 Syncing data to server...");
+    
+    for (const item of queue) {
+      try {
+        await fetch(SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify(item)
+        });
+        // If successful, remove from DB
+        clearItem(item.id);
+      } catch (error) {
+        console.error("Sync failed for item", item, error);
+        // Stop processing if network fails mid-sync
+        return; 
+      }
+    }
+    
+    // Check if queue is empty after loop
+    const remaining = await getQueue();
+    if (remaining.length === 0) {
+      updateSyncStatus("success", "✅ All offline data synced successfully!");
+      setTimeout(() => syncStatusDiv.style.display = "none", 3000);
+    }
+  }
+
+  // Listen for network restoration
+  window.addEventListener('online', checkPendingSync);
   
-  // Elements
+  // Init DB on load
+  initDB();
+
+
+  /* ===== 3. FORM LOGIC ===== */
+  
   const date = document.getElementById("date");
   const borrower = document.getElementById("borrower");
   const borrowerOther = document.getElementById("borrower_other");
@@ -287,35 +411,30 @@
     }
   };
 
-  /* ===== SUBMIT HANDLER ===== */
+  /* ===== 4. SUBMIT HANDLER ===== */
   loanForm.addEventListener("submit", async e => {
     e.preventDefault();
 
-    // 1. AMOUNT VALIDATION (NEW)
+    // VALIDATION
     const type = trtype.value;
     const gVal = Number(given.value);
     const rVal = Number(received.value);
 
     if (type === "loan_given" && (gVal <= 0 || !given.value)) {
-      alert("⚠️ You selected 'Loan Given'.\nPlease enter a valid Given Amount.");
+      alert("⚠️ Please enter a valid Given Amount.");
       given.focus();
       return;
     }
 
     if (type === "loan_received" && (rVal <= 0 || !received.value)) {
-      alert("⚠️ You selected 'Loan Received'.\nPlease enter a valid Received Amount.");
+      alert("⚠️ Please enter a valid Received Amount.");
       received.focus();
-      return;
-    }
-
-    // 2. ONLINE CHECK
-    if (!navigator.onLine) {
-      alert("⚠️ No internet connection.\nPlease connect to the network to save data.");
       return;
     }
 
     if (isSubmitting) return;
 
+    // PREPARE PAYLOAD
     const payload = {
       date: date.value,
       borrower: borrower.value === "Other" ? borrowerOther.value : borrower.value,
@@ -328,7 +447,6 @@
       deposit: received.value
     };
 
-    // Add cash denoms
     cashGrid.querySelectorAll("input").forEach(i => {
       payload["c" + i.dataset.val] = i.value || 0;
     });
@@ -337,19 +455,9 @@
     const submitBtn = loanForm.querySelector("button");
     const originalText = submitBtn.textContent;
     submitBtn.disabled = true;
-    submitBtn.textContent = "Saving...";
+    submitBtn.textContent = "Processing...";
 
-    try {
-      const response = await fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(payload)
-      });
-
-      if (!response.ok) throw new Error("Server error");
-      const text = await response.text();
-      alert(text);
-      
-      // Reset Form
+    const resetForm = () => {
       const keepDate = date.value;
       loanForm.reset();
       date.value = keepDate;
@@ -359,18 +467,46 @@
       givenBlock.classList.add("hidden");
       receivedBlock.classList.add("hidden");
       cashGrid.querySelectorAll("input").forEach(i => i.value = 0);
+    };
 
-    } catch (err) {
-      console.error(err);
-      alert("❌ Submission failed.\nPlease check your connection and try again.");
-    } finally {
+    // --- LOGIC SPLIT: ONLINE vs OFFLINE ---
+    
+    if (!navigator.onLine) {
+      // OFFLINE MODE
+      saveToQueue(payload);
+      alert("⚠️ No internet connection.\nEntry saved offline. It will sync when connection is restored.");
+      resetForm();
       isSubmitting = false;
       submitBtn.disabled = false;
       submitBtn.textContent = originalText;
+    } else {
+      // ONLINE MODE
+      try {
+        const response = await fetch(SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) throw new Error("Server error");
+        const text = await response.text();
+        alert(text);
+        resetForm();
+
+      } catch (err) {
+        console.error("Submission Failed, attempting offline save", err);
+        // Fallback: If fetch fails (e.g. timeout), save to DB
+        saveToQueue(payload);
+        alert("❌ Connection unstable.\nSaved offline. Will sync automatically.");
+        resetForm();
+      } finally {
+        isSubmitting = false;
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
     }
   });
 
-  /* Dark Mode Toggle */
+  /* Dark Mode */
   let lastTap = 0;
   document.addEventListener("dblclick", () => document.body.classList.toggle("dark"));
   document.addEventListener("touchend", () => {
