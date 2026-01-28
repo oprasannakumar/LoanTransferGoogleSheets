@@ -92,8 +92,38 @@
     table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 750px; table-layout: fixed; }
     th { background: var(--bg-cash); color: var(--text-muted); font-weight: 600; text-align: center; padding: 10px; border-bottom: 1px solid var(--border-color); text-transform: uppercase; font-size: 10px; }
     td { padding: 10px; border-bottom: 1px solid var(--border-color); vertical-align: middle; text-align: center; color: var(--text-main); }
-    .btn-del-mini { background: #fee2e2; color: #ef4444; border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; margin: 0 auto; }
-    body.dark .btn-del-mini { background: #450a0a; color: #f87171; }
+   /* Center the button inside the TD */
+td:last-child {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%; /* Ensures vertical centering if row height grows */
+  border-bottom: 1px solid var(--border-color);
+}
+
+.btn-del-mini { 
+  background: #fee2e2; 
+  color: #ef4444; 
+  border: none; 
+  width: 32px; 
+  height: 32px; 
+  border-radius: 8px; 
+  cursor: pointer; 
+  display: flex;       /* Added to center the icon inside the button */
+  align-items: center; 
+  justify-content: center;
+  margin: 0;           /* Reset margin since flex handles centering */
+  transition: opacity 0.2s;
+}
+
+.btn-del-mini:hover {
+  opacity: 0.8;
+}
+
+body.dark .btn-del-mini { 
+  background: #450a0a; 
+  color: #f87171; 
+}
   </style>
 </head>
 
