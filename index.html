@@ -2,86 +2,98 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Loan Entry (Optimized UI)</title>
+  <title>Loan Entry (Fixed Dark Cash UI)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
-    :root { --primary: #22c55e; --primary-hover: #16a34a; --danger: #ef4444; }
+    :root { 
+      --primary: #22c55e; 
+      --primary-hover: #16a34a; 
+      --secondary: #3b82f6; 
+      --danger: #ef4444; 
+      --bg-body: linear-gradient(135deg, #eef2f7, #f9fafb);
+      --bg-card: #ffffff;
+      --bg-input: #ffffff;
+      --bg-cash: #f9fafb;
+      --text-main: #111827;
+      --text-label: #374151;
+      --text-muted: #6b7280;
+      --border-color: #d1d5db;
+    }
+
+    body.dark { 
+      --bg-body: #020617; 
+      --bg-card: #0f172a;
+      --bg-input: #1e293b;
+      --bg-cash: #1e293b;
+      --text-main: #f9fafb;
+      --text-label: #94a3b8;
+      --text-muted: #64748b;
+      --border-color: #334155;
+    }
 
     body {
       font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #eef2f7, #f9fafb);
+      background: var(--bg-body);
+      color: var(--text-main);
       padding: 20px; margin: 0; min-height: 100vh;
+      transition: background 0.3s;
     }
 
     form {
-      background: #ffffff; max-width: 440px; margin: auto; padding: 22px;
+      background: var(--bg-card); max-width: 440px; margin: auto; padding: 22px;
       border-radius: 16px; box-shadow: 0 18px 40px rgba(0,0,0,.08);
+      border: 1px solid var(--border-color);
     }
 
-    h3 { text-align: center; margin-bottom: 16px; margin-top: 0; color: #111827; }
-    label { font-size: 13px; font-weight: 600; margin-top: 14px; display:block; color: #374151; }
+    h3 { text-align: center; margin-bottom: 16px; margin-top: 0; color: var(--text-main); }
+    label { font-size: 13px; font-weight: 600; margin-top: 14px; display:block; color: var(--text-label); }
 
     input, select, button {
       width: 100%; height: 44px; margin-top: 6px; padding: 0 14px;
-      border-radius: 10px; border: 1px solid #d1d5db; font-size: 14px; box-sizing: border-box;
+      border-radius: 10px; border: 1px solid var(--border-color); font-size: 14px; box-sizing: border-box;
+      background: var(--bg-input); color: var(--text-main);
     }
 
     input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(34,197,94,.15); }
 
     .was-validated input:invalid, .was-validated select:invalid,
-    input.manual-invalid, select.manual-invalid { border-color: var(--danger); background-color: #fffafb; }
+    input.manual-invalid, select.manual-invalid { border-color: var(--danger); background-color: rgba(239, 68, 68, 0.05); }
     .err-msg { color: var(--danger); font-size: 11px; margin-top: 4px; display: none; font-weight: 500; }
     .was-validated :invalid ~ .err-msg, .manual-invalid ~ .err-msg { display: block; }
 
-    button { background: var(--primary); color: #fff; border: none; margin-top: 20px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-    button:hover:not(:disabled) { background: var(--primary-hover); }
+    .btn-group { display: grid; grid-template-columns: 1.5fr 1fr; gap: 10px; margin-top: 20px; }
+    #mainSubmitBtn { background: var(--primary); color: #fff; border: none; font-weight: 600; cursor: pointer; margin-top: 0; }
+    #btnRepeat { background: var(--bg-card); color: var(--secondary); border: 1px solid var(--secondary); font-weight: 600; cursor: pointer; margin-top: 0; }
+    
     button:disabled { opacity: 0.6; cursor: not-allowed; }
-
     .hidden { display: none !important; }
 
-    /* Cash Grid */
-    .cash-box { margin-top: 16px; padding: 18px; border-radius: 16px; background: #f9fafb; border: 1px solid #e5e7eb; }
+    /* Cash Grid Fixed Dark Mode UI */
+    .cash-box { margin-top: 16px; padding: 18px; border-radius: 16px; background: var(--bg-cash); border: 1px solid var(--border-color); }
     .denom-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .denom-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 5px; text-align: center; }
-    .denom-label { font-weight: 600; margin-bottom: 5px; font-size: 11px; color: #6b7280; }
-    .denom-card input { height: 32px; text-align: center; margin-top: 0; border-radius: 6px; }
+    .denom-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 5px; text-align: center; }
+    .denom-label { font-weight: 600; margin-bottom: 5px; font-size: 11px; color: var(--text-muted); }
+    .denom-card input { height: 32px; text-align: center; margin-top: 0; border-radius: 6px; background: var(--bg-input); color: var(--text-main); }
 
-    /* Sync UI Row */
     .sync-wrapper { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 15px; }
-    #syncIndicator { font-size: 12px; color: #4b5563; font-weight: 600; background: #f3f4f6; padding: 6px 12px; border-radius: 20px; }
-    #btnViewQueue { width: auto; height: 30px; font-size: 11px; background: #fff; color: #374151; border: 1px solid #d1d5db; padding: 0 12px; margin-top: 0; }
+    #syncIndicator { font-size: 12px; color: var(--text-label); font-weight: 600; background: var(--bg-cash); padding: 6px 12px; border-radius: 20px; }
+    #btnViewQueue { width: auto; height: 30px; font-size: 11px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); padding: 0 12px; margin-top: 0; }
 
-    /* Modal Spacing Refinement */
-    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1000; display: flex; justify-content: center; align-items: center; }
-    .modal-content { background: #fff; width: 95%; max-width: 850px; max-height: 85vh; border-radius: 14px; display: flex; flex-direction: column; overflow: hidden; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f3f4f6; padding: 10px 20px; }
-    .modal-header h4 { margin: 0; color: #111827; font-size: 15px; }
-    .close-modal { font-size: 24px; cursor: pointer; color: #9ca3af; }
+    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1000; display: flex; justify-content: center; align-items: center; }
+    .modal-content { background: var(--bg-card); color: var(--text-main); width: 95%; max-width: 850px; max-height: 85vh; border-radius: 14px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--border-color); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding: 10px 20px; background: var(--bg-cash); }
+    .modal-header h4 { margin: 0; color: var(--text-main); font-size: 15px; }
+    .close-modal { font-size: 24px; cursor: pointer; color: var(--text-muted); }
 
-    .table-container { overflow-x: auto; flex-grow: 1; background: #fff; margin-top: 0; }
-    table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 750px; table-layout: fixed; border-top: none; }
-    th { background: #f8fafc; color: #64748b; font-weight: 600; text-align: center; padding: 10px; border-bottom: 1px solid #e5e7eb; text-transform: uppercase; font-size: 10px; }
-    
-    td { padding: 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; text-align: center; color: #374151; height: 1px; }
-    
-    .action-cell-container { display: flex; align-items: center; justify-content: center; height: 100%; width: 100%; }
-    
-    .btn-del-mini { 
-      background: #fee2e2; color: #ef4444; border: none; width: 32px; height: 32px; 
-      border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-      margin: 0 auto;
-    }
-
-    .amt-val { font-weight: 700; font-size: 13px; }
-
-    body.dark { background: #020617; }
-    body.dark form, body.dark .modal-content { background: #0f172a; color: #e5e7eb; border: 1px solid #334155; }
-    body.dark input, body.dark select { background: #1e293b; color: #f9fafb; border-color: #334155; }
-    body.dark th { background: #1e293b; border-bottom-color: #334155; }
-    body.dark #btnViewQueue { background: #1e293b; color: #e5e7eb; border-color: #334155; }
+    .table-container { overflow-x: auto; flex-grow: 1; background: var(--bg-card); }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 750px; table-layout: fixed; }
+    th { background: var(--bg-cash); color: var(--text-muted); font-weight: 600; text-align: center; padding: 10px; border-bottom: 1px solid var(--border-color); text-transform: uppercase; font-size: 10px; }
+    td { padding: 10px; border-bottom: 1px solid var(--border-color); vertical-align: middle; text-align: center; color: var(--text-main); }
+    .btn-del-mini { background: #fee2e2; color: #ef4444; border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; margin: 0 auto; }
+    body.dark .btn-del-mini { background: #450a0a; color: #f87171; }
   </style>
 </head>
 
@@ -129,7 +141,7 @@
   </select>
 
   <div id="accountBlock" class="hidden">
-    <label>Account</label>
+    <label>Account / Platform</label>
     <select id="account" required><option value="">Select Account</option></select>
     <div class="err-msg">Select an account</div>
   </div>
@@ -150,7 +162,10 @@
     <div class="err-msg">Amount must be greater than zero</div>
   </div>
 
-  <button type="submit" id="mainSubmitBtn">Save Loan</button>
+  <div class="btn-group">
+    <button type="submit" id="mainSubmitBtn">Save Loan</button>
+    <button type="button" id="btnRepeat">↺ Repeat Last</button>
+  </div>
   
   <div class="sync-wrapper">
     <div id="syncIndicator" class="hidden"></div>
@@ -184,9 +199,14 @@
 
 <script>
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqPjzifT1pGTVRBv9zPT7KtbTqthUunk1zNEPuS_-4gHPghWfGonbndTnZXFsSgbe-vQ/exec";
-  let isSubmitting = false;
+  
+  const bankAccounts = ["FI","HDFC Old","HDFC New","ICICI","IndusInd","Kotak","RBL","SBI"];
+  const creditCards = ["Axis Flipkart","Axis MyZone","Axis Neo","HDFC PhonePe","HDFC Tata Neu","HDFC Millennia","HSBC","IDFC First Millenia","ICICI Amazon","ICICI Coral","ICICI Expressions","Indusind Legend","SBI BPCL"];
+  const rewardPlatforms = ["Amazon", "Flipkart", "Supermoney", "Payzapp", "MobiKwik", "Tata Neu", "Others"];
+  const denoms = [500,200,100,50,20,10,5,2,1];
 
-  const form = document.getElementById("loanForm"), date = document.getElementById("date"), borrower = document.getElementById("borrower"), borrowerOther = document.getElementById("borrower_other"), otherGroup = document.getElementById("otherGroup"), narration = document.getElementById("narration"), invoice = document.getElementById("invoice"), trtype = document.getElementById("trtype"), mode = document.getElementById("mode"), account = document.getElementById("account"), accountBlock = document.getElementById("accountBlock"), accountOther = document.getElementById("account_other"), accountOtherBlock = document.getElementById("accountOtherBlock"), cashGrid = document.getElementById("cashGrid"), cashBlock = document.getElementById("cashBlock"), amtInput = document.getElementById("amtInput"), amtBlock = document.getElementById("amtBlock"), amtLabel = document.getElementById("amtLabel"), submitBtn = document.getElementById("mainSubmitBtn");
+  let isSubmitting = false;
+  const form = document.getElementById("loanForm"), date = document.getElementById("date"), borrower = document.getElementById("borrower"), borrowerOther = document.getElementById("borrower_other"), otherGroup = document.getElementById("otherGroup"), narration = document.getElementById("narration"), invoice = document.getElementById("invoice"), trtype = document.getElementById("trtype"), mode = document.getElementById("mode"), account = document.getElementById("account"), accountBlock = document.getElementById("accountBlock"), accountOther = document.getElementById("account_other"), accountOtherBlock = document.getElementById("accountOtherBlock"), cashGrid = document.getElementById("cashGrid"), cashBlock = document.getElementById("cashBlock"), amtInput = document.getElementById("amtInput"), amtBlock = document.getElementById("amtBlock"), amtLabel = document.getElementById("amtLabel"), submitBtn = document.getElementById("mainSubmitBtn"), repeatBtn = document.getElementById("btnRepeat");
   const syncIndicator = document.getElementById("syncIndicator"), btnViewQueue = document.getElementById("btnViewQueue"), queueModal = document.getElementById("queueModal"), queueTableBody = document.getElementById("queueTableBody"), closeModal = document.querySelector(".close-modal");
 
   const DB_NAME = "LoanAppDB", STORE_NAME = "loanQueue";
@@ -209,13 +229,9 @@
   }
 
   date.value = new Date().toISOString().split("T")[0];
-  const denoms = [500,200,100,50,20,10,5,2,1];
   denoms.forEach(d => {
-    cashGrid.innerHTML += `<div class="denom-card"><div class="denom-label">₹${d}</div><input type="number" value="0" data-val="${d}"></div>`;
+    cashGrid.innerHTML += `<div class="denom-card"><div class="denom-label">₹${d}</div><input type="number" value="0" data-val="${d}" class="denom-input"></div>`;
   });
-
-  const accounts = ["FI","HDFC Old","HDFC New","ICICI","RBL","Kotak","SBI","IndusInd"];
-  const rewardPlatforms = ["Amazon", "Flipkart", "Supermoney", "Payzapp", "MobiKwik", "Tata Neu", "Others"];
 
   borrower.onchange = () => {
     const isOther = borrower.value === "Other";
@@ -223,41 +239,38 @@
     borrowerOther.required = isOther;
   };
 
-function updateTotals() {
-  let total = 0;
-  cashGrid.querySelectorAll("input").forEach(i => total += Number(i.value || 0) * Number(i.dataset.val));
-  if (mode.value === "cash") {
-      amtInput.value = total;
-      // Remove the manual-invalid class if total > 0
-      if(total > 0) amtInput.classList.remove("manual-invalid");
+  function updateTotals() {
+    let total = 0;
+    cashGrid.querySelectorAll("input").forEach(i => total += Number(i.value || 0) * Number(i.dataset.val));
+    if (mode.value === "cash") {
+        amtInput.value = total;
+        if(total > 0) amtInput.classList.remove("manual-invalid");
+    }
   }
-}
   cashGrid.addEventListener("input", updateTotals);
 
-mode.onchange = () => {
-  const m = mode.value;
-  const isCash = m === "cash";
-  // Fixed case sensitivity for "Rewards"
-  const isRewards = m.toLowerCase() === "rewards"; 
-  
-  cashBlock.classList.toggle("hidden", !isCash);
-  accountBlock.classList.toggle("hidden", isCash || m === "");
-  
-  // CRITICAL FIX: Disable 'required' when hidden so validation passes
-  account.required = !isCash && m !== ""; 
-  
-  accountOtherBlock.classList.add("hidden");
-  accountOther.required = false;
+  mode.onchange = () => {
+    const m = mode.value;
+    const isCash = m === "cash";
+    const isRewards = m.toLowerCase() === "rewards";
+    const isCredit = m.toLowerCase() === "credit";
+    
+    cashBlock.classList.toggle("hidden", !isCash);
+    accountBlock.classList.toggle("hidden", isCash || m === "");
+    account.required = !isCash && m !== ""; 
+    accountOtherBlock.classList.add("hidden");
+    amtInput.readOnly = isCash;
+    
+    if (!isCash && m !== "") {
+      const currentVal = account.value;
+      account.innerHTML = "<option value=''>Select Account</option>";
+      let list = (isRewards) ? rewardPlatforms : (isCredit ? creditCards : bankAccounts);
+      list.forEach(a => account.add(new Option(a, a)));
+      if (currentVal) account.value = currentVal;
+    }
+    updateTotals();
+  };
 
-  amtInput.readOnly = isCash;
-  
-  if (!isCash && m !== "") {
-    account.innerHTML = "<option value=''>Select Account</option>";
-    const list = isRewards ? rewardPlatforms : accounts;
-    list.forEach(a => account.add(new Option(a, a)));
-  }
-  updateTotals();
-};
   account.onchange = () => {
     const isOther = account.value === "Others";
     accountOtherBlock.classList.toggle("hidden", !isOther);
@@ -270,6 +283,33 @@ mode.onchange = () => {
     updateTotals();
   };
 
+  repeatBtn.onclick = () => {
+    const lastStr = localStorage.getItem("lastLoanEntry");
+    if(!lastStr) { alert("No previous entry found"); return; }
+    const last = JSON.parse(lastStr);
+
+    const isBorrowerOther = !Array.from(borrower.options).some(o => o.value === last.borrower);
+    if(isBorrowerOther) {
+      borrower.value = "Other"; borrowerOther.value = last.borrower; otherGroup.classList.remove("hidden");
+    } else {
+      borrower.value = last.borrower; otherGroup.classList.add("hidden");
+    }
+
+    trtype.value = last.trtype; trtype.onchange();
+    mode.value = last.mode; mode.onchange();
+
+    if(last.mode !== 'cash') {
+      const isAccOther = last.accountOtherUsed;
+      if(isAccOther) {
+        account.value = "Others"; accountOther.value = last.account; accountOtherBlock.classList.remove("hidden");
+      } else { account.value = last.account; }
+    }
+
+    narration.value = ""; amtInput.value = "";
+    document.querySelectorAll(".denom-input").forEach(i => i.value = 0);
+    narration.focus();
+  };
+
   form.onsubmit = async e => {
     e.preventDefault();
     form.classList.add("was-validated");
@@ -280,14 +320,15 @@ mode.onchange = () => {
     if (isSubmitting) return;
 
     const finalAccount = mode.value === "cash" ? "Cash" : (account.value === "Others" ? accountOther.value : account.value);
-
     const payload = {
       date: date.value, borrower: borrower.value === "Other" ? borrowerOther.value : borrower.value,
       narration: narration.value, invoice: invoice.value, mode: mode.value, trtype: trtype.value,
-      account: finalAccount, withdrawn: trtype.value === "loan_given" ? amtInput.value : 0, deposit: trtype.value === "loan_received" ? amtInput.value : 0
+      account: finalAccount, withdrawn: trtype.value === "loan_given" ? amtInput.value : 0, deposit: trtype.value === "loan_received" ? amtInput.value : 0,
+      accountOtherUsed: account.value === "Others"
     };
     cashGrid.querySelectorAll("input").forEach(i => payload["c" + i.dataset.val] = i.value || 0);
 
+    localStorage.setItem("lastLoanEntry", JSON.stringify(payload));
     isSubmitting = true; submitBtn.textContent = "Processing...";
     
     if (!navigator.onLine) {
@@ -314,7 +355,6 @@ mode.onchange = () => {
   }
 
   function renderQueueTable() {
-    queueTableBody.innerHTML = "<tr><td colspan='6'>Refreshing...</td></tr>";
     const tx = db.transaction(STORE_NAME, "readonly").objectStore(STORE_NAME).getAll();
     tx.onsuccess = () => {
       const items = tx.result;
@@ -326,16 +366,9 @@ mode.onchange = () => {
           <td>${item.date}</td>
           <td style="font-weight:600">${item.borrower}</td>
           <td>${item.narration}</td>
-          <td>
-             <div style="font-weight:600">${item.mode.toUpperCase()}</div>
-             <div style="font-size:10px; color:#94a3b8">(${item.account})</div>
-          </td>
-          <td class="amt-val" style="color:${item.trtype==='loan_given'?'#dc2626':'#16a34a'}">${amt}</td>
-          <td>
-            <div class="action-cell-container">
-               <button class="btn-del-mini" onclick="deleteItem(${item.id})">🗑️</button>
-            </div>
-          </td>`;
+          <td><div style="font-weight:600">${item.mode.toUpperCase()}</div><div style="font-size:10px; color:var(--text-muted)">(${item.account})</div></td>
+          <td style="color:${item.trtype==='loan_given'?'#dc2626':'#16a34a'}; font-weight:700">${amt}</td>
+          <td><button class="btn-del-mini" onclick="deleteItem(${item.id})">🗑️</button></td>`;
         queueTableBody.appendChild(tr);
       });
     };
@@ -360,8 +393,7 @@ mode.onchange = () => {
         try { 
           await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(item) }); 
           db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).delete(item.id); 
-        } 
-        catch { break; }
+        } catch { break; }
       }
       updatePendingCount();
     };
@@ -371,4 +403,4 @@ mode.onchange = () => {
   document.addEventListener("dblclick", () => document.body.classList.toggle("dark"));
 </script>
 </body>
-</html>
+</html>`
