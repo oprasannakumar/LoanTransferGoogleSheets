@@ -183,7 +183,7 @@
 </div>
 
 <script>
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyu-bS_nK4gRFvOuHP8B2ol1hrCgtzDBMog90tQcqW2o6BWY7Q2w5UEZgBWm-jt9--8/exec";
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby0-U-A2RjeOVMmThP6VqBAMrm0niCFK4U54h2jIYj5IO9awdUXIZ74xrMXqsuQ331V/exec";
   let isSubmitting = false;
 
   const form = document.getElementById("loanForm"), date = document.getElementById("date"), borrower = document.getElementById("borrower"), borrowerOther = document.getElementById("borrower_other"), otherGroup = document.getElementById("otherGroup"), narration = document.getElementById("narration"), invoice = document.getElementById("invoice"), trtype = document.getElementById("trtype"), mode = document.getElementById("mode"), account = document.getElementById("account"), accountBlock = document.getElementById("accountBlock"), accountOther = document.getElementById("account_other"), accountOtherBlock = document.getElementById("accountOtherBlock"), cashGrid = document.getElementById("cashGrid"), cashBlock = document.getElementById("cashBlock"), amtInput = document.getElementById("amtInput"), amtBlock = document.getElementById("amtBlock"), amtLabel = document.getElementById("amtLabel"), submitBtn = document.getElementById("mainSubmitBtn");
@@ -223,37 +223,41 @@
     borrowerOther.required = isOther;
   };
 
-  function updateTotals() {
-    let total = 0;
-    cashGrid.querySelectorAll("input").forEach(i => total += Number(i.value || 0) * Number(i.dataset.val));
-    if (mode.value === "cash") {
-        amtInput.value = total;
-        amtInput.classList.toggle("manual-invalid", total <= 0);
-    }
+function updateTotals() {
+  let total = 0;
+  cashGrid.querySelectorAll("input").forEach(i => total += Number(i.value || 0) * Number(i.dataset.val));
+  if (mode.value === "cash") {
+      amtInput.value = total;
+      // Remove the manual-invalid class if total > 0
+      if(total > 0) amtInput.classList.remove("manual-invalid");
   }
-
+}
   cashGrid.addEventListener("input", updateTotals);
 
-  mode.onchange = () => {
-    const m = mode.value;
-    const isCash = m === "cash";
-    const isRewards = m === "rewards";
-    
-    cashBlock.classList.toggle("hidden", !isCash);
-    accountBlock.classList.toggle("hidden", isCash || m === "");
-    accountOtherBlock.classList.add("hidden");
-    accountOther.required = false;
+mode.onchange = () => {
+  const m = mode.value;
+  const isCash = m === "cash";
+  // Fixed case sensitivity for "Rewards"
+  const isRewards = m.toLowerCase() === "rewards"; 
+  
+  cashBlock.classList.toggle("hidden", !isCash);
+  accountBlock.classList.toggle("hidden", isCash || m === "");
+  
+  // CRITICAL FIX: Disable 'required' when hidden so validation passes
+  account.required = !isCash && m !== ""; 
+  
+  accountOtherBlock.classList.add("hidden");
+  accountOther.required = false;
 
-    amtInput.readOnly = isCash;
-    
-    if (!isCash && m !== "") {
-      account.innerHTML = "<option value=''>Select Account</option>";
-      const list = isRewards ? rewardPlatforms : accounts;
-      list.forEach(a => account.add(new Option(a, a)));
-    }
-    updateTotals();
-  };
-
+  amtInput.readOnly = isCash;
+  
+  if (!isCash && m !== "") {
+    account.innerHTML = "<option value=''>Select Account</option>";
+    const list = isRewards ? rewardPlatforms : accounts;
+    list.forEach(a => account.add(new Option(a, a)));
+  }
+  updateTotals();
+};
   account.onchange = () => {
     const isOther = account.value === "Others";
     accountOtherBlock.classList.toggle("hidden", !isOther);
