@@ -53,7 +53,7 @@
     .header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
     h3 { margin: 0; color: var(--text-main); font-size: 18px; flex-grow: 1; text-align: center; font-weight: 700; }
 
-    #netStatus { width: 10px; height: 10px; border-radius: 50%; background: var(--danger); flex-shrink: 0; }
+    #netStatus { width: 10px; height: 10px; border-radius: 50%; background: #94a3b8; flex-shrink: 0; }
     #netStatus.online { background: var(--primary); box-shadow: 0 0 8px var(--primary); }
 
     #themeToggle {
@@ -83,14 +83,15 @@
     }
     input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(34,197,94,.15); }
 
-    /* Validation Styles */
     .err-msg { color: var(--danger); font-size: 11px; margin-top: 4px; display: none; font-weight: 600; }
-    form.was-validated input:invalid, form.was-validated select:invalid { border-color: var(--danger); background-color: rgba(239, 68, 68, 0.05); }
-    form.was-validated :invalid ~ .err-msg { display: block; }
+    form.was-validated input:invalid, form.was-validated select:invalid, 
+    form.was-validated input.is-invalid { border-color: var(--danger) !important; background-color: rgba(239, 68, 68, 0.05); }
+    form.was-validated :invalid ~ .err-msg, form.was-validated .is-invalid ~ .err-msg { display: block; }
 
     .smart-row { display: block; width: 100%; }
     .smart-row.has-other { display: grid; grid-template-columns: 1fr 1.2fr; gap: 10px; }
 
+    /* Redesigned Bottom Buttons to match Monthly form */
     .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 25px; }
     #mainSubmitBtn { background: var(--primary); color: #fff; border: none; font-weight: 700; cursor: pointer; letter-spacing: 0.3px; }
     #mainSubmitBtn:hover { filter: brightness(1.1); }
@@ -195,11 +196,11 @@
   <div id="amtBlock" class="hidden">
     <label id="amtLabel">Amount</label>
     <input type="number" id="amtInput" step="0.01" required min="0.01">
-    <div class="err-msg">Amount must be greater than 0</div>
+    <div class="err-msg">Total amount must be greater than 0</div>
   </div>
 
   <div class="btn-group">
-    <button type="submit" id="submitBtn">Save Loan</button>
+    <button type="submit" id="mainSubmitBtn">Save Loan</button>
     <button type="button" id="btnRepeat">↺ Repeat Last</button>
   </div>
   
@@ -236,7 +237,7 @@
   
   const bankAccounts = ["FI","HDFC Old","HDFC New","ICICI","IndusInd","Kotak","RBL","SBI"];
   const creditCards = ["Axis Flipkart","Axis MyZone","Axis Neo","HDFC PhonePe","HDFC Tata Neu","HDFC Millennia","HSBC","IDFC First Millenia","ICICI Amazon","ICICI Coral","ICICI Expressions","Indusind Legend","SBI BPCL"];
-  const rewardPlatforms = ["Amazon", "Flipkart", "Supermoney", "Payzapp", "MobiKwik", "Tata Neu", "Others"];
+  const rewardPlatforms = ["Amazon", "Flipkart", "Supermoney", "Payzapp", "MobiKwik", "Tata Neu"];
   const denoms = [500,200,100,50,20,10,5,2,1];
 
   let db;
@@ -279,7 +280,8 @@
     let total = 0;
     cashGrid.querySelectorAll("input").forEach(i => total += Number(i.value || 0) * Number(i.dataset.val));
     if (mode.value === "cash") {
-      amtInput.value = total;
+        amtInput.value = total;
+        if(total > 0) amtInput.classList.remove('is-invalid');
     }
   }
   cashGrid.addEventListener("input", updateTotals);
@@ -289,20 +291,14 @@
     document.getElementById("cashBlock").classList.toggle("hidden", m !== "cash");
     document.getElementById("accountBlock").classList.toggle("hidden", m === "cash" || m === "");
     
-    // Reset validation for account if switched to cash
-    if(m === "cash" || m === "") {
-        account.required = false;
-        accountOther.required = false;
-    } else {
-        account.required = true;
-    }
-
+    account.required = (m !== "cash" && m !== "");
     amtInput.readOnly = m === "cash";
+
     if (m !== "cash" && m !== "") {
       const list = (m === "Rewards") ? rewardPlatforms : (m === "credit" ? creditCards : bankAccounts);
       account.innerHTML = "<option value=''>Select Account</option>";
       list.forEach(a => account.add(new Option(a, a)));
-      account.add(new Option("Others", "Others"));
+      if (m === "Rewards") account.add(new Option("Other", "Other"));
     }
     updateTotals();
   };
@@ -313,29 +309,33 @@
   };
 
   function toggleSmartOther(sel, otherId, parentId) {
-    const isOther = sel.value === "Other" || sel.value === "Others";
+    const isOther = sel.value === "Other";
     const otherInp = document.getElementById(otherId);
     otherInp.classList.toggle('hidden', !isOther);
     otherInp.disabled = !isOther;
-    otherInp.required = isOther; // Set requirement for validation
+    otherInp.required = isOther; 
     document.getElementById(parentId).classList.toggle("has-other", isOther);
     if(isOther) otherInp.focus();
   }
 
   form.onsubmit = async e => {
     e.preventDefault();
+    const cashVal = parseFloat(amtInput.value) || 0;
+    if (cashVal <= 0) {
+        amtInput.classList.add('is-invalid');
+    } else {
+        amtInput.classList.remove('is-invalid');
+    }
     form.classList.add('was-validated');
 
-    if (!form.checkValidity() || parseFloat(amtInput.value) <= 0) {
-      return; 
-    }
+    if (!form.checkValidity() || cashVal <= 0) return;
 
-    const finalAccount = mode.value === "cash" ? "Cash" : (account.value === "Others" ? accountOther.value : account.value);
+    const finalAccount = mode.value === "cash" ? "Cash" : (account.value === "Other" ? accountOther.value : account.value);
     const payload = {
       date: date.value, borrower: borrower.value === "Other" ? borrowerOther.value : borrower.value,
       narration: narration.value, invoice: invoice.value, mode: mode.value, trtype: trtype.value,
       account: finalAccount, withdrawn: trtype.value === "loan_given" ? amtInput.value : 0, deposit: trtype.value === "loan_received" ? amtInput.value : 0,
-      accountOtherUsed: account.value === "Others"
+      accountOtherUsed: account.value === "Other"
     };
     cashGrid.querySelectorAll("input").forEach(i => payload["c" + i.dataset.val] = i.value || 0);
 
@@ -380,9 +380,10 @@
     const bState = document.getElementById("batchToggle").checked;
     form.reset();
     form.classList.remove('was-validated');
+    amtInput.classList.remove('is-invalid');
     document.getElementById("batchToggle").checked = bState;
     ["borrowerSmartRow", "accountSmartRow"].forEach(id => document.getElementById(id).classList.remove("has-other"));
-    ["otherGroup", "accountBlock", "accountOtherBlock", "cashBlock", "amtBlock"].forEach(id => {
+    ["otherGroup", "accountBlock", "cashBlock", "amtBlock"].forEach(id => {
         const el = document.getElementById(id); if(el) el.classList.add("hidden");
     });
     setCurrentDate();
@@ -428,10 +429,10 @@
       if(item.mode !== 'cash') {
           const aOptions = Array.from(account.options).map(o => o.value);
           if(aOptions.includes(item.account)) account.value = item.account;
-          else { account.value = "Others"; accountOther.value = item.account; }
+          else { account.value = "Other"; accountOther.value = item.account; }
           toggleSmartOther(account, 'account_other', 'accountSmartRow');
       }
-      amtInput.value = item.withdrawn || item.deposit;
+      amtInput.value = Number(item.withdrawn) || Number(item.deposit);
       window.deleteItem(item.id);
       document.getElementById("queueModal").classList.add("hidden");
     };
@@ -450,7 +451,7 @@
     if(last.mode !== 'cash') {
       const aOptions = Array.from(account.options).map(o => o.value);
       if(aOptions.includes(last.account)) account.value = last.account;
-      else { account.value = "Others"; accountOther.value = last.account; }
+      else { account.value = "Other"; accountOther.value = last.account; }
       toggleSmartOther(account, 'account_other', 'accountSmartRow');
     }
     narration.value = last.narration;
