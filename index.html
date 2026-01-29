@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Loan Entry (Fixed Dark Cash UI)</title>
+  <title>Loan Entry (Minimal UI)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
@@ -46,9 +46,48 @@
       background: var(--bg-card); max-width: 440px; margin: auto; padding: 22px;
       border-radius: 16px; box-shadow: 0 18px 40px rgba(0,0,0,.08);
       border: 1px solid var(--border-color);
+      position: relative;
     }
 
-    h3 { text-align: center; margin-bottom: 16px; margin-top: 0; color: var(--text-main); }
+    /* Header Row Styling */
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    h3 { margin: 0; color: var(--text-main); font-size: 18px; flex-grow: 1; text-align: center; }
+
+    /* Network Dot */
+    #netStatus {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--danger);
+      box-shadow: 0 0 5px var(--danger);
+      flex-shrink: 0;
+    }
+    #netStatus.online {
+      background: var(--primary);
+      box-shadow: 0 0 5px var(--primary);
+    }
+
+    /* Theme Toggle Icon Button */
+    #themeToggle {
+      background: var(--bg-cash);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0; padding: 0;
+      flex-shrink: 0;
+    }
+
     label { font-size: 13px; font-weight: 600; margin-top: 14px; display:block; color: var(--text-label); }
 
     input, select, button {
@@ -71,7 +110,7 @@
     button:disabled { opacity: 0.6; cursor: not-allowed; }
     .hidden { display: none !important; }
 
-    /* Cash Grid Fixed Dark Mode UI */
+    /* Cash Grid UI */
     .cash-box { margin-top: 16px; padding: 18px; border-radius: 16px; background: var(--bg-cash); border: 1px solid var(--border-color); }
     .denom-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
     .denom-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 5px; text-align: center; }
@@ -92,45 +131,24 @@
     table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 750px; table-layout: fixed; }
     th { background: var(--bg-cash); color: var(--text-muted); font-weight: 600; text-align: center; padding: 10px; border-bottom: 1px solid var(--border-color); text-transform: uppercase; font-size: 10px; }
     td { padding: 10px; border-bottom: 1px solid var(--border-color); vertical-align: middle; text-align: center; color: var(--text-main); }
-   /* Center the button inside the TD */
-td:last-child {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%; /* Ensures vertical centering if row height grows */
-  border-bottom: 1px solid var(--border-color);
-}
 
-.btn-del-mini { 
-  background: #fee2e2; 
-  color: #ef4444; 
-  border: none; 
-  width: 32px; 
-  height: 32px; 
-  border-radius: 8px; 
-  cursor: pointer; 
-  display: flex;       /* Added to center the icon inside the button */
-  align-items: center; 
-  justify-content: center;
-  margin: 0;           /* Reset margin since flex handles centering */
-  transition: opacity 0.2s;
-}
-
-.btn-del-mini:hover {
-  opacity: 0.8;
-}
-
-body.dark .btn-del-mini { 
-  background: #450a0a; 
-  color: #f87171; 
-}
+    .btn-del-mini { 
+      background: #fee2e2; color: #ef4444; border: none; 
+      width: 32px; height: 32px; border-radius: 8px; cursor: pointer; 
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    body.dark .btn-del-mini { background: #450a0a; color: #f87171; }
   </style>
 </head>
 
 <body>
 
 <form id="loanForm" novalidate>
-  <h3>Loan Entry</h3>
+  <div class="header-row">
+    <div id="netStatus" title="Network Status"></div>
+    <h3>Loan Entry</h3>
+    <button type="button" id="themeToggle" title="Toggle Dark Mode">🌙</button>
+  </div>
 
   <label>Date</label>
   <input type="date" id="date" required>
@@ -238,6 +256,26 @@ body.dark .btn-del-mini {
   let isSubmitting = false;
   const form = document.getElementById("loanForm"), date = document.getElementById("date"), borrower = document.getElementById("borrower"), borrowerOther = document.getElementById("borrower_other"), otherGroup = document.getElementById("otherGroup"), narration = document.getElementById("narration"), invoice = document.getElementById("invoice"), trtype = document.getElementById("trtype"), mode = document.getElementById("mode"), account = document.getElementById("account"), accountBlock = document.getElementById("accountBlock"), accountOther = document.getElementById("account_other"), accountOtherBlock = document.getElementById("accountOtherBlock"), cashGrid = document.getElementById("cashGrid"), cashBlock = document.getElementById("cashBlock"), amtInput = document.getElementById("amtInput"), amtBlock = document.getElementById("amtBlock"), amtLabel = document.getElementById("amtLabel"), submitBtn = document.getElementById("mainSubmitBtn"), repeatBtn = document.getElementById("btnRepeat");
   const syncIndicator = document.getElementById("syncIndicator"), btnViewQueue = document.getElementById("btnViewQueue"), queueModal = document.getElementById("queueModal"), queueTableBody = document.getElementById("queueTableBody"), closeModal = document.querySelector(".close-modal");
+  const themeToggle = document.getElementById("themeToggle"), netStatus = document.getElementById("netStatus");
+
+  function updateNetDot() {
+    const isOnline = navigator.onLine;
+    netStatus.classList.toggle("online", isOnline);
+    netStatus.title = isOnline ? "Online" : "Offline";
+  }
+  window.addEventListener('online', () => { updateNetDot(); syncOffline(); });
+  window.addEventListener('offline', updateNetDot);
+  updateNetDot();
+
+  themeToggle.onclick = () => {
+    const isDark = document.body.classList.toggle("dark");
+    themeToggle.textContent = isDark ? "☀️" : "🌙";
+    localStorage.setItem("loanTheme", isDark ? "dark" : "light");
+  };
+  if(localStorage.getItem("loanTheme") === "dark") {
+    document.body.classList.add("dark");
+    themeToggle.textContent = "☀️";
+  }
 
   const DB_NAME = "LoanAppDB", STORE_NAME = "loanQueue";
   let db;
@@ -284,13 +322,11 @@ body.dark .btn-del-mini {
     const isCash = m === "cash";
     const isRewards = m.toLowerCase() === "rewards";
     const isCredit = m.toLowerCase() === "credit";
-    
     cashBlock.classList.toggle("hidden", !isCash);
     accountBlock.classList.toggle("hidden", isCash || m === "");
     account.required = !isCash && m !== ""; 
     accountOtherBlock.classList.add("hidden");
     amtInput.readOnly = isCash;
-    
     if (!isCash && m !== "") {
       const currentVal = account.value;
       account.innerHTML = "<option value=''>Select Account</option>";
@@ -317,24 +353,15 @@ body.dark .btn-del-mini {
     const lastStr = localStorage.getItem("lastLoanEntry");
     if(!lastStr) { alert("No previous entry found"); return; }
     const last = JSON.parse(lastStr);
-
     const isBorrowerOther = !Array.from(borrower.options).some(o => o.value === last.borrower);
-    if(isBorrowerOther) {
-      borrower.value = "Other"; borrowerOther.value = last.borrower; otherGroup.classList.remove("hidden");
-    } else {
-      borrower.value = last.borrower; otherGroup.classList.add("hidden");
-    }
-
+    if(isBorrowerOther) { borrower.value = "Other"; borrowerOther.value = last.borrower; otherGroup.classList.remove("hidden"); } 
+    else { borrower.value = last.borrower; otherGroup.classList.add("hidden"); }
     trtype.value = last.trtype; trtype.onchange();
     mode.value = last.mode; mode.onchange();
-
     if(last.mode !== 'cash') {
-      const isAccOther = last.accountOtherUsed;
-      if(isAccOther) {
-        account.value = "Others"; accountOther.value = last.account; accountOtherBlock.classList.remove("hidden");
-      } else { account.value = last.account; }
+      if(last.accountOtherUsed) { account.value = "Others"; accountOther.value = last.account; accountOtherBlock.classList.remove("hidden"); } 
+      else { account.value = last.account; }
     }
-
     narration.value = ""; amtInput.value = "";
     document.querySelectorAll(".denom-input").forEach(i => i.value = 0);
     narration.focus();
@@ -345,7 +372,6 @@ body.dark .btn-del-mini {
     form.classList.add("was-validated");
     const isAmtValid = parseFloat(amtInput.value) > 0;
     amtInput.classList.toggle("manual-invalid", !isAmtValid);
-
     if (!form.checkValidity() || !isAmtValid) return;
     if (isSubmitting) return;
 
@@ -428,9 +454,6 @@ body.dark .btn-del-mini {
       updatePendingCount();
     };
   }
-
-  window.addEventListener('online', syncOffline);
-  document.addEventListener("dblclick", () => document.body.classList.toggle("dark"));
 </script>
 </body>
-</html>`
+</html>
