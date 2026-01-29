@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Loan Entry (Instant Sync Fixed)</title>
+  <title>Loan Entry | Smart Sync Pro</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
     :root { 
+      --h: 42px; --r: 10px;
       --primary: #22c55e; 
       --primary-hover: #16a34a; 
       --secondary: #3b82f6; 
@@ -49,91 +50,79 @@
       position: relative;
     }
 
-    .header-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
+    .header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    h3 { margin: 0; color: var(--text-main); font-size: 18px; flex-grow: 1; text-align: center; font-weight: 700; }
 
-    h3 { margin: 0; color: var(--text-main); font-size: 18px; flex-grow: 1; text-align: center; }
-
-    #netStatus {
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      background: var(--danger);
-      box-shadow: 0 0 5px var(--danger);
-      flex-shrink: 0;
-    }
-    #netStatus.online {
-      background: var(--primary);
-      box-shadow: 0 0 5px var(--primary);
-    }
+    #netStatus { width: 10px; height: 10px; border-radius: 50%; background: var(--danger); flex-shrink: 0; }
+    #netStatus.online { background: var(--primary); box-shadow: 0 0 8px var(--primary); }
 
     #themeToggle {
-      background: var(--bg-cash);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0; padding: 0;
-      flex-shrink: 0;
+      background: var(--bg-cash); border: 1px solid var(--border-color);
+      color: var(--text-main); width: 32px; height: 32px; border-radius: 50%;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
     }
 
-    label { font-size: 13px; font-weight: 600; margin-top: 14px; display:block; color: var(--text-label); }
+    .batch-control { 
+      display: flex; align-items: center; justify-content: space-between; 
+      background: rgba(34, 197, 94, 0.1); padding: 8px 12px; border-radius: 10px; 
+      margin-bottom: 15px; border: 1px solid var(--primary); 
+    }
+    .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 20px; }
+    .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--primary); }
+    input:checked + .slider:before { transform: translateX(16px); }
+
+    label { font-size: 12px; font-weight: 700; margin-top: 14px; display:block; color: var(--text-label); text-transform: uppercase; letter-spacing: 0.5px; }
 
     input, select, button {
-      width: 100%; height: 44px; margin-top: 6px; padding: 0 14px;
+      width: 100%; height: var(--h); margin-top: 5px; padding: 0 14px;
       border-radius: 10px; border: 1px solid var(--border-color); font-size: 14px; box-sizing: border-box;
-      background: var(--bg-input); color: var(--text-main);
+      background: var(--bg-input); color: var(--text-main); transition: 0.2s;
     }
-
     input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(34,197,94,.15); }
 
-    .was-validated input:invalid, .was-validated select:invalid,
-    input.manual-invalid, select.manual-invalid { border-color: var(--danger); background-color: rgba(239, 68, 68, 0.05); }
-    .err-msg { color: var(--danger); font-size: 11px; margin-top: 4px; display: none; font-weight: 500; }
-    .was-validated :invalid ~ .err-msg, .manual-invalid ~ .err-msg { display: block; }
+    /* Validation Styles */
+    .err-msg { color: var(--danger); font-size: 11px; margin-top: 4px; display: none; font-weight: 600; }
+    form.was-validated input:invalid, form.was-validated select:invalid { border-color: var(--danger); background-color: rgba(239, 68, 68, 0.05); }
+    form.was-validated :invalid ~ .err-msg { display: block; }
 
-    .btn-group { display: grid; grid-template-columns: 1.5fr 1fr; gap: 10px; margin-top: 20px; }
-    #mainSubmitBtn { background: var(--primary); color: #fff; border: none; font-weight: 600; cursor: pointer; margin-top: 0; }
-    #btnRepeat { background: var(--bg-card); color: var(--secondary); border: 1px solid var(--secondary); font-weight: 600; cursor: pointer; margin-top: 0; }
+    .smart-row { display: block; width: 100%; }
+    .smart-row.has-other { display: grid; grid-template-columns: 1fr 1.2fr; gap: 10px; }
+
+    .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 25px; }
+    #mainSubmitBtn { background: var(--primary); color: #fff; border: none; font-weight: 700; cursor: pointer; letter-spacing: 0.3px; }
+    #mainSubmitBtn:hover { filter: brightness(1.1); }
     
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
-    .hidden { display: none !important; }
+    #btnRepeat { background: var(--bg-input); color: var(--text-main); border: 1.5px solid var(--border-color); font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    #btnRepeat:hover { background: var(--border-color); }
+
+    .sync-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; border-top: 1px dashed var(--border-color); padding-top: 15px; }
+    #btnSyncAll { background: var(--secondary); color: white; border: none; font-weight: 700; cursor: pointer; height: 38px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; margin: 0; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.2); }
+    #btnViewQueue { background: #94a3b8; color: white; border: none; height: 38px; font-size: 11px; cursor: pointer; margin: 0; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    body.dark #btnViewQueue { background: #475569; }
 
     .cash-box { margin-top: 16px; padding: 18px; border-radius: 16px; background: var(--bg-cash); border: 1px solid var(--border-color); }
     .denom-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .denom-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 5px; text-align: center; }
-    .denom-label { font-weight: 600; margin-bottom: 5px; font-size: 11px; color: var(--text-muted); }
-    .denom-card input { height: 32px; text-align: center; margin-top: 0; border-radius: 6px; background: var(--bg-input); color: var(--text-main); }
-
-    .sync-wrapper { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 15px; }
-    #syncIndicator { font-size: 12px; color: var(--text-label); font-weight: 600; background: var(--bg-cash); padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border-color); }
-    #btnViewQueue { width: auto; height: 30px; font-size: 11px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); padding: 0 12px; margin-top: 0; }
+    .denom-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 8px; text-align: center; }
+    .denom-card input { height: 30px; text-align: center; margin-top: 4px; }
 
     .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1000; display: flex; justify-content: center; align-items: center; }
-    .modal-content { background: var(--bg-card); color: var(--text-main); width: 95%; max-width: 850px; max-height: 85vh; border-radius: 14px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--border-color); }
+    .modal-content { background: var(--bg-card); width: 95%; max-width: 850px; max-height: 85vh; border-radius: 14px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--border-color); }
     .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding: 10px 20px; background: var(--bg-cash); }
-    .modal-header h4 { margin: 0; color: var(--text-main); font-size: 15px; }
-    .close-modal { font-size: 24px; cursor: pointer; color: var(--text-muted); }
 
-    .table-container { overflow-x: auto; flex-grow: 1; background: var(--bg-card); }
-    table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 750px; table-layout: fixed; }
-    th { background: var(--bg-cash); color: var(--text-muted); font-weight: 600; text-align: center; padding: 10px; border-bottom: 1px solid var(--border-color); text-transform: uppercase; font-size: 10px; }
-    td { padding: 10px; border-bottom: 1px solid var(--border-color); vertical-align: middle; text-align: center; color: var(--text-main); }
+    .table-container { overflow-x: auto; flex-grow: 1; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 750px; }
+    th { background: var(--bg-cash); padding: 12px; text-align: center; border-bottom: 1px solid var(--border-color); }
+    td { padding: 10px; border-bottom: 1px solid var(--border-color); text-align: center; vertical-align: middle; color: var(--text-main); }
 
-    .btn-del-mini { 
-      background: #fee2e2; color: #ef4444; border: none; 
-      width: 32px; height: 32px; border-radius: 8px; cursor: pointer; 
-      display: inline-flex; align-items: center; justify-content: center;
-    }
-    body.dark .btn-del-mini { background: #450a0a; color: #f87171; }
+    .td-center { display: flex; justify-content: center; align-items: center; gap: 8px; height: 100%; }
+    .btn-action { width: 30px; height: 30px; background: transparent; border: none; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; padding: 0; margin: 0; }
+    
+    .hidden { display: none !important; }
+    @keyframes blink { 50% { opacity: 0.5; } }
+    .saving-text { animation: blink 1s infinite; }
   </style>
 </head>
 
@@ -141,33 +130,38 @@
 
 <form id="loanForm" novalidate>
   <div class="header-row">
-    <div id="netStatus" title="Network Status"></div>
+    <div id="netStatus" title="Status"></div>
     <h3>Loan Entry</h3>
-    <button type="button" id="themeToggle" title="Toggle Dark Mode">🌙</button>
+    <button type="button" id="themeToggle">🌙</button>
+  </div>
+
+  <div class="batch-control">
+    <span style="font-size: 12px; font-weight: 600;">Batch Mode</span>
+    <label class="switch">
+      <input type="checkbox" id="batchToggle">
+      <span class="slider"></span>
+    </label>
   </div>
 
   <label>Date</label>
   <input type="date" id="date" required>
-  <div class="err-msg">Select a date</div>
+  <div class="err-msg">Please select a date</div>
 
   <label>Borrower</label>
-  <select id="borrower" required>
-    <option value="">Select</option>
-    <option>Chinnama</option><option>Grand Father</option><option>Mother</option><option>Pedhamma</option><option>Ravi Babai</option><option>Srinivas Babai</option><option>Vasavi</option><option value="Other">Other</option>
-  </select>
-  <div class="err-msg">Select a borrower</div>
-  
-  <div id="otherGroup" class="hidden">
-    <label>Borrower Name</label>
-    <input type="text" id="borrower_other" placeholder="Enter name">
-    <div class="err-msg">Name is required</div>
+  <div id="borrowerSmartRow" class="smart-row">
+    <select id="borrower" required onchange="toggleSmartOther(this, 'borrower_other', 'borrowerSmartRow')">
+      <option value="">Select</option>
+      <option>Chinnama</option><option>Grand Father</option><option>Mother</option><option>Pedhamma</option><option>Ravi Babai</option><option>Srinivas Babai</option><option>Vasavi</option><option value="Other">Other</option>
+    </select>
+    <input type="text" id="borrower_other" class="hidden" placeholder="Enter name" required disabled>
+    <div class="err-msg">Select a borrower or enter a name</div>
   </div>
 
   <label>Narration</label>
   <input type="text" id="narration" required placeholder="Reason for loan">
-  <div class="err-msg">Narration is required</div>
+  <div class="err-msg">Please provide a narration</div>
 
-  <label>Invoice No.</label>
+  <label>Invoice No. (Optional)</label>
   <input type="text" id="invoice" placeholder="Optional">
 
   <label>Transaction Type</label>
@@ -176,24 +170,22 @@
     <option value="loan_given">Loan Given</option>
     <option value="loan_received">Loan Received</option>
   </select>
-  <div class="err-msg">Select type</div>
+  <div class="err-msg">Select the transaction type</div>
 
   <label>Payment Mode</label>
   <select id="mode" required>
     <option value="">Select</option>
     <option value="cash">Cash</option><option value="debit">Debit</option><option value="upi">UPI</option><option value="net">Net</option><option value="credit">Credit</option><option value="Rewards">Rewards</option>
   </select>
+  <div class="err-msg">Select a payment mode</div>
 
   <div id="accountBlock" class="hidden">
     <label>Account / Platform</label>
-    <select id="account" required><option value="">Select Account</option></select>
-    <div class="err-msg">Select an account</div>
-  </div>
-
-  <div id="accountOtherBlock" class="hidden">
-    <label>Platform Name</label>
-    <input type="text" id="account_other" placeholder="Enter platform name">
-    <div class="err-msg">Name is required</div>
+    <div id="accountSmartRow" class="smart-row">
+      <select id="account" required onchange="toggleSmartOther(this, 'account_other', 'accountSmartRow')"><option value="">Select Account</option></select>
+      <input type="text" id="account_other" class="hidden" placeholder="Enter platform name" required disabled>
+      <div class="err-msg">Select an account or platform</div>
+    </div>
   </div>
 
   <div id="cashBlock" class="cash-box hidden">
@@ -202,18 +194,21 @@
 
   <div id="amtBlock" class="hidden">
     <label id="amtLabel">Amount</label>
-    <input type="number" id="amtInput" step="0.01">
-    <div class="err-msg">Amount must be greater than zero</div>
+    <input type="number" id="amtInput" step="0.01" required min="0.01">
+    <div class="err-msg">Amount must be greater than 0</div>
   </div>
 
   <div class="btn-group">
-    <button type="submit" id="mainSubmitBtn">Save Loan</button>
+    <button type="submit" id="submitBtn">Save Loan</button>
     <button type="button" id="btnRepeat">↺ Repeat Last</button>
   </div>
   
-  <div class="sync-wrapper">
-    <div id="syncIndicator" class="hidden"></div>
-    <button type="button" id="btnViewQueue" class="hidden">View Pending</button>
+  <div id="footerSync" class="sync-wrapper hidden">
+    <button type="button" id="btnSyncAll">
+      <span id="syncText">☁️ Sync All</span>
+      <small id="syncCount">(0)</small>
+    </button>
+    <button type="button" id="btnViewQueue">📋 View Pending</button>
   </div>
 </form>
 
@@ -221,18 +216,13 @@
   <div class="modal-content">
     <div class="modal-header">
       <h4>Pending Sync Queue</h4>
-      <span class="close-modal">&times;</span>
+      <span class="close-modal" style="cursor:pointer; font-size: 20px;">&times;</span>
     </div>
     <div class="table-container">
       <table>
         <thead>
           <tr>
-            <th style="width:90px">Date</th>
-            <th style="width:120px">Borrower</th>
-            <th>Narration</th>
-            <th style="width:130px">Mode</th>
-            <th style="width:110px">Amount</th>
-            <th style="width:65px">Del</th>
+            <th>Date</th><th>Borrower</th><th>Narration</th><th>Mode</th><th>Amount</th><th>Action</th>
           </tr>
         </thead>
         <tbody id="queueTableBody"></tbody>
@@ -249,124 +239,96 @@
   const rewardPlatforms = ["Amazon", "Flipkart", "Supermoney", "Payzapp", "MobiKwik", "Tata Neu", "Others"];
   const denoms = [500,200,100,50,20,10,5,2,1];
 
-  let isSubmitting = false;
-  const form = document.getElementById("loanForm"), date = document.getElementById("date"), borrower = document.getElementById("borrower"), borrowerOther = document.getElementById("borrower_other"), otherGroup = document.getElementById("otherGroup"), narration = document.getElementById("narration"), invoice = document.getElementById("invoice"), trtype = document.getElementById("trtype"), mode = document.getElementById("mode"), account = document.getElementById("account"), accountBlock = document.getElementById("accountBlock"), accountOther = document.getElementById("account_other"), accountOtherBlock = document.getElementById("accountOtherBlock"), cashGrid = document.getElementById("cashGrid"), cashBlock = document.getElementById("cashBlock"), amtInput = document.getElementById("amtInput"), amtBlock = document.getElementById("amtBlock"), amtLabel = document.getElementById("amtLabel"), submitBtn = document.getElementById("mainSubmitBtn"), repeatBtn = document.getElementById("btnRepeat");
-  const syncIndicator = document.getElementById("syncIndicator"), btnViewQueue = document.getElementById("btnViewQueue"), queueModal = document.getElementById("queueModal"), queueTableBody = document.getElementById("queueTableBody"), closeModal = document.querySelector(".close-modal");
-  const themeToggle = document.getElementById("themeToggle"), netStatus = document.getElementById("netStatus");
-
-  // --- Network & Theme ---
-  function updateNetDot() {
-    const isOnline = navigator.onLine;
-    netStatus.classList.toggle("online", isOnline);
-    if(isOnline) syncOffline();
-  }
-  window.addEventListener('online', updateNetDot);
-  window.addEventListener('offline', updateNetDot);
-  updateNetDot();
-
-  themeToggle.onclick = () => {
-    const isDark = document.body.classList.toggle("dark");
-    themeToggle.textContent = isDark ? "☀️" : "🌙";
-    localStorage.setItem("loanTheme", isDark ? "dark" : "light");
-  };
-  if(localStorage.getItem("loanTheme") === "dark") {
-    document.body.classList.add("dark");
-    themeToggle.textContent = "☀️";
-  }
-
-  // --- DB Logic ---
-  const DB_NAME = "LoanAppDB", STORE_NAME = "loanQueue";
   let db;
+  const DB_NAME = "LoanAppDB_v5", STORE_NAME = "loanQueue";
+
+  function setCurrentDate() {
+    document.getElementById("date").value = new Date().toISOString().split("T")[0];
+  }
+
   (function initDB(){
     const req = indexedDB.open(DB_NAME, 1);
     req.onupgradeneeded = e => e.target.result.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
-    req.onsuccess = e => { db = e.target.result; updatePendingCount(); if(navigator.onLine) syncOffline(); };
+    req.onsuccess = e => { db = e.target.result; updatePendingCount(); updateNetStatus(); };
   })();
+
+  const form = document.getElementById("loanForm"), date = document.getElementById("date"), borrower = document.getElementById("borrower"), borrowerOther = document.getElementById("borrower_other"), narration = document.getElementById("narration"), invoice = document.getElementById("invoice"), trtype = document.getElementById("trtype"), mode = document.getElementById("mode"), account = document.getElementById("account"), accountOther = document.getElementById("account_other"), cashGrid = document.getElementById("cashGrid"), amtInput = document.getElementById("amtInput"), submitBtn = document.getElementById("submitBtn");
+
+  function updateNetStatus() {
+    document.getElementById("netStatus").className = navigator.onLine ? "online" : "";
+  }
+  window.addEventListener('online', updateNetStatus);
+  window.addEventListener('offline', updateNetStatus);
 
   async function updatePendingCount(){
     if(!db) return;
     const tx = db.transaction(STORE_NAME, "readonly").objectStore(STORE_NAME).getAll();
     tx.onsuccess = () => {
       const items = tx.result;
-      syncIndicator.classList.toggle("hidden", !items.length);
-      btnViewQueue.classList.toggle("hidden", !items.length);
-      if(items.length) syncIndicator.textContent = `⏳ ${items.length} waiting to sync`;
+      document.getElementById("syncCount").textContent = `(${items.length})`;
+      document.getElementById("footerSync").classList.toggle("hidden", items.length === 0);
+      renderQueueTable(items);
     };
   }
 
-  date.value = new Date().toISOString().split("T")[0];
   denoms.forEach(d => {
-    cashGrid.innerHTML += `<div class="denom-card"><div class="denom-label">₹${d}</div><input type="number" value="0" data-val="${d}" class="denom-input"></div>`;
+    cashGrid.innerHTML += `<div class="denom-card"><div style="font-size:10px; font-weight:600">₹${d}</div><input type="number" value="0" data-val="${d}" class="denom-input"></div>`;
   });
-
-  borrower.onchange = () => {
-    const isOther = borrower.value === "Other";
-    otherGroup.classList.toggle("hidden", !isOther);
-    borrowerOther.required = isOther;
-  };
 
   function updateTotals() {
     let total = 0;
     cashGrid.querySelectorAll("input").forEach(i => total += Number(i.value || 0) * Number(i.dataset.val));
     if (mode.value === "cash") {
-        amtInput.value = total;
-        if(total > 0) amtInput.classList.remove("manual-invalid");
+      amtInput.value = total;
     }
   }
   cashGrid.addEventListener("input", updateTotals);
 
   mode.onchange = () => {
     const m = mode.value;
-    cashBlock.classList.toggle("hidden", m !== "cash");
-    accountBlock.classList.toggle("hidden", m === "cash" || m === "");
-    account.required = m !== "cash" && m !== ""; 
-    accountOtherBlock.classList.add("hidden");
+    document.getElementById("cashBlock").classList.toggle("hidden", m !== "cash");
+    document.getElementById("accountBlock").classList.toggle("hidden", m === "cash" || m === "");
+    
+    // Reset validation for account if switched to cash
+    if(m === "cash" || m === "") {
+        account.required = false;
+        accountOther.required = false;
+    } else {
+        account.required = true;
+    }
+
     amtInput.readOnly = m === "cash";
     if (m !== "cash" && m !== "") {
       const list = (m === "Rewards") ? rewardPlatforms : (m === "credit" ? creditCards : bankAccounts);
       account.innerHTML = "<option value=''>Select Account</option>";
       list.forEach(a => account.add(new Option(a, a)));
+      account.add(new Option("Others", "Others"));
     }
     updateTotals();
-  };
-
-  account.onchange = () => {
-    const isOther = account.value === "Others" || account.value === "Other";
-    accountOtherBlock.classList.toggle("hidden", !isOther);
-    accountOther.required = isOther;
   };
 
   trtype.onchange = () => {
-    amtBlock.classList.toggle("hidden", trtype.value === "");
-    amtLabel.textContent = trtype.value === "loan_given" ? "Given Amount" : "Received Amount";
-    updateTotals();
+    document.getElementById("amtBlock").classList.toggle("hidden", trtype.value === "");
+    document.getElementById("amtLabel").textContent = trtype.value === "loan_given" ? "Given Amount" : "Received Amount";
   };
 
-  repeatBtn.onclick = () => {
-    const lastStr = localStorage.getItem("lastLoanEntry");
-    if(!lastStr) { alert("No previous entry found"); return; }
-    const last = JSON.parse(lastStr);
-    const isBorrowerOther = !Array.from(borrower.options).some(o => o.value === last.borrower);
-    if(isBorrowerOther) { borrower.value = "Other"; borrowerOther.value = last.borrower; otherGroup.classList.remove("hidden"); } 
-    else { borrower.value = last.borrower; otherGroup.classList.add("hidden"); }
-    trtype.value = last.trtype; trtype.onchange();
-    mode.value = last.mode; mode.onchange();
-    if(last.mode !== 'cash') {
-      if(last.accountOtherUsed) { account.value = "Others"; accountOther.value = last.account; accountOtherBlock.classList.remove("hidden"); } 
-      else { account.value = last.account; }
-    }
-    narration.value = ""; amtInput.value = "";
-    document.querySelectorAll(".denom-input").forEach(i => i.value = 0);
-    narration.focus();
-  };
+  function toggleSmartOther(sel, otherId, parentId) {
+    const isOther = sel.value === "Other" || sel.value === "Others";
+    const otherInp = document.getElementById(otherId);
+    otherInp.classList.toggle('hidden', !isOther);
+    otherInp.disabled = !isOther;
+    otherInp.required = isOther; // Set requirement for validation
+    document.getElementById(parentId).classList.toggle("has-other", isOther);
+    if(isOther) otherInp.focus();
+  }
 
-  // --- Submit Logic (Instant Offline detection) ---
   form.onsubmit = async e => {
     e.preventDefault();
-    form.classList.add("was-validated");
-    const isAmtValid = parseFloat(amtInput.value) > 0;
-    amtInput.classList.toggle("manual-invalid", !isAmtValid);
-    if (!form.checkValidity() || !isAmtValid) return;
+    form.classList.add('was-validated');
+
+    if (!form.checkValidity() || parseFloat(amtInput.value) <= 0) {
+      return; 
+    }
 
     const finalAccount = mode.value === "cash" ? "Cash" : (account.value === "Others" ? accountOther.value : account.value);
     const payload = {
@@ -379,86 +341,132 @@
 
     localStorage.setItem("lastLoanEntry", JSON.stringify(payload));
 
-    // INSTANT OFFLINE CHECK
-    if (!navigator.onLine) {
-      db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).add(payload);
-      alert("Saved offline!"); 
-      resetForm();
-      updatePendingCount();
+    const isBatch = document.getElementById("batchToggle").checked;
+    if (isBatch || !navigator.onLine) {
+      db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).add(payload).onsuccess = () => {
+        updatePendingCount(); resetForm();
+      };
       return;
     }
 
-    if (isSubmitting) return;
-    isSubmitting = true; submitBtn.textContent = "Processing...";
-    
+    submitBtn.textContent = "Saving..."; submitBtn.disabled = true;
     try {
       await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
-      alert("Success!"); resetForm();
+      resetForm();
     } catch {
       db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).add(payload);
-      alert("Saved to queue."); resetForm();
     } finally {
-      isSubmitting = false; submitBtn.textContent = "Save Loan"; updatePendingCount();
+      submitBtn.textContent = "Save Loan"; submitBtn.disabled = false; updatePendingCount();
     }
   };
 
-  function resetForm() {
-    form.reset();
-    form.classList.remove("was-validated");
-    amtInput.classList.remove("manual-invalid");
-    otherGroup.classList.add("hidden"); accountBlock.classList.add("hidden"); accountOtherBlock.classList.add("hidden"); cashBlock.classList.add("hidden"); amtBlock.classList.add("hidden");
-    date.value = new Date().toISOString().split("T")[0];
-    document.querySelectorAll(".denom-input").forEach(i => i.value = 0);
+  async function syncAllData(){
+    if (!navigator.onLine) { alert("No Internet"); return; }
+    const syncLabel = document.getElementById("syncText");
+    const items = await new Promise(r => db.transaction(STORE_NAME).objectStore(STORE_NAME).getAll().onsuccess = e => r(e.target.result));
+    
+    for (let i = 0; i < items.length; i++) {
+      syncLabel.innerHTML = `<span class="saving-text">Sync ${i+1}/${items.length}</span>`;
+      try {
+        await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(items[i]) });
+        await new Promise(r => db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).delete(items[i].id).onsuccess = r);
+        updatePendingCount();
+      } catch { break; }
+    }
+    syncLabel.textContent = "☁️ Sync All";
   }
 
-  function renderQueueTable() {
-    const tx = db.transaction(STORE_NAME, "readonly").objectStore(STORE_NAME).getAll();
-    tx.onsuccess = () => {
-      const items = tx.result;
-      queueTableBody.innerHTML = items.length ? "" : "<tr><td colspan='6'>Queue is empty</td></tr>";
-      items.forEach(item => {
-        const tr = document.createElement("tr");
-        const amt = item.trtype === "loan_given" ? `-${item.withdrawn}` : `+${item.deposit}`;
-        tr.innerHTML = `
-          <td>${item.date}</td><td style="font-weight:600">${item.borrower}</td>
-          <td>${item.narration}</td>
-          <td><div style="font-weight:600">${item.mode.toUpperCase()}</div><div style="font-size:10px; color:var(--text-muted)">(${item.account})</div></td>
-          <td style="color:${item.trtype==='loan_given'?'#dc2626':'#16a34a'}; font-weight:700">${amt}</td>
-          <td><button class="btn-del-mini" onclick="deleteItem(${item.id})">🗑️</button></td>`;
-        queueTableBody.appendChild(tr);
-      });
-    };
+  function resetForm() {
+    const bState = document.getElementById("batchToggle").checked;
+    form.reset();
+    form.classList.remove('was-validated');
+    document.getElementById("batchToggle").checked = bState;
+    ["borrowerSmartRow", "accountSmartRow"].forEach(id => document.getElementById(id).classList.remove("has-other"));
+    ["otherGroup", "accountBlock", "accountOtherBlock", "cashBlock", "amtBlock"].forEach(id => {
+        const el = document.getElementById(id); if(el) el.classList.add("hidden");
+    });
+    setCurrentDate();
+    updatePendingCount();
+  }
+
+  function renderQueueTable(items) {
+    const body = document.getElementById("queueTableBody");
+    body.innerHTML = "";
+    items.forEach((item, idx) => {
+      const tr = document.createElement("tr");
+      const amt = item.trtype === "loan_given" ? `-${item.withdrawn}` : `+${item.deposit}`;
+      tr.innerHTML = `
+        <td>${item.date}</td><td>${item.borrower}</td><td>${item.narration}</td>
+        <td>${item.mode} (${item.account})</td><td style="font-weight:700">${amt}</td>
+        <td><div class="td-center">
+          <button type="button" class="btn-action" onclick="editItem(${idx})">✏️</button>
+          <button type="button" class="btn-action" onclick="deleteItem(${item.id})">🗑️</button>
+        </div></td>`;
+      body.appendChild(tr);
+    });
   }
 
   window.deleteItem = id => {
-    if(confirm("Delete?")) {
-      db.transaction(STORE_NAME,"readwrite").objectStore(STORE_NAME).delete(id).onsuccess = () => {
-        renderQueueTable(); updatePendingCount();
-      };
-    }
+    db.transaction(STORE_NAME,"readwrite").objectStore(STORE_NAME).delete(id).onsuccess = () => updatePendingCount();
   };
 
-  btnViewQueue.onclick = () => { renderQueueTable(); queueModal.classList.remove("hidden"); };
-  closeModal.onclick = () => queueModal.classList.add("hidden");
+  window.editItem = idx => {
+    const tx = db.transaction(STORE_NAME, "readonly").objectStore(STORE_NAME).getAll();
+    tx.onsuccess = () => {
+      const item = tx.result[idx];
+      date.value = item.date;
+      narration.value = item.narration;
+      invoice.value = item.invoice;
+      trtype.value = item.trtype; trtype.onchange();
+      
+      const bOptions = Array.from(borrower.options).map(o => o.value);
+      if(bOptions.includes(item.borrower)) borrower.value = item.borrower;
+      else { borrower.value = "Other"; borrowerOther.value = item.borrower; }
+      toggleSmartOther(borrower, 'borrower_other', 'borrowerSmartRow');
 
-  async function syncOffline(){
-    if (!db || !navigator.onLine) return;
-    const request = db.transaction(STORE_NAME, "readonly").objectStore(STORE_NAME).getAll();
-    request.onsuccess = async () => {
-      const items = request.result;
-      for (const item of items) {
-        try { 
-          await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(item) }); 
-          db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).delete(item.id).onsuccess = () => {
-              updatePendingCount();
-              if(!queueModal.classList.contains("hidden")) renderQueueTable();
-          };
-        } catch { break; }
+      mode.value = item.mode; mode.onchange();
+      if(item.mode !== 'cash') {
+          const aOptions = Array.from(account.options).map(o => o.value);
+          if(aOptions.includes(item.account)) account.value = item.account;
+          else { account.value = "Others"; accountOther.value = item.account; }
+          toggleSmartOther(account, 'account_other', 'accountSmartRow');
       }
+      amtInput.value = item.withdrawn || item.deposit;
+      window.deleteItem(item.id);
+      document.getElementById("queueModal").classList.add("hidden");
     };
-  }
+  };
 
-  setInterval(syncOffline, 30000);
+  document.getElementById("btnRepeat").onclick = () => {
+    const lastStr = localStorage.getItem("lastLoanEntry");
+    if(!lastStr) { alert("No previous transaction found"); return; }
+    const last = JSON.parse(lastStr);
+    const bOptions = Array.from(borrower.options).map(o => o.value);
+    if(bOptions.includes(last.borrower)) borrower.value = last.borrower;
+    else { borrower.value = "Other"; borrowerOther.value = last.borrower; }
+    toggleSmartOther(borrower, 'borrower_other', 'borrowerSmartRow');
+    trtype.value = last.trtype; trtype.onchange();
+    mode.value = last.mode; mode.onchange();
+    if(last.mode !== 'cash') {
+      const aOptions = Array.from(account.options).map(o => o.value);
+      if(aOptions.includes(last.account)) account.value = last.account;
+      else { account.value = "Others"; accountOther.value = last.account; }
+      toggleSmartOther(account, 'account_other', 'accountSmartRow');
+    }
+    narration.value = last.narration;
+    invoice.value = last.invoice;
+    amtInput.value = ""; 
+    narration.focus();
+  };
+
+  document.getElementById("btnSyncAll").onclick = syncAllData;
+  document.getElementById("btnViewQueue").onclick = () => document.getElementById("queueModal").classList.remove('hidden');
+  document.querySelector(".close-modal").onclick = () => document.getElementById("queueModal").classList.add("hidden");
+  document.getElementById("themeToggle").onclick = () => {
+    const isDark = document.body.classList.toggle("dark");
+    themeToggle.textContent = isDark ? "☀️" : "🌙";
+  };
+  setCurrentDate();
 </script>
 </body>
 </html>
