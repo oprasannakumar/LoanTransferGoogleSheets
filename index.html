@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Loan Entry (Minimal UI)</title>
+  <title>Loan Entry (Instant Sync Fixed)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
@@ -49,7 +49,6 @@
       position: relative;
     }
 
-    /* Header Row Styling */
     .header-row {
       display: flex;
       align-items: center;
@@ -59,7 +58,6 @@
 
     h3 { margin: 0; color: var(--text-main); font-size: 18px; flex-grow: 1; text-align: center; }
 
-    /* Network Dot */
     #netStatus {
       width: 10px; height: 10px;
       border-radius: 50%;
@@ -72,7 +70,6 @@
       box-shadow: 0 0 5px var(--primary);
     }
 
-    /* Theme Toggle Icon Button */
     #themeToggle {
       background: var(--bg-cash);
       border: 1px solid var(--border-color);
@@ -110,7 +107,6 @@
     button:disabled { opacity: 0.6; cursor: not-allowed; }
     .hidden { display: none !important; }
 
-    /* Cash Grid UI */
     .cash-box { margin-top: 16px; padding: 18px; border-radius: 16px; background: var(--bg-cash); border: 1px solid var(--border-color); }
     .denom-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
     .denom-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 5px; text-align: center; }
@@ -118,7 +114,7 @@
     .denom-card input { height: 32px; text-align: center; margin-top: 0; border-radius: 6px; background: var(--bg-input); color: var(--text-main); }
 
     .sync-wrapper { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 15px; }
-    #syncIndicator { font-size: 12px; color: var(--text-label); font-weight: 600; background: var(--bg-cash); padding: 6px 12px; border-radius: 20px; }
+    #syncIndicator { font-size: 12px; color: var(--text-label); font-weight: 600; background: var(--bg-cash); padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border-color); }
     #btnViewQueue { width: auto; height: 30px; font-size: 11px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); padding: 0 12px; margin-top: 0; }
 
     .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1000; display: flex; justify-content: center; align-items: center; }
@@ -258,12 +254,13 @@
   const syncIndicator = document.getElementById("syncIndicator"), btnViewQueue = document.getElementById("btnViewQueue"), queueModal = document.getElementById("queueModal"), queueTableBody = document.getElementById("queueTableBody"), closeModal = document.querySelector(".close-modal");
   const themeToggle = document.getElementById("themeToggle"), netStatus = document.getElementById("netStatus");
 
+  // --- Network & Theme ---
   function updateNetDot() {
     const isOnline = navigator.onLine;
     netStatus.classList.toggle("online", isOnline);
-    netStatus.title = isOnline ? "Online" : "Offline";
+    if(isOnline) syncOffline();
   }
-  window.addEventListener('online', () => { updateNetDot(); syncOffline(); });
+  window.addEventListener('online', updateNetDot);
   window.addEventListener('offline', updateNetDot);
   updateNetDot();
 
@@ -277,6 +274,7 @@
     themeToggle.textContent = "☀️";
   }
 
+  // --- DB Logic ---
   const DB_NAME = "LoanAppDB", STORE_NAME = "loanQueue";
   let db;
   (function initDB(){
@@ -319,26 +317,21 @@
 
   mode.onchange = () => {
     const m = mode.value;
-    const isCash = m === "cash";
-    const isRewards = m.toLowerCase() === "rewards";
-    const isCredit = m.toLowerCase() === "credit";
-    cashBlock.classList.toggle("hidden", !isCash);
-    accountBlock.classList.toggle("hidden", isCash || m === "");
-    account.required = !isCash && m !== ""; 
+    cashBlock.classList.toggle("hidden", m !== "cash");
+    accountBlock.classList.toggle("hidden", m === "cash" || m === "");
+    account.required = m !== "cash" && m !== ""; 
     accountOtherBlock.classList.add("hidden");
-    amtInput.readOnly = isCash;
-    if (!isCash && m !== "") {
-      const currentVal = account.value;
+    amtInput.readOnly = m === "cash";
+    if (m !== "cash" && m !== "") {
+      const list = (m === "Rewards") ? rewardPlatforms : (m === "credit" ? creditCards : bankAccounts);
       account.innerHTML = "<option value=''>Select Account</option>";
-      let list = (isRewards) ? rewardPlatforms : (isCredit ? creditCards : bankAccounts);
       list.forEach(a => account.add(new Option(a, a)));
-      if (currentVal) account.value = currentVal;
     }
     updateTotals();
   };
 
   account.onchange = () => {
-    const isOther = account.value === "Others";
+    const isOther = account.value === "Others" || account.value === "Other";
     accountOtherBlock.classList.toggle("hidden", !isOther);
     accountOther.required = isOther;
   };
@@ -367,13 +360,13 @@
     narration.focus();
   };
 
+  // --- Submit Logic (Instant Offline detection) ---
   form.onsubmit = async e => {
     e.preventDefault();
     form.classList.add("was-validated");
     const isAmtValid = parseFloat(amtInput.value) > 0;
     amtInput.classList.toggle("manual-invalid", !isAmtValid);
     if (!form.checkValidity() || !isAmtValid) return;
-    if (isSubmitting) return;
 
     const finalAccount = mode.value === "cash" ? "Cash" : (account.value === "Others" ? accountOther.value : account.value);
     const payload = {
@@ -385,21 +378,28 @@
     cashGrid.querySelectorAll("input").forEach(i => payload["c" + i.dataset.val] = i.value || 0);
 
     localStorage.setItem("lastLoanEntry", JSON.stringify(payload));
-    isSubmitting = true; submitBtn.textContent = "Processing...";
-    
+
+    // INSTANT OFFLINE CHECK
     if (!navigator.onLine) {
       db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).add(payload);
-      alert("Saved offline!"); resetForm();
-    } else {
-      try {
-        await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
-        alert("Success!"); resetForm();
-      } catch {
-        db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).add(payload);
-        alert("Saved to queue."); resetForm();
-      }
+      alert("Saved offline!"); 
+      resetForm();
+      updatePendingCount();
+      return;
     }
-    isSubmitting = false; submitBtn.textContent = "Save Loan"; updatePendingCount();
+
+    if (isSubmitting) return;
+    isSubmitting = true; submitBtn.textContent = "Processing...";
+    
+    try {
+      await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+      alert("Success!"); resetForm();
+    } catch {
+      db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).add(payload);
+      alert("Saved to queue."); resetForm();
+    } finally {
+      isSubmitting = false; submitBtn.textContent = "Save Loan"; updatePendingCount();
+    }
   };
 
   function resetForm() {
@@ -408,6 +408,7 @@
     amtInput.classList.remove("manual-invalid");
     otherGroup.classList.add("hidden"); accountBlock.classList.add("hidden"); accountOtherBlock.classList.add("hidden"); cashBlock.classList.add("hidden"); amtBlock.classList.add("hidden");
     date.value = new Date().toISOString().split("T")[0];
+    document.querySelectorAll(".denom-input").forEach(i => i.value = 0);
   }
 
   function renderQueueTable() {
@@ -419,8 +420,7 @@
         const tr = document.createElement("tr");
         const amt = item.trtype === "loan_given" ? `-${item.withdrawn}` : `+${item.deposit}`;
         tr.innerHTML = `
-          <td>${item.date}</td>
-          <td style="font-weight:600">${item.borrower}</td>
+          <td>${item.date}</td><td style="font-weight:600">${item.borrower}</td>
           <td>${item.narration}</td>
           <td><div style="font-weight:600">${item.mode.toUpperCase()}</div><div style="font-size:10px; color:var(--text-muted)">(${item.account})</div></td>
           <td style="color:${item.trtype==='loan_given'?'#dc2626':'#16a34a'}; font-weight:700">${amt}</td>
@@ -432,8 +432,9 @@
 
   window.deleteItem = id => {
     if(confirm("Delete?")) {
-      db.transaction(STORE_NAME,"readwrite").objectStore(STORE_NAME).delete(id);
-      renderQueueTable(); updatePendingCount();
+      db.transaction(STORE_NAME,"readwrite").objectStore(STORE_NAME).delete(id).onsuccess = () => {
+        renderQueueTable(); updatePendingCount();
+      };
     }
   };
 
@@ -441,19 +442,23 @@
   closeModal.onclick = () => queueModal.classList.add("hidden");
 
   async function syncOffline(){
-    if (!navigator.onLine || !db) return;
+    if (!db || !navigator.onLine) return;
     const request = db.transaction(STORE_NAME, "readonly").objectStore(STORE_NAME).getAll();
     request.onsuccess = async () => {
       const items = request.result;
       for (const item of items) {
         try { 
           await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(item) }); 
-          db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).delete(item.id); 
+          db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).delete(item.id).onsuccess = () => {
+              updatePendingCount();
+              if(!queueModal.classList.contains("hidden")) renderQueueTable();
+          };
         } catch { break; }
       }
-      updatePendingCount();
     };
   }
+
+  setInterval(syncOffline, 30000);
 </script>
 </body>
 </html>
