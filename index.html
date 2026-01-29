@@ -253,7 +253,7 @@
     req.onsuccess = e => { db = e.target.result; updatePendingCount(); updateNetStatus(); };
   })();
 
-  const form = document.getElementById("loanForm"), date = document.getElementById("date"), borrower = document.getElementById("borrower"), borrowerOther = document.getElementById("borrower_other"), narration = document.getElementById("narration"), invoice = document.getElementById("invoice"), trtype = document.getElementById("trtype"), mode = document.getElementById("mode"), account = document.getElementById("account"), accountOther = document.getElementById("account_other"), cashGrid = document.getElementById("cashGrid"), amtInput = document.getElementById("amtInput"), submitBtn = document.getElementById("submitBtn");
+  const form = document.getElementById("loanForm"), date = document.getElementById("date"), borrower = document.getElementById("borrower"), borrowerOther = document.getElementById("borrower_other"), narration = document.getElementById("narration"), invoice = document.getElementById("invoice"), trtype = document.getElementById("trtype"), mode = document.getElementById("mode"), account = document.getElementById("account"), accountOther = document.getElementById("account_other"), cashGrid = document.getElementById("cashGrid"), amtInput = document.getElementById("amtInput"), submitBtn = document.getElementById("mainsubmitBtn");
 
   function updateNetStatus() {
     document.getElementById("netStatus").className = navigator.onLine ? "online" : "";
