@@ -311,7 +311,7 @@
   }
 
   denoms.forEach(d => {
-    document.getElementById('cashGrid').innerHTML += `<div class="denom-card"><span>₹${d}</span><input type="number" data-val="${d}" class="denom-input" value="0" oninput="recalcCash()"></div>`;
+    document.getElementById('cashGrid').innerHTML += `<div class="denom-card"><span>₹${d}</span><input type="number" data-val="${d}" class="denom-input" placeholder="0" oninput="recalcCash()"></div>`;
   });
 
   function toggleSmartOther(sel, otherId, parentId) {
