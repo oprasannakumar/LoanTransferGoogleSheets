@@ -75,7 +75,7 @@
     .nav-fab-container.active .nav-options { opacity: 1; transform: translateY(0); pointer-events: auto; }
     .nav-item { background: var(--bg-card); color: var(--text-main); padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: 600; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 1px solid var(--border-color); white-space: nowrap; text-align: right; width: fit-content; }
 
-    #btnShowAutofill { background: rgba(34, 197, 94, 0.1); color: var(--primary); border: 1px dashed var(--primary); font-size: 11px; font-weight: 700; height: 32px; margin-bottom: 10px; cursor: pointer; border-radius: 8px; width: 100%;margin-top:-10px;}
+    #btnShowAutofill { background: rgba(34, 197, 94, 0.1); color: var(--primary); border: 1px dashed var(--primary); font-size: 11px; font-weight: 700; height: 32px; margin-bottom: 10px; cursor: pointer; border-radius: 8px; width: 100%; margin-top:-10px;}
     .autofill-section { background: rgba(34, 197, 94, 0.05); padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--primary); }
     .autofill-section textarea { width: 100%; height: 60px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 11px; padding: 8px; box-sizing: border-box; resize: none; background: var(--bg-input); color: var(--text-main); }
     .btn-autofill { background: var(--primary); color: white; border: none; font-size: 11px; font-weight: 700; height: 30px; border-radius: 6px; cursor: pointer; margin-top: 8px; width: 100%; }
@@ -135,6 +135,9 @@
     th { text-align: center; padding: 10px; border-bottom: 2px solid var(--border-color); color: var(--text-label); transition: color 0.5s ease; }
     td { padding: 10px; border-bottom: 1px solid var(--border-color); vertical-align: middle; text-align: center; transition: border-color 0.5s ease; }
     
+    /* ALIGN DATE COLUMN LEFT */
+    table th:first-child, table td:first-child { text-align: center; padding-left: 0px; width: 70px; }
+
     .td-action-group { display: flex; justify-content: center; gap: 8px; border-bottom: none !important; padding: 0 !important; }
     .btn-action { height:25px; width:30px; background:transparent; border:none; cursor:pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
 
@@ -266,11 +269,18 @@
 </div>
 
 <script>
+// DATE FORMATTER HELPER
+function formatDisplayDate(dateStr) {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return `${d.getDate()}-${months[d.getMonth()]}-${d.getFullYear()}`;
+}
+
 function toggleSmartOther(sel, otherId, parentId) {
     const isOther = sel.value === "Other";
     const otherInp = document.getElementById(otherId);
     const parent = document.getElementById(parentId);
-    
     if (otherInp) {
         otherInp.classList.toggle('hidden', !isOther);
         otherInp.disabled = !isOther;
@@ -278,9 +288,7 @@ function toggleSmartOther(sel, otherId, parentId) {
         if (!isOther) otherInp.value = ""; 
         if (isOther) otherInp.focus();
     }
-    if (parent) {
-        parent.classList.toggle('has-other', isOther);
-    }
+    if (parent) parent.classList.toggle('has-other', isOther);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -312,7 +320,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!text.trim()) return;
     const getVal = (key) => { const r = new RegExp(`${key}:\\s*(.*)`, 'i'); const m = text.match(r); return m ? m[1].trim() : ""; };
     const rawDate = getVal('📅 Date'), name = getVal('👤 Name'), msg = getVal('📝 Msg'), amt = getVal('💰 Amount'), ref = getVal('🔗 Ref');
-
     if (rawDate) { const p = rawDate.split('-'); if(p.length===3) document.getElementById('date').value = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`; }
     if (name) {
         const bSel = document.getElementById('borrower');
@@ -348,7 +355,6 @@ document.addEventListener('DOMContentLoaded', () => {
         <button type="button" class="btn-del-mode">✕</button>
       </div>
       <input type="text" class="row-acc-other hidden" style="margin-top:6px; height:36px; width:100%; border-radius:10px; border:1px solid var(--border-color); padding:0 10px;" placeholder="Specify Account" required disabled>`;
-
     const tSel = wrapper.querySelector('.row-type'), aSel = wrapper.querySelector('.row-acc'), amtInp = wrapper.querySelector('.row-amt'), otherAcc = wrapper.querySelector('.row-acc-other');
     tSel.onchange = () => {
       aSel.innerHTML = '<option value="">Select</option>';
@@ -363,7 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(initial) { 
         tSel.value = initial.type; tSel.dispatchEvent(new Event('change')); 
         if(initial.acc === 'Other' || !Array.from(aSel.options).some(o => o.value === initial.acc)) { aSel.value = 'Other'; otherAcc.value = initial.acc; } 
-        else { aSel.value = initial.acc; }
+        else aSel.value = initial.acc;
         aSel.dispatchEvent(new Event('change')); amtInp.value = initial.amt; 
     }
     updateGrandTotal();
@@ -389,18 +395,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = e.target;
     const hasCash = Array.from(document.querySelectorAll('.row-type')).some(s => s.value === 'cash');
     const cashTotal = Array.from(document.querySelectorAll('.denom-input')).reduce((sum, i) => sum + (i.value * i.dataset.val), 0);
-    
     if(hasCash && cashTotal <= 0) { document.getElementById('cashBlock').classList.add('cash-invalid'); return; }
     else document.getElementById('cashBlock').classList.remove('cash-invalid');
-
     form.classList.add('was-validated');
     const gTotal = parseFloat(document.getElementById('grandTotal').textContent.replace('₹',''));
     if(!form.checkValidity() || gTotal <= 0) return;
-
     const bFinal = document.getElementById('borrower').value === "Other" ? document.getElementById('borrower_other').value : document.getElementById('borrower').value;
     const flowFinal = document.getElementById('trtype').value;
     const refVal = document.getElementById('reference').value || "";
-
     currentPayloads = [];
     document.querySelectorAll('.payment-row-wrapper').forEach(row => {
       const type = row.querySelector('.row-type').value, acc = row.querySelector('.row-acc').value, amt = row.querySelector('.row-amt').value;
@@ -411,14 +413,13 @@ document.addEventListener('DOMContentLoaded', () => {
       if(type === 'cash') denoms.forEach(d => p["c"+d] = document.querySelector(`input[data-val="${d}"]`).value || 0);
       currentPayloads.push(p);
     });
-
     localStorage.setItem("lastLoanPackage", JSON.stringify(currentPayloads));
     if (document.getElementById("batchToggle").checked || !navigator.onLine) saveToDB();
     else { renderConfirmation(bFinal, flowFinal, refVal); document.getElementById('confirmModal').classList.remove('hidden'); }
   };
 
   function renderConfirmation(borrower, flow, ref) {
-    let html = `<div class="confirm-item"><span class="confirm-label">Date</span><span class="confirm-val">${document.getElementById('date').value}</span></div>
+    let html = `<div class="confirm-item"><span class="confirm-label">Date</span><span class="confirm-val">${formatDisplayDate(document.getElementById('date').value)}</span></div>
                 <div class="confirm-item"><span class="confirm-label">Borrower</span><span class="confirm-val">${borrower}</span></div>
                 <div class="confirm-item"><span class="confirm-label">Narration</span><span class="confirm-val">${document.getElementById('narration').value}</span></div>
                 ${ref ? `<div class="confirm-item"><span class="confirm-label">Ref</span><span class="confirm-val">${ref}</span></div>` : ''}
@@ -474,7 +475,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById("queueTableBody").innerHTML = items.map((item) => {
         const denomsText = item.mode === 'cash' ? `<span class="queue-denoms">${getCashTextSummary(item)}</span>` : '';
         return `<tr>
-          <td>${item.date}</td>
+          <td>${formatDisplayDate(item.date)}</td>
           <td>${item.borrower}</td>
           <td>${item.narration}</td>
           <td><strong>${item.account}</strong>${denomsText}</td>
