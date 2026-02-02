@@ -138,7 +138,7 @@
     .td-action-group { display: flex; justify-content: center; gap: 8px; border-bottom: none !important; padding: 0 !important; }
     .btn-action { height:25px; width:30px; background:transparent; border:none; cursor:pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
 
-    .queue-denoms { font-size: 10px; color: #3b82f6; font-family: monospace; margin-top: 4px; display: block; text-align: center; }
+    .queue-denoms { font-size: 10px; color: #3b82f6; font-family: monospace; margin-top: 4px; display: block; text-align: center; width:170px;margin-left:20px;}
     .sync-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; border-top: 1px dashed var(--border-color); padding-top: 15px; }
   </style>
 </head>
@@ -472,7 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById("syncCount").textContent = `(${items.length})`;
       document.getElementById("footerSync").classList.toggle("hidden", items.length === 0);
       document.getElementById("queueTableBody").innerHTML = items.map((item) => {
-        const denomsText = item.mode === 'cash' ? `<span class="queue-denoms">Denoms: ${getCashTextSummary(item)}</span>` : '';
+        const denomsText = item.mode === 'cash' ? `<span class="queue-denoms">${getCashTextSummary(item)}</span>` : '';
         return `<tr>
           <td>${item.date}</td>
           <td>${item.borrower}</td>
