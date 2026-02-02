@@ -44,7 +44,7 @@
     .autofill-section textarea { width: 100%; height: 60px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 11px; padding: 8px; box-sizing: border-box; resize: none; background: var(--bg-input); color: var(--text-main); }
     .btn-autofill { background: var(--primary); color: white; border: none; font-size: 11px; font-weight: 700; height: 30px; border-radius: 6px; cursor: pointer; margin-top: 8px; width: 100%; }
 
-    .batch-control { display: flex; align-items: center; justify-content: space-between; background: rgba(99, 102, 241, 0.1); padding: 8px 12px; border-radius: 10px; margin-bottom: 10px; border: 1px solid var(--primary); height: 25px;border: 1px solid #3b82f6;}
+    .batch-control { display: flex; align-items: center; justify-content: space-between; background: rgba(59, 130, 246, 0.1); padding: 8px 12px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #3b82f6; height: 25px;margin-top:5px;}
     .switch { position: relative; display: inline-block; width: 40px; height: 22px; margin-top:0px;}
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 22px; }
@@ -55,7 +55,6 @@
     label { font-size: 12px; font-weight: 600; margin-top: 12px; display:block; color: var(--text-label); transition: color 0.5s ease; }
     input, select, button { width: 100%; height: var(--h); margin-top: 5px; padding: 0 10px; border-radius: var(--r); border: 1px solid var(--border-color); font-size: 13px; background: var(--bg-input); color: var(--text-main); box-sizing: border-box; transition: all 0.3s; }
     
-    .err-msg { display: none !important; }
     form.was-validated :invalid, .is-invalid, .cash-invalid { border-color: var(--danger) !important; background: rgba(239, 68, 68, 0.03) !important; }
 
     .smart-row { display: block; width: 100%; }
@@ -103,8 +102,7 @@
     .td-action-group { display: flex; justify-content: center; gap: 8px; border-bottom: none !important; padding: 0 !important; }
     .btn-action { height:25px; width:30px; background:transparent; border:none; cursor:pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
 
-    .queue-denoms { font-size: 10px; color: #6366f1; font-family: monospace; margin-top: 4px; display: block; text-align: center; }
-    
+    .queue-denoms { font-size: 10px; color: #3b82f6; font-family: monospace; margin-top: 4px; display: block; text-align: center; }
     .sync-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; border-top: 1px dashed var(--border-color); padding-top: 15px; }
   </style>
 </head>
@@ -230,6 +228,24 @@
 </div>
 
 <script>
+// Global function defined outside of DOMContentLoaded to be visible to HTML attributes
+function toggleSmartOther(sel, otherId, parentId) {
+    const isOther = sel.value === "Other";
+    const otherInp = document.getElementById(otherId);
+    const parent = document.getElementById(parentId);
+    
+    if (otherInp) {
+        otherInp.classList.toggle('hidden', !isOther);
+        otherInp.disabled = !isOther;
+        otherInp.required = isOther;
+        if (!isOther) otherInp.value = ""; // Clear value if switched away
+        if (isOther) otherInp.focus();
+    }
+    if (parent) {
+        parent.classList.toggle('has-other', isOther);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqPjzifT1pGTVRBv9zPT7KtbTqthUunk1zNEPuS_-4gHPghWfGonbndTnZXFsSgbe-vQ/exec";
   const denoms = [500,200,100,50,20,10,5,2,1];
@@ -241,16 +257,16 @@ document.addEventListener('DOMContentLoaded', () => {
   let syncAborted = false;
   const STORE_NAME = "loanQueue";
 
-  const navFab = document.getElementById('navFab'), fabBtn = document.getElementById('fabToggle'), themeToggle = document.getElementById('themeToggle');
-  
-  if(fabBtn) fabBtn.onclick = (e) => { e.stopPropagation(); navFab.classList.toggle('active'); };
-  document.addEventListener('click', () => { if(navFab) navFab.classList.remove('active'); });
-
-  if(themeToggle) themeToggle.onclick = () => {
-    themeToggle.classList.add('theme-rotate');
-    const isDark = document.body.classList.toggle("dark");
-    setTimeout(() => { themeToggle.textContent = isDark ? "☀️" : "🌙"; }, 150);
-    setTimeout(() => themeToggle.classList.remove('theme-rotate'), 500);
+  const initUI = () => {
+    const navFab = document.getElementById('navFab'), fabBtn = document.getElementById('fabToggle'), themeToggle = document.getElementById('themeToggle');
+    if (fabBtn) fabBtn.onclick = (e) => { e.stopPropagation(); navFab.classList.toggle('active'); };
+    document.addEventListener('click', () => { if(navFab) navFab.classList.remove('active'); });
+    if (themeToggle) themeToggle.onclick = () => {
+      themeToggle.classList.add('theme-rotate');
+      const isDark = document.body.classList.toggle("dark");
+      setTimeout(() => { themeToggle.textContent = isDark ? "☀️" : "🌙"; }, 150);
+      setTimeout(() => themeToggle.classList.remove('theme-rotate'), 500);
+    };
   };
 
   document.getElementById('btnShowAutofill').onclick = () => document.getElementById('autofillBlock').classList.toggle('hidden');
@@ -276,9 +292,9 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   (function initDB(){
-    const req = indexedDB.open("LoanAppDB_v12", 1);
+    const req = indexedDB.open("LoanAppDB_v14", 1);
     req.onupgradeneeded = e => e.target.result.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
-    req.onsuccess = e => { db = e.target.result; updatePendingCount(); updateNetStatus(); };
+    req.onsuccess = e => { db = e.target.result; updatePendingCount(); updateNetStatus(); initUI(); };
   })();
 
   function updateNetStatus() { document.getElementById("netStatus").className = navigator.onLine ? "online" : ""; }
@@ -331,24 +347,18 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cashGrid').appendChild(card);
   });
 
-  function toggleSmartOther(sel, otherId, parentId) {
-    const isOther = sel.value === "Other", otherInp = document.getElementById(otherId), parent = document.getElementById(parentId);
-    otherInp.classList.toggle('hidden', !isOther); otherInp.disabled = !isOther; otherInp.required = isOther;
-    parent.classList.toggle('has-other', isOther); if(isOther) otherInp.focus();
-  }
-
   document.getElementById("loanForm").onsubmit = function(e) {
     e.preventDefault();
     const form = e.target;
     const hasCash = Array.from(document.querySelectorAll('.row-type')).some(s => s.value === 'cash');
     const cashTotal = Array.from(document.querySelectorAll('.denom-input')).reduce((sum, i) => sum + (i.value * i.dataset.val), 0);
     
-    if(hasCash && cashTotal <= 0) document.getElementById('cashBlock').classList.add('cash-invalid');
+    if(hasCash && cashTotal <= 0) { document.getElementById('cashBlock').classList.add('cash-invalid'); return; }
     else document.getElementById('cashBlock').classList.remove('cash-invalid');
 
     form.classList.add('was-validated');
     const gTotal = parseFloat(document.getElementById('grandTotal').textContent.replace('₹',''));
-    if(!form.checkValidity() || gTotal <= 0 || (hasCash && cashTotal <= 0)) return;
+    if(!form.checkValidity() || gTotal <= 0) return;
 
     const bFinal = document.getElementById('borrower').value === "Other" ? document.getElementById('borrower_other').value : document.getElementById('borrower').value;
     const flowFinal = document.getElementById('trtype').value;
@@ -392,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       for (let p of currentPayloads) await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(p) });
       alert("Saved Online!"); resetForm();
-    } catch (err) { saveToDB(); alert("Saved to offline queue."); }
+    } catch (err) { saveToDB(); alert("Added to queue."); }
     finally { btn.disabled = false; btn.textContent = originalText; }
   }
 
@@ -404,8 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function resetForm() {
     const batchActive = document.getElementById("batchToggle").checked;
-    loanForm.reset(); 
-    loanForm.classList.remove('was-validated');
+    loanForm.reset(); loanForm.classList.remove('was-validated');
     document.getElementById("batchToggle").checked = batchActive;
     document.getElementById('paymentContainer').innerHTML = "";
     document.getElementById('borrowerSmartRow').classList.remove('has-other');
@@ -434,12 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <td><strong>${item.account}</strong>${denomsText}</td>
           <td>${item.trtype.replace('loan_','')}</td>
           <td>₹${item.withdrawn || item.deposit}</td>
-          <td>
-            <div class="td-action-group">
-              <button class="btn-action" onclick="editItem(${item.id})">✏️</button>
-              <button class="btn-action" onclick="deleteItem(${item.id})">🗑️</button>
-            </div>
-          </td>
+          <td><div class="td-action-group"><button class="btn-action" onclick="editItem(${item.id})">✏️</button><button class="btn-action" onclick="deleteItem(${item.id})">🗑️</button></div></td>
         </tr>`;
       }).join("");
     };
@@ -468,28 +472,25 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       recalcCash();
       db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).delete(id).onsuccess = () => {
-        updatePendingCount();
-        document.getElementById('queueModal').classList.add('hidden');
+        updatePendingCount(); document.getElementById('queueModal').classList.add('hidden');
       };
     };
   };
 
   async function syncAllData(){
-    if (!navigator.onLine) { alert("Internet needed to sync."); return; }
-    if(!confirm("Start sync process?")) return;
+    if (!navigator.onLine) return alert("No internet");
+    if(!confirm("Start sync?")) return;
     const btnSync = document.getElementById('btnSyncAll'), btnStop = document.getElementById('btnStopSync');
-    syncAborted = false;
-    btnSync.classList.add('hidden'); btnStop.classList.remove('hidden');
-    const tx = db.transaction(STORE_NAME, "readonly");
-    const items = await new Promise(res => { tx.objectStore(STORE_NAME).getAll().onsuccess = e => res(e.target.result); });
+    syncAborted = false; btnSync.classList.add('hidden'); btnStop.classList.remove('hidden');
+    const items = await new Promise(res => db.transaction(STORE_NAME).objectStore(STORE_NAME).getAll().onsuccess = e => res(e.target.result));
     for (let i = 0; i < items.length; i++) {
       if(syncAborted) break;
       btnStop.textContent = `🛑 Stop (${i+1}/${items.length})`;
       try {
         await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(items[i]) });
-        await new Promise(res => { db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).delete(items[i].id).onsuccess = () => res(); });
+        await new Promise(res => db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).delete(items[i].id).onsuccess = res);
         updatePendingCount();
-      } catch (err) { break; }
+      } catch(e) { break; }
     }
     btnStop.classList.add('hidden'); btnSync.classList.remove('hidden');
   }
