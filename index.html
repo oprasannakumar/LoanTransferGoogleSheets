@@ -324,12 +324,23 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   document.getElementById('btnShowAutofill').onclick = () => document.getElementById('autofillBlock').classList.toggle('hidden');
-  document.getElementById('btnApplyPaste').onclick = () => {
+    document.getElementById('btnApplyPaste').onclick = () => {
     const text = document.getElementById('pasteArea').value;
     if (!text.trim()) return;
     const getVal = (key) => { const r = new RegExp(`${key}:\\s*(.*)`, 'i'); const m = text.match(r); return m ? m[1].trim() : ""; };
-    const rawDate = getVal('📅 Date'), name = getVal('👤 Name'), msg = getVal('📝 Msg'), amt = getVal('💰 Amount'), ref = getVal('🔗 Ref');
+    
+    const rawDate = getVal('📅 Date'), 
+          name = getVal('👤 Name'), 
+          msg = getVal('📝 Msg'), 
+          amt = getVal('💰 Amount'), 
+          ref = getVal('🔗 Ref'),
+          rawType = getVal('⇄ Type'),
+          rawAcc = getVal('🏢 Account');
+
+    // 1. Date
     if (rawDate) { const p = rawDate.split('-'); if(p.length===3) document.getElementById('date').value = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`; }
+    
+    // 2. Borrower detection
     if (name) {
         const bSel = document.getElementById('borrower');
         let found = false;
@@ -337,10 +348,32 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!found){ bSel.value = "Other"; document.getElementById('borrower_other').value = name; }
         toggleSmartOther(bSel, 'borrower_other', 'borrowerSmartRow');
     }
+
+    // 3. Narration
     if (msg) document.getElementById('narration').value = msg;
+
+    // 4. Flow Logic (Debit -> Loan Given, Credit -> Loan Received)
+    const flowField = document.getElementById('trtype');
+    if (rawType.toLowerCase().includes('debit')) {
+      flowField.value = "loan_given";
+    } else if (rawType.toLowerCase().includes('credit')) {
+      flowField.value = "loan_received";
+    }
+
+    // 5. Amount
     if (amt) { const rows = document.querySelectorAll('.row-amt'); if(rows.length>0) rows[0].value = amt.replace(/[^\d.]/g, ''); }
+    
+    // 6. Reference
     if (ref) { document.getElementById('referenceWrapper').classList.remove('hidden'); document.getElementById('reference').value = ref; }
-    document.getElementById('pasteArea').value = ""; document.getElementById('autofillBlock').classList.add('hidden');
+
+    // 7. Account Hint in Header
+    if (rawAcc) {
+      const headerLabel = document.querySelector('label[style*="margin:0"]');
+      headerLabel.innerHTML = `Payment Breakdown <span style="color:var(--secondary); font-size:10px;">(Detected: ${rawAcc})</span>`;
+    }
+
+    document.getElementById('pasteArea').value = ""; 
+    document.getElementById('autofillBlock').classList.add('hidden');
     updateGrandTotal();
   };
 
