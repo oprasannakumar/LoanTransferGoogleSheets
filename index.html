@@ -444,7 +444,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if(!form.checkValidity() || gTotal <= 0) return;
     const bFinal = document.getElementById('borrower').value === "Other" ? document.getElementById('borrower_other').value : document.getElementById('borrower').value;
     const flowFinal = document.getElementById('trtype').value;
-    const refVal = document.getElementById('reference').value || "";
+   let refVal = document.getElementById('reference').value.trim();
+if (!refVal) {
+    const now = new Date();
+    const datePart = now.toISOString().split('T')[0].replace(/-/g, ''); // e.g., 20260205
+    const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase(); // 4 random chars
+    refVal = `REF-${datePart}-${randomPart}`;
+}
     currentPayloads = [];
     document.querySelectorAll('.payment-row-wrapper').forEach(row => {
       const type = row.querySelector('.row-type').value, acc = row.querySelector('.row-acc').value, amt = row.querySelector('.row-amt').value;
