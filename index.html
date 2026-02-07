@@ -178,6 +178,14 @@
 
   <div id="autofillBlock" class="autofill-section hidden">
     <textarea id="pasteArea" placeholder="Paste confirmation text here..."></textarea>
+    <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-body); padding: 8px 12px; border-radius: 10px; margin: 10px 0; border: 1px solid var(--border-color);">
+  <span style="font-size: 11px; font-weight: 700; color: var(--text-label);">Route Name to Borrower?</span>
+  <label class="switch">
+    <input type="checkbox" id="nameRoutingToggle" checked>
+    <span class="slider"></span>
+  </label>
+</div>
+
     <button type="button" class="btn-autofill" id="btnApplyPaste">Apply Data & Close</button>
   </div>
 
@@ -327,55 +335,99 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btnApplyPaste').onclick = () => {
     const text = document.getElementById('pasteArea').value;
     if (!text.trim()) return;
-    const getVal = (key) => { const r = new RegExp(`${key}:\\s*(.*)`, 'i'); const m = text.match(r); return m ? m[1].trim() : ""; };
-    
-    const rawDate = getVal('📅 Date'), 
-          name = getVal('👤 Name'), 
-          msg = getVal('📝 Msg'), 
-          amt = getVal('💰 Amount'), 
-          ref = getVal('🔗 Ref'),
-          rawType = getVal('⇄ Type'),
-          rawAcc = getVal('🏢 Account');
 
-    // 1. Date
-    if (rawDate) { const p = rawDate.split('-'); if(p.length===3) document.getElementById('date').value = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`; }
+    // Helper to extract values based on your receipt format
+    const getVal = (key) => { 
+        const r = new RegExp(`${key}:\\s*(.*)`, 'i'); 
+        const m = text.match(r); 
+        return m ? m[1].trim() : ""; 
+    };
     
-    // 2. Borrower detection
-    if (name) {
-        const bSel = document.getElementById('borrower');
-        let found = false;
-        for(let i=0; i<bSel.options.length; i++) if(bSel.options[i].text.toLowerCase() === name.toLowerCase()){ bSel.value = bSel.options[i].value; found=true; break; }
-        if(!found){ bSel.value = "Other"; document.getElementById('borrower_other').value = name; }
-        toggleSmartOther(bSel, 'borrower_other', 'borrowerSmartRow');
+    const name    = getVal('👤 Name'), 
+          rawDate = getVal('📅 Date'), 
+          msg     = getVal('📝 Msg'), 
+          amt     = getVal('💰 Amount'), 
+          ref     = getVal('🔗 Ref'),
+          rawType = getVal('⇄ Type'),
+          rawAcc  = getVal('🏢 Account');
+    
+    // Check the state of your new checkbox
+    const isBorrowerTarget = document.getElementById('nameRoutingToggle').checked;
+
+    // 1. Date Handling
+    if (rawDate) { 
+        const p = rawDate.split('-'); 
+        if(p.length === 3) {
+            document.getElementById('date').value = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`; 
+        }
     }
 
-    // 3. Narration
-    if (msg) document.getElementById('narration').value = msg;
+    // 2. Name & Narration Routing Logic
+    if (name) {
+        if (isBorrowerTarget) {
+            // ROUTE TO BORROWER FIELD
+            const bSel = document.getElementById('borrower');
+            let found = false;
+            for(let i=0; i<bSel.options.length; i++) {
+                if(bSel.options[i].text.toLowerCase() === name.toLowerCase()){ 
+                    bSel.value = bSel.options[i].value; 
+                    found = true; 
+                    break; 
+                }
+            }
+            if(!found){ 
+                bSel.value = "Other"; 
+                const otherInp = document.getElementById('borrower_other');
+                otherInp.value = name;
+                otherInp.classList.remove('hidden');
+                otherInp.disabled = false;
+            }
+            toggleSmartOther(bSel, 'borrower_other', 'borrowerSmartRow');
+            
+            // If there's a separate message, put it in narration
+            if(msg) document.getElementById('narration').value = msg;
+        } else {
+            // ROUTE TO NARRATION FIELD
+            document.getElementById('narration').value = name + (msg ? " - " + msg : "");
+            // Clear borrower to ensure user selects the right person manually
+            document.getElementById('borrower').value = ""; 
+        }
+    } else if (msg) {
+        // Fallback: If no name found, just use the message
+        document.getElementById('narration').value = msg;
+    }
 
-    // 4. Flow Logic (Debit -> Loan Given, Credit -> Loan Received)
+    // 3. Flow Detection (Debit/Credit)
     const flowField = document.getElementById('trtype');
     if (rawType.toLowerCase().includes('debit')) {
-      flowField.value = "loan_given";
+        flowField.value = "loan_given";
     } else if (rawType.toLowerCase().includes('credit')) {
-      flowField.value = "loan_received";
+        flowField.value = "loan_received";
     }
 
-    // 5. Amount
-    if (amt) { const rows = document.querySelectorAll('.row-amt'); if(rows.length>0) rows[0].value = amt.replace(/[^\d.]/g, ''); }
+    // 4. Amount Cleaning
+    if (amt) { 
+        const rows = document.querySelectorAll('.row-amt'); 
+        if(rows.length > 0) rows[0].value = amt.replace(/[^\d.]/g, ''); 
+    }
     
-    // 6. Reference
-    if (ref) { document.getElementById('referenceWrapper').classList.remove('hidden'); document.getElementById('reference').value = ref; }
-
-    // 7. Account Hint in Header
-    if (rawAcc) {
-      const headerLabel = document.querySelector('label[style*="margin:0"]');
-      headerLabel.innerHTML = `Payment Breakdown <span style="color:var(--secondary); font-size:10px;">(Detected: ${rawAcc})</span>`;
+    // 5. Reference Number
+    if (ref) { 
+        document.getElementById('referenceWrapper').classList.remove('hidden'); 
+        document.getElementById('reference').value = ref; 
     }
 
+    // 6. Visual Account Hint
+    if (rawAcc) {
+        const headerLabel = document.querySelector('label[style*="margin:0"]');
+        headerLabel.innerHTML = `Payment Breakdown <span style="color:var(--secondary); font-size:10px;">(Detected: ${rawAcc})</span>`;
+    }
+
+    // Finalize: Clear, Close, and Refresh Totals
     document.getElementById('pasteArea').value = ""; 
     document.getElementById('autofillBlock').classList.add('hidden');
     updateGrandTotal();
-  };
+};
 
   (function initDB(){
     const req = indexedDB.open("LoanAppDB_v14", 1);
@@ -391,7 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const wrapper = document.createElement('div');
     wrapper.className = 'payment-row-wrapper';
     wrapper.innerHTML = `<div class="payment-row">
-        <div><select class="row-type" required><option value="">Type</option><option value="cash">Cash</option><option value="debit">Debit</option><option value="upi">UPI</option><option value="net">Net</option><option value="credit">Credit Card</option><option value="Rewards">Rewards</option></select></div>
+        <div><select class="row-type" required><option value="">Type</option><option value="cash">Cash</option><option value="debit">Debit</option><option value="upi">UPI</option><option value="net">Net</option><option value="credit">Credit Card</option><option value="Rewards">Rewards</option><option value="Share">Share</option></select></div>
         <div><select class="row-acc" required><option value="">Account</option></select></div>
         <div><input type="number" class="row-amt" placeholder="Amt" step="0.01" required min="0.01"></div>
         <button type="button" class="btn-del-mode">✕</button>
@@ -399,11 +451,32 @@ document.addEventListener('DOMContentLoaded', () => {
       <input type="text" class="row-acc-other hidden" style="margin-top:6px; height:36px; width:100%; border-radius:10px; border:1px solid var(--border-color); padding:0 10px;" placeholder="Specify Account" required disabled>`;
     const tSel = wrapper.querySelector('.row-type'), aSel = wrapper.querySelector('.row-acc'), amtInp = wrapper.querySelector('.row-amt'), otherAcc = wrapper.querySelector('.row-acc-other');
     tSel.onchange = () => {
-      aSel.innerHTML = '<option value="">Select</option>';
-      if(tSel.value === 'cash') { aSel.add(new Option("Cash", "Cash")); aSel.value = "Cash"; aSel.disabled = true; amtInp.readOnly = true; recalcCash(); } 
-      else { aSel.disabled = false; amtInp.readOnly = false; let list = (tSel.value === "credit") ? creditCards : (tSel.value === "Rewards" ? rewardPlatforms : bankAccounts); list.forEach(a => aSel.add(new Option(a, a))); aSel.add(new Option("Other", "Other")); }
-      aSel.dispatchEvent(new Event('change')); toggleCashBlock();
-    };
+  aSel.innerHTML = '<option value="">Select</option>';
+  
+  if (tSel.value === 'cash' || tSel.value === 'Share') { 
+    // Logic for both Cash and Share
+    const label = tSel.value === 'cash' ? "Cash" : "Share";
+    aSel.add(new Option(label, label)); 
+    aSel.value = label; 
+    aSel.disabled = true; 
+    
+    // Cash still needs read-only amount because it uses the denomination grid
+    amtInp.readOnly = (tSel.value === 'cash'); 
+    if(tSel.value === 'cash') recalcCash(); 
+  } 
+  else { 
+    // Logic for all other types
+    aSel.disabled = false; 
+    amtInp.readOnly = false; 
+    let list = (tSel.value === "credit") ? creditCards : (tSel.value === "Rewards" ? rewardPlatforms : bankAccounts); 
+    list.forEach(a => aSel.add(new Option(a, a))); 
+    aSel.add(new Option("Other", "Other")); 
+  }
+  
+  aSel.dispatchEvent(new Event('change')); 
+  toggleCashBlock();
+};
+
     aSel.onchange = () => { const isOther = aSel.value === 'Other'; otherAcc.classList.toggle('hidden', !isOther); otherAcc.disabled = !isOther; otherAcc.required = isOther; };
     amtInp.oninput = updateGrandTotal;
     wrapper.querySelector('.btn-del-mode').onclick = () => { if(document.querySelectorAll('.payment-row-wrapper').length > 1) { wrapper.remove(); toggleCashBlock(); updateGrandTotal(); } };
