@@ -333,101 +333,161 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('btnShowAutofill').onclick = () => document.getElementById('autofillBlock').classList.toggle('hidden');
     document.getElementById('btnApplyPaste').onclick = () => {
-    const text = document.getElementById('pasteArea').value;
-    if (!text.trim()) return;
+  const text = document.getElementById('pasteArea').value;
+  if (!text.trim()) return;
 
-    // Helper to extract values based on your receipt format
-    const getVal = (key) => { 
-        const r = new RegExp(`${key}:\\s*(.*)`, 'i'); 
-        const m = text.match(r); 
-        return m ? m[1].trim() : ""; 
-    };
-    
-    const name    = getVal('👤 Name'), 
-          rawDate = getVal('📅 Date'), 
-          msg     = getVal('📝 Msg'), 
-          amt     = getVal('💰 Amount'), 
-          ref     = getVal('🔗 Ref'),
-          rawType = getVal('⇄ Type'),
-          rawAcc  = getVal('🏢 Account');
-    
-    // Check the state of your new checkbox
-    const isBorrowerTarget = document.getElementById('nameRoutingToggle').checked;
+  const getVal = (key) => { 
+    const r = new RegExp(`${key}:\\s*(.*)`, 'i'); 
+    const m = text.match(r); 
+    return m ? m[1].trim() : ""; 
+  };
 
-    // 1. Date Handling
-    if (rawDate) { 
-        const p = rawDate.split('-'); 
-        if(p.length === 3) {
-            document.getElementById('date').value = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`; 
+  const name = getVal('👤 Name'),
+        rawDate = getVal('📅 Date'),
+        msg = getVal('📝 Msg'),
+        amt = getVal('💰 Amount'),
+        ref = getVal('🔗 Ref'),
+        rawType = getVal('⇄ Type'),
+        rawAcc = getVal('🏢 Account'),
+        rawDirection = getVal('📊 Direction');
+
+  const isBorrowerTarget = document.getElementById('nameRoutingToggle').checked;
+
+  // 🔹 1. Date
+  if (rawDate) {
+    const p = rawDate.split('-');
+    if (p.length === 3)
+      document.getElementById('date').value =
+        `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+  }
+
+  // 🔹 2. Detect Direction → Loan Flow
+  const flowField = document.getElementById('trtype');
+  let direction = "";
+
+  if (rawDirection) {
+    const d = rawDirection.toLowerCase();
+    if (d.includes("in")) direction = "IN";
+    else if (d.includes("out")) direction = "OUT";
+  }
+  else if (rawType) {
+    const t = rawType.toLowerCase();
+    if (t.includes("credit")) direction = "IN";
+    else if (t.includes("debit")) direction = "OUT";
+  }
+
+  if (direction === "IN") flowField.value = "loan_received";
+  if (direction === "OUT") flowField.value = "loan_given";
+
+  // 🔹 3. Borrower + Narration Logic
+  if (name) {
+
+    if (isBorrowerTarget) {
+      const bSel = document.getElementById('borrower');
+      let found = false;
+
+      Array.from(bSel.options).forEach(opt => {
+        if (opt.text.toLowerCase() === name.toLowerCase()) {
+          bSel.value = opt.value;
+          found = true;
         }
+      });
+
+      if (!found) {
+        bSel.value = "Other";
+        const otherInp = document.getElementById('borrower_other');
+        otherInp.value = name;
+        otherInp.classList.remove('hidden');
+        otherInp.disabled = false;
+      }
+
+      toggleSmartOther(bSel, 'borrower_other', 'borrowerSmartRow');
+
+      // Narration prefix
+      if (direction === "IN")
+        document.getElementById('narration').value =
+          `Received from ${name}${msg ? " - " + msg : ""}`;
+
+      else if (direction === "OUT")
+        document.getElementById('narration').value =
+          `Paid to ${name}${msg ? " - " + msg : ""}`;
+
+    } else {
+      document.getElementById('narration').value =
+        `${direction === "IN" ? "Received from " : "Paid to "}${name}${msg ? " - " + msg : ""}`;
+    }
+  }
+  else if (msg) {
+    document.getElementById('narration').value = msg;
+  }
+
+  // 🔹 4. Amount
+  if (amt) {
+    const numeric = amt.replace(/[^\d.]/g, '');
+    const row = document.querySelector('.row-amt');
+    if (row) row.value = numeric;
+  }
+
+  // 🔹 5. Reference
+  if (ref) {
+    document.getElementById('referenceWrapper').classList.remove('hidden');
+    document.getElementById('reference').value = ref;
+  }
+
+  // 🔹 6. Payment Mode + Account Auto Detect
+  if (rawType || rawAcc) {
+
+    let firstRow = document.querySelector('.payment-row-wrapper');
+    if (!firstRow) {
+      createPaymentRow();
+      firstRow = document.querySelector('.payment-row-wrapper');
     }
 
-    // 2. Name & Narration Routing Logic
-    if (name) {
-        if (isBorrowerTarget) {
-            // ROUTE TO BORROWER FIELD
-            const bSel = document.getElementById('borrower');
-            let found = false;
-            for(let i=0; i<bSel.options.length; i++) {
-                if(bSel.options[i].text.toLowerCase() === name.toLowerCase()){ 
-                    bSel.value = bSel.options[i].value; 
-                    found = true; 
-                    break; 
-                }
-            }
-            if(!found){ 
-                bSel.value = "Other"; 
-                const otherInp = document.getElementById('borrower_other');
-                otherInp.value = name;
-                otherInp.classList.remove('hidden');
-                otherInp.disabled = false;
-            }
-            toggleSmartOther(bSel, 'borrower_other', 'borrowerSmartRow');
-            
-            // If there's a separate message, put it in narration
-            if(msg) document.getElementById('narration').value = msg;
-        } else {
-            // ROUTE TO NARRATION FIELD
-            document.getElementById('narration').value = name + (msg ? " - " + msg : "");
-            // Clear borrower to ensure user selects the right person manually
-            document.getElementById('borrower').value = ""; 
-        }
-    } else if (msg) {
-        // Fallback: If no name found, just use the message
-        document.getElementById('narration').value = msg;
+    const typeSelect = firstRow.querySelector('.row-type');
+    const accSelect  = firstRow.querySelector('.row-acc');
+
+    // Mode mapping
+    if (rawType) {
+      const t = rawType.toLowerCase();
+      if (t.includes("credit")) typeSelect.value = "credit";
+      else if (t.includes("debit")) typeSelect.value = "debit";
+      else if (t.includes("upi")) typeSelect.value = "upi";
+      else if (t.includes("net")) typeSelect.value = "net";
+      else if (t.includes("reward")) typeSelect.value = "Rewards";
     }
 
-    // 3. Flow Detection (Debit/Credit)
-    const flowField = document.getElementById('trtype');
-    if (rawType.toLowerCase().includes('debit')) {
-        flowField.value = "loan_given";
-    } else if (rawType.toLowerCase().includes('credit')) {
-        flowField.value = "loan_received";
-    }
+    typeSelect.dispatchEvent(new Event('change'));
 
-    // 4. Amount Cleaning
-    if (amt) { 
-        const rows = document.querySelectorAll('.row-amt'); 
-        if(rows.length > 0) rows[0].value = amt.replace(/[^\d.]/g, ''); 
-    }
-    
-    // 5. Reference Number
-    if (ref) { 
-        document.getElementById('referenceWrapper').classList.remove('hidden'); 
-        document.getElementById('reference').value = ref; 
-    }
-
-    // 6. Visual Account Hint
+    // Account matching
     if (rawAcc) {
-        const headerLabel = document.querySelector('label[style*="margin:0"]');
-        headerLabel.innerHTML = `Payment Breakdown <span style="color:var(--secondary); font-size:10px;">(Detected: ${rawAcc})</span>`;
-    }
+      const options = Array.from(accSelect.options);
+      const match = options.find(opt =>
+        opt.value.toLowerCase() === rawAcc.toLowerCase()
+      );
 
-    // Finalize: Clear, Close, and Refresh Totals
-    document.getElementById('pasteArea').value = ""; 
-    document.getElementById('autofillBlock').classList.add('hidden');
-    updateGrandTotal();
+      if (match) {
+        accSelect.value = match.value;
+      } else {
+        const partial = options.find(opt =>
+          rawAcc.toLowerCase().includes(opt.value.toLowerCase())
+        );
+
+        if (partial) {
+          accSelect.value = partial.value;
+        } else {
+          accSelect.value = "Other";
+          accSelect.dispatchEvent(new Event('change'));
+          firstRow.querySelector('.row-acc-other').value = rawAcc;
+        }
+      }
+    }
+  }
+
+  document.getElementById('pasteArea').value = "";
+  document.getElementById('autofillBlock').classList.add('hidden');
+  updateGrandTotal();
 };
+
 
   (function initDB(){
     const req = indexedDB.open("LoanAppDB_v14", 1);
