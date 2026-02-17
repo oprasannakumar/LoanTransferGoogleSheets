@@ -228,7 +228,7 @@
 <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-body); padding: 8px 12px; border-radius: 10px; margin: 10px 0; border: 1px solid var(--border-color);">
   <span style="font-size: 11px; font-weight: 700; color: var(--text-label);">Route Name to Borrower?</span>
   <label class="switch">
-    <input type="checkbox" id="nameRoutingToggle" checked>
+    <input type="checkbox" id="nameRoutingToggle">
     <span class="slider"></span>
   </label>
 </div>
@@ -386,7 +386,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   };
 function mapReceiptText(text) {
-
   const getVal = (key) => { 
     const r = new RegExp(`${key}:\\s*(.*)`, 'i'); 
     const m = text.match(r); 
@@ -404,41 +403,32 @@ function mapReceiptText(text) {
 
   const isBorrowerTarget = document.getElementById('nameRoutingToggle').checked;
 
-  // DATE
   if (rawDate) {
     const p = rawDate.split('-');
     if (p.length === 3)
-      document.getElementById('date').value =
-        `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+      document.getElementById('date').value = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
   }
 
-  // Direction → Flow
   const flowField = document.getElementById('trtype');
-  let direction = "";
+  if (rawDirection.toUpperCase().includes("OUT")) {
+    flowField.value = "loan_given";
+  } else if (rawDirection.toUpperCase().includes("IN")) {
+    flowField.value = "loan_received";
+  }
+  flowField.dispatchEvent(new Event('change'));
 
-  if (rawDirection?.toLowerCase().includes("in")) direction = "IN";
-  if (rawDirection?.toLowerCase().includes("out")) direction = "OUT";
-
-  if (rawType?.toLowerCase().includes("credit")) direction = "IN";
-  if (rawType?.toLowerCase().includes("debit")) direction = "OUT";
-
-  if (direction === "IN") flowField.value = "loan_received";
-  if (direction === "OUT") flowField.value = "loan_given";
-
-  // Borrower Logic
+  // 👤 ROUTING LOGIC (TEXT)
   if (name) {
+    const isReceived = flowField.value === "loan_received";
+    const prefix = isReceived ? "Received from " : "Paid to ";
 
     if (isBorrowerTarget) {
+      // 1. Set Borrower Dropdown
       const bSel = document.getElementById('borrower');
       let found = false;
-
       Array.from(bSel.options).forEach(opt => {
-        if (opt.text.toLowerCase() === name.toLowerCase()) {
-          bSel.value = opt.value;
-          found = true;
-        }
+        if (opt.text.toLowerCase() === name.toLowerCase()) { bSel.value = opt.value; found = true; }
       });
-
       if (!found) {
         bSel.value = "Other";
         const otherInp = document.getElementById('borrower_other');
@@ -446,84 +436,48 @@ function mapReceiptText(text) {
         otherInp.classList.remove('hidden');
         otherInp.disabled = false;
       }
-
       toggleSmartOther(bSel, 'borrower_other', 'borrowerSmartRow');
-
-      document.getElementById('narration').value =
-        `${direction === "IN" ? "Received from " : "Paid to "}${name}${msg ? " - " + msg : ""}`;
+      // 2. Narration ONLY contains Msg
+      document.getElementById('narration').value = msg || "";
+    } else {
+      // Name Routing OFF: Narration includes Name + Msg
+      document.getElementById('narration').value = `${prefix}${name}${msg ? " - " + msg : ""}`;
+      document.getElementById('borrower').value = "";
+      toggleSmartOther(document.getElementById('borrower'), 'borrower_other', 'borrowerSmartRow');
     }
-    else {
-      document.getElementById('narration').value =
-        `${direction === "IN" ? "Received from " : "Paid to "}${name}${msg ? " - " + msg : ""}`;
+  }
+
+  // Payment Breakdown
+  let firstRow = document.querySelector('.payment-row-wrapper') || createPaymentRow();
+  const typeSelect = firstRow.querySelector('.row-type');
+  const accSelect  = firstRow.querySelector('.row-acc');
+
+  if (rawType) {
+    const t = rawType.toLowerCase();
+    if (t.includes("upi")) typeSelect.value = "upi";
+    else if (t.includes("credit")) typeSelect.value = "credit";
+    else if (t.includes("debit")) typeSelect.value = "debit";
+    typeSelect.dispatchEvent(new Event('change'));
+  }
+
+  if (rawAcc) {
+    const accText = rawAcc.toLowerCase();
+    const opts = Array.from(accSelect.options);
+    let match = opts.find(o => o.value.toLowerCase() === accText) || opts.find(o => accText.includes(o.value.toLowerCase()));
+    if (match) {
+      accSelect.value = match.value;
+    } else {
+      accSelect.value = "Other";
+      accSelect.dispatchEvent(new Event('change'));
+      firstRow.querySelector('.row-acc-other').value = rawAcc;
     }
   }
-// 🔹 Payment Mode + Account Mapping
-let firstRow = document.querySelector('.payment-row-wrapper');
 
-if (!firstRow) {
-  createPaymentRow();
-  firstRow = document.querySelector('.payment-row-wrapper');
-}
-
-const typeSelect = firstRow.querySelector('.row-type');
-const accSelect  = firstRow.querySelector('.row-acc');
-
-// -------- TYPE MAPPING ----------
-if (rawType) {
-
-  const t = rawType.toLowerCase().trim();
-
-  if (t.includes("upi")) typeSelect.value = "upi";
-  else if (t.includes("credit")) typeSelect.value = "credit";
-  else if (t.includes("debit")) typeSelect.value = "debit";
-  else if (t.includes("net")) typeSelect.value = "net";
-  else if (t.includes("reward")) typeSelect.value = "Rewards";
-  else if (t.includes("cash")) typeSelect.value = "cash";
-}
-
-typeSelect.dispatchEvent(new Event('change'));
-
-// -------- ACCOUNT MAPPING ----------
-if (rawAcc) {
-
-  const accountText = rawAcc.trim().toLowerCase();
-  const options = Array.from(accSelect.options);
-
-  // Exact match
-  let match = options.find(opt =>
-    opt.value.toLowerCase() === accountText
-  );
-
-  // Partial match
-  if (!match) {
-    match = options.find(opt =>
-      accountText.includes(opt.value.toLowerCase())
-    );
-  }
-
-  if (match) {
-    accSelect.value = match.value;
-  } else {
-    accSelect.value = "Other";
-    accSelect.dispatchEvent(new Event('change'));
-
-    const otherInput = firstRow.querySelector('.row-acc-other');
-    otherInput.value = rawAcc;
-  }
-}
-  // Amount
-  if (amt) {
-    const numeric = amt.replace(/[^\d.]/g, '');
-    const row = document.querySelector('.row-amt');
-    if (row) row.value = numeric;
-  }
-
-  // Reference
+  if (amt) document.querySelector('.row-amt').value = amt.replace(/[^\d.]/g, '');
   if (ref) {
     document.getElementById('referenceWrapper').classList.remove('hidden');
     document.getElementById('reference').value = ref;
   }
-
   updateGrandTotal();
 }
 
@@ -544,96 +498,75 @@ if (rawAcc) {
   }
 };
 function mapReceiptJSON(d) {
-
   const isBorrowerTarget = document.getElementById('nameRoutingToggle').checked;
 
-  // 🔹 DATE
   if (d.date) {
     const p = d.date.split('-');
     if (p.length === 3)
-      document.getElementById('date').value =
-        `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+      document.getElementById('date').value = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
   }
-// 🔹 FLOW (Robust Detection)
-if (d.direction) {
 
-  const dir = d.direction.toString().toLowerCase().trim();
   const trTypeField = document.getElementById('trtype');
-  if (dir.includes("in")) {
+  const backendDir = (d.direction || "").toString().toUpperCase();
+  const combinedData = ((d.direction || "") + " " + (d.status || "") + " " + (d.imageMessage || "")).toLowerCase();
+
+  if (backendDir === "IN" || combinedData.includes("received") || combinedData.includes("credited")) {
     trTypeField.value = "loan_received";
-  }
-  else if (dir.includes("out")) {
+  } else if (backendDir === "OUT" || combinedData.includes("paid") || combinedData.includes("debited") || combinedData.includes("sent")) {
     trTypeField.value = "loan_given";
   }
-}
+  trTypeField.dispatchEvent(new Event('change'));
 
-
-  // 🔹 BORROWER
+  // 👤 ROUTING LOGIC (IMAGE)
   if (d.name) {
-    const bSel = document.getElementById('borrower');
-    let found = false;
+    const isReceived = trTypeField.value === "loan_received";
+    const prefix = isReceived ? "Received from " : "Paid to ";
+    const msg = d.imageMessage || "";
 
-    Array.from(bSel.options).forEach(opt => {
-      if (opt.text.toLowerCase() === d.name.toLowerCase()) {
-        bSel.value = opt.value;
-        found = true;
+    if (isBorrowerTarget) {
+      // 1. Set Borrower Dropdown
+      const bSel = document.getElementById('borrower');
+      let found = false;
+      Array.from(bSel.options).forEach(opt => {
+        if (opt.text.toLowerCase() === d.name.toLowerCase()) { bSel.value = opt.value; found = true; }
+      });
+      if (!found) {
+        bSel.value = "Other";
+        const otherInp = document.getElementById('borrower_other');
+        otherInp.value = d.name;
+        otherInp.classList.remove('hidden');
+        otherInp.disabled = false;
       }
-    });
-
-    if (!found) {
-      bSel.value = "Other";
-      const otherInp = document.getElementById('borrower_other');
-      otherInp.value = d.name;
-      otherInp.classList.remove('hidden');
-      otherInp.disabled = false;
+      toggleSmartOther(bSel, 'borrower_other', 'borrowerSmartRow');
+      // 2. Narration ONLY contains Msg
+      document.getElementById('narration').value = msg;
+    } else {
+      // Name Routing OFF: Narration includes Name + Msg
+      document.getElementById('narration').value = `${prefix}${d.name}${msg ? " - " + msg : ""}`;
+      document.getElementById('borrower').value = "";
+      toggleSmartOther(document.getElementById('borrower'), 'borrower_other', 'borrowerSmartRow');
     }
-
-    toggleSmartOther(bSel, 'borrower_other', 'borrowerSmartRow');
-
-    document.getElementById('narration').value =
-      `${d.direction === "IN" ? "Received from " : "Paid to "}${d.name}${d.imageMessage ? " - " + d.imageMessage : ""}`;
   }
 
-  // 🔹 ENSURE PAYMENT ROW EXISTS FIRST
-  let firstRow = document.querySelector('.payment-row-wrapper');
-  if (!firstRow) {
-    createPaymentRow();
-    firstRow = document.querySelector('.payment-row-wrapper');
-  }
-
+  // Mode and Amount
+  let firstRow = document.querySelector('.payment-row-wrapper') || createPaymentRow();
   const typeSelect = firstRow.querySelector('.row-type');
   const accSelect  = firstRow.querySelector('.row-acc');
   const amtInput   = firstRow.querySelector('.row-amt');
 
-  // 🔹 TYPE
   if (d.type) {
     const t = d.type.toLowerCase();
-
     if (t.includes("upi")) typeSelect.value = "upi";
     else if (t.includes("credit")) typeSelect.value = "credit";
     else if (t.includes("debit")) typeSelect.value = "debit";
-    else if (t.includes("net")) typeSelect.value = "net";
-    else if (t.includes("reward")) typeSelect.value = "Rewards";
-    else if (t.includes("cash")) typeSelect.value = "cash";
-
     typeSelect.dispatchEvent(new Event('change'));
   }
 
-  // 🔹 ACCOUNT
   if (d.account) {
     const accountText = d.account.toLowerCase();
     const options = Array.from(accSelect.options);
-
-    let match = options.find(opt =>
-      opt.value.toLowerCase() === accountText
-    );
-
-    if (!match) {
-      match = options.find(opt =>
-        accountText.includes(opt.value.toLowerCase())
-      );
-    }
-
+    let match = options.find(opt => opt.value.toLowerCase() === accountText) ||
+                options.find(opt => accountText.includes(opt.value.toLowerCase()));
     if (match) {
       accSelect.value = match.value;
     } else {
@@ -643,21 +576,13 @@ if (d.direction) {
     }
   }
 
-  // 🔹 AMOUNT
-  if (d.amount) {
-    amtInput.value = parseFloat(d.amount) || "";
-  }
-
-  // 🔹 REFERENCE
-  if (d.refId) {
+  if (d.amount) amtInput.value = parseFloat(d.amount.toString().replace(/[^\d.]/g, '')) || "";
+  if (d.refId || d.txnId) {
     document.getElementById('referenceWrapper').classList.remove('hidden');
-    document.getElementById('reference').value = d.refId;
+    document.getElementById('reference').value = d.refId || d.txnId;
   }
-
   updateGrandTotal();
 }
-
-
 document.getElementById('receiptUpload').addEventListener('change', function(e) {
 
   
