@@ -65,7 +65,15 @@
       justify-self: end;
     }
 
-    #netStatus.online { background: var(--primary); box-shadow: 0 0 8px var(--primary); }
+    #netStatus {
+  background: #ef4444;   /* default RED (offline) */
+  box-shadow: 0 0 6px #ef4444;
+}
+
+#netStatus.online {
+  background: var(--primary);  /* green */
+  box-shadow: 0 0 8px var(--primary);
+}
 
     #themeToggle, #fabToggle {
       width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border-color);
@@ -644,10 +652,17 @@ return;
     req.onsuccess = e => { db = e.target.result; updatePendingCount(); updateNetStatus(); initUI(); };
   })();
 
-  function updateNetStatus() { document.getElementById("netStatus").className = navigator.onLine ? "online" : ""; }
-  window.addEventListener('online', updateNetStatus);
-  window.addEventListener('offline', updateNetStatus);
-
+  function updateNetStatus() {
+  const el = document.getElementById("netStatus");
+  
+  if (navigator.onLine) {
+    el.classList.add("online");
+    el.title = "Online";
+  } else {
+    el.classList.remove("online");
+    el.title = "Offline";
+  }
+}
   function createPaymentRow(initial = null) {
     const wrapper = document.createElement('div');
     wrapper.className = 'payment-row-wrapper';
