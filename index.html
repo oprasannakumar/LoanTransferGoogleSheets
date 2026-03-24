@@ -243,13 +243,7 @@
       <button type="button" id="themeToggle">🌙</button>
     </div>
   </div>
-<div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-body); padding: 8px 12px; border-radius: 10px; margin: 10px 0; border: 1px solid var(--border-color);">
-  <span style="font-size: 11px; font-weight: 700; color: var(--text-label);">Route Name to Borrower?</span>
-  <label class="switch">
-    <input type="checkbox" id="nameRoutingToggle">
-    <span class="slider"></span>
-  </label>
-</div>
+
 <div class="receipt-flex">
   <button type="button" id="btnShowAutofill">✨ Use Receipt Auto-Fill</button>
 
@@ -259,15 +253,26 @@
   <input type="file" id="receiptUpload" accept="image/*" hidden>
 
 </div>
-
- 
-  <div class="batch-control">
-    <span style="font-size: 12px; font-weight: 600;">Batch Mode</span>
-    <label class="switch">
-      <input type="checkbox" id="batchToggle">
-      <span class="slider"></span>
-    </label>
+<div style="display: flex; gap: 15px; margin: 10px 0;">
+    <!-- Container 1: Route Name Toggle -->
+    <div style="flex: 1; display: flex; align-items: center; justify-content: space-between; background: var(--bg-body); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--primary);">
+      <span style="font-size: 11px; font-weight: 700; color: var(--text-label);">Route Name to Borrower?</span>
+      <label class="switch">
+        <input type="checkbox" id="nameRoutingToggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+  
+    <!-- Container 2: Batch Mode Toggle -->
+    <div style="flex: 1; display: flex; align-items: center; justify-content: space-between; background: var(--bg-body); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--primary);">
+      <span style="font-size: 11px; font-weight: 700; color: var(--text-label);">Batch Mode</span>
+      <label class="switch">
+        <input type="checkbox" id="batchToggle">
+        <span class="slider"></span>
+      </label>
+    </div>
   </div>
+
 
   <label>Date</label>
   <input type="date" id="date" required>
@@ -766,26 +771,37 @@ function updateNetStatus() {
 
   let startX = 0;
   let currentX = 0;
+  let isDragging = false;
   const content = wrapper.querySelector('.swipe-content');
 
-  wrapper.addEventListener('touchstart', (e) => {
-    startX = e.touches[0].clientX;
+  // Shared start handler
+  function onStart(clientX) {
+    startX = clientX;
+    isDragging = true;
     content.style.transition = "none";
-  });
+    // Prevent text selection while dragging
+    document.body.style.userSelect = 'none';
+  }
 
-  wrapper.addEventListener('touchmove', (e) => {
-    currentX = e.touches[0].clientX - startX;
-
+  // Shared move handler
+  function onMove(clientX) {
+    if (!isDragging) return;
+    currentX = clientX - startX;
     if (currentX < 0) {
       content.style.transform = `translateX(${currentX}px)`;
     }
-  });
+  }
 
-  wrapper.addEventListener('touchend', () => {
+  // Shared end handler
+  function onEnd() {
+    if (!isDragging) return;
+    isDragging = false;
+    document.body.style.userSelect = '';
+
     const allRows = document.querySelectorAll('.payment-row-wrapper');
 
     if (currentX < -80 && allRows.length > 1) {
-
+      // Delete the row
       content.style.transition = "transform 0.2s ease, opacity 0.2s ease";
       content.style.transform = "translateX(-100%)";
       content.style.opacity = "0";
@@ -795,23 +811,50 @@ function updateNetStatus() {
         toggleCashBlock();
         updateGrandTotal();
       }, 200);
-
     } else if (currentX < -80 && allRows.length === 1) {
-
+      // Cannot delete the last row, just nudge
       content.style.transition = "transform 0.15s ease";
       content.style.transform = "translateX(-20px)";
       setTimeout(() => content.style.transform = "translateX(0)", 150);
-
     } else {
-
+      // Reset position
       content.style.transition = "transform 0.2s ease";
       content.style.transform = "translateX(0)";
     }
 
     currentX = 0;
+  }
+
+  // Touch events
+  wrapper.addEventListener('touchstart', (e) => {
+    onStart(e.touches[0].clientX);
   });
+  wrapper.addEventListener('touchmove', (e) => {
+    onMove(e.touches[0].clientX);
+  });
+  wrapper.addEventListener('touchend', onEnd);
+
+  // Mouse events
+  wrapper.addEventListener('mousedown', (e) => {
+    // Prevent accidental deletion when clicking on inputs or selects inside the row
+    const target = e.target;
+    if (target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.closest('.row-type') || target.closest('.row-acc') || target.closest('.row-amt')) {
+      return; // Don't start swipe when interacting with form elements
+    }
+    onStart(e.clientX);
+    // Prevent default to avoid text selection
+    e.preventDefault();
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+      onMove(e.clientX);
+    }
+  });
+
+  window.addEventListener('mouseup', onEnd);
 }
-  function toggleCashBlock() { document.getElementById('cashBlock').classList.toggle('hidden', !Array.from(document.querySelectorAll('.row-type')).some(s => s.value === 'cash')); }
+ function toggleCashBlock() { document.getElementById('cashBlock').classList.toggle('hidden', !Array.from(document.querySelectorAll('.row-type')).some(s => s.value === 'cash')); }
   function recalcCash() {
     let tot = 0; document.querySelectorAll('.denom-input').forEach(i => tot += (i.value || 0) * i.dataset.val);
     document.querySelectorAll('.payment-row-wrapper').forEach(w => { if(w.querySelector('.row-type').value === 'cash') w.querySelector('.row-amt').value = tot || ""; });
