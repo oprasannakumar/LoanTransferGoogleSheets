@@ -22,8 +22,36 @@
 
     body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); padding: 15px; margin: 0; min-height: 100vh; transition: background 0.5s ease, color 0.5s ease; }
 
-    form, .confirm-card { background: var(--bg-card); max-width: 400px; margin: auto; padding: 20px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.1); border: 1px solid var(--border-color); position: relative; transition: background 0.5s ease, border-color 0.5s ease; }
-    .confirm-card { max-width: 550px; width: 75%; }
+    form{ background: var(--bg-card); max-width: 400px; margin: auto; padding: 20px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.1); border: 1px solid var(--border-color); position: relative; transition: background 0.5s ease, border-color 0.5s ease; }
+    #confirmDetails {
+  overflow-y: auto;
+  padding-right: 8px;
+  margin-bottom: 15px;
+  /* This prevents the buttons from being pushed off-screen */
+  flex-grow: 1; 
+}
+#confirmDetails::-webkit-scrollbar {
+  width: 4px;
+}
+#confirmDetails::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 10px;
+}
+    .confirm-card { 
+  background: var(--bg-card);
+  max-width: 550px; 
+  width: 95%; /* Better width for mobile */
+  margin: auto; /* Required for the modal scroll to work correctly */
+  padding: 20px; 
+  border-radius: 16px; 
+  box-shadow: 0 10px 30px rgba(0,0,0,.1); 
+  border: 1px solid var(--border-color); 
+  position: relative; 
+  transition: background 0.5s ease;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh; /* Keep card within viewport */
+}
 
     /* HEADER CENTERING LOGIC */
     .header-row-top { 
@@ -138,7 +166,23 @@
     #mainSubmitBtn, .btn-confirm { background: var(--primary); color: #fff; border: none; font-weight: 700; cursor: pointer; }
     #btnRepeat, .btn-cancel { background: var(--bg-input); color: var(--text-main); border: 1.5px solid var(--border-color); font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
-    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 10px; box-sizing: border-box; }
+    .modal { 
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%; 
+  background: rgba(0,0,0,0.8); 
+  backdrop-filter: blur(4px); 
+  z-index: 1000; 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  padding: 20px; 
+  box-sizing: border-box; 
+  overflow-y: auto; /* Enable vertical scroll on the overlay */
+}
+
     .modal-content { background: var(--bg-card); color: var(--text-main); width: 98%; max-width: 850px; max-height: 85vh; border-radius: 14px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--border-color); transition: background 0.5s ease; }
     
     .confirm-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); font-size: 13px; transition: border-color 0.5s ease; }
