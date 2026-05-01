@@ -322,13 +322,17 @@
   <input type="date" id="date" required>
 
   <label>Borrower</label>
-  <div id="borrowerSmartRow" class="smart-row">
-    <select id="borrower" required onchange="toggleSmartOther(this, 'borrower_other', 'borrowerSmartRow')">
-      <option value="">Select</option>
-      <option>Chinnama</option><option>Grand Father</option><option>Mother</option><option>Pedhamma</option><option>Ravi Babai</option><option>Srinivas Babai</option><option>Vasavi</option><option value="Other">Other</option>
-    </select>
-    <input type="text" id="borrower_other" class="hidden" placeholder="Enter name" required disabled>
+<div id="borrowerSmartRow" class="smart-row">
+  <select id="borrower" required onchange="toggleSmartOther(this, 'borrower_other', 'borrowerSmartRow')">
+    <option value="">Select</option>
+    <option>Chinnama</option><option>Grand Father</option><option>Mother</option><option>Pedhamma</option><option>Ravi Babai</option><option>Srinivas Babai</option><option>Vasavi</option><option value="Other">Other</option>
+  </select>
+  <div id="otherInputWrapper" class="hidden" style="display: flex; gap: 5px;">
+    <input type="text" id="borrower_other" placeholder="Enter name" required disabled>
+    <button type="button" id="btnPickContact" style="width: 45px; margin-top: 5px; flex-shrink: 0; background: var(--bg-input);">👤</button>
   </div>
+</div>
+
 
   <label>Narration</label>
   <input type="text" id="narration" required placeholder="Reason for loan">
@@ -417,10 +421,12 @@ function formatDisplayDate(dateStr) {
 
 function toggleSmartOther(sel, otherId, parentId) {
     const isOther = sel.value === "Other";
+    const wrapper = document.getElementById('otherInputWrapper');
     const otherInp = document.getElementById(otherId);
     const parent = document.getElementById(parentId);
-    if (otherInp) {
-        otherInp.classList.toggle('hidden', !isOther);
+    
+    if (wrapper) {
+        wrapper.classList.toggle('hidden', !isOther);
         otherInp.disabled = !isOther;
         otherInp.required = isOther;
         if (!isOther) otherInp.value = ""; 
@@ -428,6 +434,7 @@ function toggleSmartOther(sel, otherId, parentId) {
     }
     if (parent) parent.classList.toggle('has-other', isOther);
 }
+
 
 document.addEventListener('DOMContentLoaded', () => {
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqPjzifT1pGTVRBv9zPT7KtbTqthUunk1zNEPuS_-4gHPghWfGonbndTnZXFsSgbe-vQ/exec";
@@ -708,6 +715,67 @@ return;
     const req = indexedDB.open("LoanAppDB_v14", 1);
     req.onupgradeneeded = e => e.target.result.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
     req.onsuccess = e => { db = e.target.result; updatePendingCount(); updateNetStatus(); initUI(); };
+    // --- Contact Picker Logic ---
+const btnPickContact = document.getElementById('btnPickContact');
+const borrowerOtherInp = document.getElementById('borrower_other');
+
+if (!('contacts' in navigator && 'ContactsManager' in window)) {
+  btnPickContact.style.display = 'none'; // Hide if browser doesn't support it
+}
+
+btnPickContact.addEventListener('click', async () => {
+  const props = ['name'];
+  try {
+    const contacts = await navigator.contacts.select(props, { multiple: false });
+    if (contacts.length > 0 && contacts[0].name) {
+      borrowerOtherInp.value = contacts[0].name[0];
+    }
+  } catch (err) {
+    console.error("Contact picker error:", err);
+  }
+});
+
+// Update your existing toggleSmartOther to handle the new wrapper
+window.toggleSmartOther = function(sel, otherId, parentId) {
+    const isOther = sel.value === "Other";
+    const wrapper = document.getElementById('otherInputWrapper');
+    const otherInp = document.getElementById(otherId);
+    const parent = document.getElementById(parentId);
+    
+    if (wrapper) {
+        wrapper.classList.toggle('hidden', !isOther);
+        otherInp.disabled = !isOther;
+        otherInp.required = isOther;
+        if (isOther) otherInp.focus();
+    }
+    if (parent) parent.classList.toggle('has-other', isOther);
+};
+// --- Auto-Flow Logic based on Narration Keywords ---
+const narrationInp = document.getElementById('narration');
+const trTypeField = document.getElementById('trtype');
+
+narrationInp.addEventListener('input', () => {
+  const text = narrationInp.value.toLowerCase();
+  
+  // Keywords for "Loan Given" (Money going OUT)
+  const givenKeywords = ['paid', 'gave', 'sent', 'transfer to', 'giving', 'lent', 'out'];
+  
+  // Keywords for "Loan Received" (Money coming IN)
+  const receivedKeywords = ['received', 'got', 'taken', 'borrowed', 'from', 'credited', 'in'];
+
+  const matchesGiven = givenKeywords.some(key => text.includes(key));
+  const matchesReceived = receivedKeywords.some(key => text.includes(key));
+
+  if (matchesGiven && !matchesReceived) {
+    trTypeField.value = "loan_given";
+    trTypeField.dispatchEvent(new Event('change'));
+  } else if (matchesReceived && !matchesGiven) {
+    trTypeField.value = "loan_received";
+    trTypeField.dispatchEvent(new Event('change'));
+  }
+});
+
+
   })();
 window.addEventListener('online', updateNetStatus);
 window.addEventListener('offline', updateNetStatus);
