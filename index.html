@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -547,7 +546,7 @@ function mapReceiptText(text) {
     }
   }
 
-  if (amt) document.querySelector('.row-amt').value = amt.replace(/[^\d.]/g, '');
+  if (amt) document.querySelector('.row-amt').value = amt.replace(/[^\d.\-]/g, '');
   if (ref) {
     document.getElementById('referenceWrapper').classList.remove('hidden');
     document.getElementById('reference').value = ref;
@@ -649,7 +648,7 @@ function mapReceiptJSON(d) {
     }
   }
 
-  if (d.amount) amtInput.value = parseFloat(d.amount.toString().replace(/[^\d.]/g, '')) || "";
+  if (d.amount) amtInput.value = parseFloat(d.amount.toString().replace(/[^\d.\-]/g, '')) || "";
   if (d.refId || d.txnId) {
     document.getElementById('referenceWrapper').classList.remove('hidden');
     document.getElementById('reference').value = d.refId || d.txnId;
@@ -822,8 +821,7 @@ function updateNetStatus() {
                class="row-amt"
                placeholder="Amt"
                step="0.01"
-               required
-               min="0.01">
+               required>
       </div>
     </div>
   </div>
@@ -986,7 +984,7 @@ function updateNetStatus() {
     const form = e.target;
     const hasCash = Array.from(document.querySelectorAll('.row-type')).some(s => s.value === 'cash');
     const cashTotal = Array.from(document.querySelectorAll('.denom-input')).reduce((sum, i) => sum + (i.value * i.dataset.val), 0);
-    if(hasCash && cashTotal <= 0) { document.getElementById('cashBlock').classList.add('cash-invalid'); return; }
+    if(hasCash && cashTotal === 0) { document.getElementById('cashBlock').classList.add('cash-invalid'); return; }
     else document.getElementById('cashBlock').classList.remove('cash-invalid');
     form.classList.add('was-validated');
     const gTotal = parseFloat(document.getElementById('grandTotal').textContent.replace('₹',''));
