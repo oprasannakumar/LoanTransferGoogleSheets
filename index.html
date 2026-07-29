@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <title>Loan Entry | Smart Sync Pro</title>
   <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#ffffff">
-<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2845/2845812.png">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2845/2845812.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -22,86 +22,41 @@
     body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); padding: 15px; margin: 0; min-height: 85vh; transition: background 0.5s ease, color 0.5s ease; }
 
     form{ background: var(--bg-card); max-width: 400px; margin: auto; padding: 20px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.1); border: 1px solid var(--border-color); position: relative; transition: background 0.5s ease, border-color 0.5s ease; }
+    
     #confirmDetails {
-  overflow-y: auto;
-  padding-right: 8px;
-  margin-bottom: 15px;
-  /* This prevents the buttons from being pushed off-screen */
-  flex-grow: 1; 
-}
-#confirmDetails::-webkit-scrollbar {
-  width: 4px;
-}
-#confirmDetails::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 10px;
-}
+      max-height: 75vh;
+      overflow-y: auto;
+      padding-right: 8px;
+      margin-bottom: 15px;
+      flex-grow: 1; 
+    }
+    #confirmDetails::-webkit-scrollbar { width: 4px; }
+    #confirmDetails::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+    
     .confirm-card { 
-  background: var(--bg-card);
-  max-width: 550px; 
-  width: 95%; /* Better width for mobile */
-  margin: auto; /* Required for the modal scroll to work correctly */
-  padding: 20px; 
-  border-radius: 16px; 
-  box-shadow: 0 10px 30px rgba(0,0,0,.1); 
-  border: 1px solid var(--border-color); 
-  position: relative; 
-  transition: background 0.5s ease;
-  display: flex;
-  flex-direction: column;
-  max-height: 90vh; /* Keep card within viewport */
-}
+      background: var(--bg-card);
+      max-width: 550px; 
+      width: 95%; 
+      margin: auto; 
+      padding: 20px; 
+      border-radius: 16px; 
+      box-shadow: 0 10px 30px rgba(0,0,0,.1); 
+      border: 1px solid var(--border-color); 
+      position: relative; 
+      transition: background 0.5s ease;
+      display: flex;
+      flex-direction: column;
+      max-height: 90vh; 
+    }
 
     /* HEADER CENTERING LOGIC */
-    .header-row-top { 
-      display: grid; 
-      grid-template-columns: 40px 1fr 80px; 
-      align-items: center; 
-      margin-bottom: 15px; 
-      margin-top: -5px; 
-    }
+    .header-row-top { display: grid; grid-template-columns: 40px 1fr 80px; align-items: center; margin-bottom: 15px; margin-top: -5px; }
+    h3 { margin: 0; font-weight: 600; font-size: 18px; text-align: center; grid-column: 1 / -1; grid-row: 1; z-index: 1; padding-top: 5px; }
 
-    h3 { 
-      margin: 0; 
-      font-weight: 600; 
-      font-size: 18px; 
-      text-align: center; 
-      grid-column: 1 / -1; 
-      grid-row: 1;
-      z-index: 1;
-      padding-top: 5px;
-    }
+    .right-btns { grid-column: 3; grid-row: 1; z-index: 2; display: flex; gap: 8px; justify-self: end; }
 
-
-    .right-btns {
-      grid-column: 3;
-      grid-row: 1;
-      z-index: 2;
-      display: flex;
-      gap: 8px;
-      justify-self: end;
-    }
-
-    #netStatus {
-  grid-column: 1;
-  grid-row: 1;
-  justify-self: start;
-  align-self: center;
-
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-
-  background: #ef4444; /* default red */
-  box-shadow: 0 0 6px #ef4444;
-
-  z-index: 2;
-}
-
-#netStatus.online {
-  background: var(--primary);  /* green */
-  box-shadow: 0 0 8px var(--primary);
-}
+    #netStatus { grid-column: 1; grid-row: 1; justify-self: start; align-self: center; width: 10px; height: 10px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 6px #ef4444; z-index: 2; }
+    #netStatus.online { background: var(--primary); box-shadow: 0 0 8px var(--primary); }
 
     #themeToggle, #fabToggle {
       width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border-color);
@@ -109,6 +64,51 @@
       font-size: 14px; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); flex-shrink: 0;
     }
     .theme-rotate { transform: rotate(360deg); }
+
+    /* SIDEWALL DRAGGABLE BALL STYLES */
+    #dragDashBall {
+      position: fixed; right: 0px; top: 180px; z-index: 9999;
+      background: var(--bg-card); border: 1px solid var(--border-color); border-right: none;
+      border-radius: 24px 0 0 24px; padding: 6px 10px 6px 8px; box-shadow: -3px 4px 15px rgba(0,0,0,0.15);
+      display: flex; align-items: center; gap: 6px; cursor: grab; user-select: none; touch-action: none;
+      transition: background 0.3s ease, transform 0.1s ease; -webkit-tap-highlight-color: transparent;
+    }
+    #dragDashBall:active { cursor: grabbing; transform: scale(0.96); }
+    .ball-icon { font-size: 14px; line-height: 1; }
+    .ball-text { display: flex; flex-direction: column; font-size: 9px; font-weight: 700; line-height: 1.1; }
+    .ball-income { color: var(--primary); }
+    .ball-spent { color: var(--danger); }
+
+    /* Daily Row Styles */
+    .daily-txn-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 10px; border-bottom: 1px solid var(--border-color); transition: background 0.2s ease; border-radius: 8px; -webkit-tap-highlight-color: transparent; }
+    .daily-txn-row:hover, .daily-txn-row:active { background: var(--bg-input); }
+    .daily-txn-row:last-child { border-bottom: none; }
+    .daily-txn-row .txn-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; margin-left: 8px; }
+    .daily-txn-row .txn-actions span { cursor: pointer; font-size: 16px; opacity: 0.7; transition: opacity 0.2s; padding: 4px; border-radius: 4px; }
+    .daily-txn-row .txn-actions span:hover { opacity: 1; background: var(--bg-input); }
+
+    /* Edit Compare Grid Styles */
+    .edit-compare-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 8px 10px;
+      align-items: center;
+      max-height: 75vh;
+      overflow-y: auto;
+      font-size: 12px;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    .edit-compare-grid .col-header {
+      font-weight: 700;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--border-color);
+    }
+    .edit-compare-grid .old-val { background: rgba(248,113,113,0.08); padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-color); color: var(--danger); word-break: break-word; }
+    .edit-compare-grid .new-val { background: rgba(34,197,94,0.08); padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-color); color: var(--primary); word-break: break-word; }
+    .edit-compare-grid .field-label { font-weight: 600; color: var(--text-label); white-space: nowrap; padding: 0 8px; }
+    .edit-compare-grid .diff-heading { grid-column: 1 / -1; font-weight: 700; margin-top: 12px; color: var(--secondary); border-bottom: 1px dashed var(--border-color); padding-bottom: 4px; text-align: center; }
+    .edit-compare-grid .old-val.dim, .edit-compare-grid .new-val.dim { background: var(--bg-input); color: var(--text-label); }
 
     .nav-fab-container { position: relative; }
     .nav-options { position: absolute; right: 0; top: 40px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; opacity: 0; transform: translateY(-10px); pointer-events: none; transition: 0.2s ease-out; z-index: 10001; }
@@ -134,22 +134,11 @@
     .smart-row.has-other { display: grid; grid-template-columns: 1fr 1.2fr; gap: 10px; }
 
     .payment-row-wrapper { margin-bottom: 12px; border-bottom: 1px dashed var(--border-color); padding-bottom: 12px; }
-    .payment-row { 
-  display: grid; 
-  grid-template-columns: 1fr 1.2fr 80px; 
-  gap: 6px; 
-  align-items: end; 
-}
-    /* Swipe delete support */
-.swipe-wrapper {
-  position: relative;
-  overflow: hidden;
-}
-
-.swipe-content {
-  transition: transform 0.25s ease, opacity 0.2s ease;
-  touch-action: pan-y;
-}
+    .payment-row { display: grid; grid-template-columns: 1fr 1.2fr 80px; gap: 6px; align-items: end; }
+    
+    .swipe-wrapper { position: relative; overflow: hidden; }
+    .swipe-content { transition: transform 0.25s ease, opacity 0.2s ease; touch-action: pan-y; }
+    
     .btn-add-mode { background: var(--secondary); color: #fff; border: none; font-size: 11px; height: 24px; cursor: pointer; border-radius: 6px; width: auto; padding: 0 10px; margin: 0; }
 
     .total-wrapper { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding: 8px 12px; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-color); }
@@ -166,21 +155,19 @@
     #btnRepeat, .btn-cancel { background: var(--bg-input); color: var(--text-main); border: 1.5px solid var(--border-color); font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
     .modal { 
-  position: fixed; 
-  top: 0; 
-  left: 0; 
-  width: 100%; 
-  height: 100%; 
-  background: rgba(0,0,0,0.8); 
-  backdrop-filter: blur(4px); 
-  z-index: 1000; 
-  display: flex; 
-  justify-content: center; 
-  align-items: center; 
-  padding: 20px; 
-  box-sizing: border-box; 
-  overflow-y: auto; /* Enable vertical scroll on the overlay */
-}
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); 
+      z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; overflow-y: auto; 
+    }
+    
+    #todayTxnModal, #dailyTxnDetailsModal, #editCompareModal {
+      background: transparent !important;
+      backdrop-filter: none;
+      pointer-events: none !important;
+    }
+    #todayTxnModal .confirm-card, #dailyTxnDetailsModal .confirm-card, #editCompareModal .confirm-card {
+      pointer-events: auto !important;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+    }
 
     .modal-content { background: var(--bg-card); color: var(--text-main); width: 98%; max-width: 850px; max-height: 85vh; border-radius: 14px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--border-color); transition: background 0.5s ease; }
     
@@ -201,8 +188,6 @@
     table { width: 100%; border-collapse: collapse; font-size: 11px; min-width: 700px; }
     th { text-align: center; padding: 10px; border-bottom: 2px solid var(--border-color); color: var(--text-label); transition: color 0.5s ease; }
     td { padding: 10px; border-bottom: 1px solid var(--border-color); vertical-align: middle; text-align: center; transition: border-color 0.5s ease; }
-    
-    /* ALIGN DATE COLUMN LEFT */
     table th:first-child, table td:first-child { text-align: center; padding-left: 0px; width: 70px; }
 
     .td-action-group { display: flex; justify-content: center; gap: 8px; border-bottom: none !important; padding: 0 !important; }
@@ -210,65 +195,52 @@
 
     .queue-denoms { font-size: 10px; color: #3b82f6; font-family: monospace; margin-top: 4px; display: block; text-align: center; width:170px;margin-left:0px;}
     .sync-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; border-top: 1px dashed var(--border-color); padding-top: 15px; }
-    #btnStopSync {
-  border: 1.5px solid #ef4444;
-  border-radius: 12px;
-  background-color: white; /* Optional: makes the red border pop */
-  color: #ef4444;            /* Optional: matches text to border */
-}
-/* ==== RECEIPT BUTTON FLEX FIX ==== */
+    #btnStopSync { border: 1.5px solid #ef4444; border-radius: 12px; background-color: white; color: #ef4444; }
 
-.receipt-flex {
-  display: flex;
-  align-items: stretch;
-  gap: 10px;
-  margin: 10px 0;
-}
+    .receipt-flex { display: flex; align-items: stretch; gap: 10px; margin: 10px 0; }
+    .receipt-flex button { flex: 1; width: auto !important; margin: 0 !important; height: 30px; border-radius: 8px; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .receipt-flex label { flex: 0 0 30px; width: auto !important; margin: 0 !important; height: 30px; border-radius: 8px; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
-.receipt-flex button {
-  flex: 1;
-  width: auto !important;       /* override global width */
-  margin: 0 !important;         /* remove global margin-top */
-  height: 30px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-.receipt-flex label {
-  flex: 0 0 30px;
-  width: auto !important;       /* override global width */
-  margin: 0 !important;         /* remove global margin-top */
-  height: 30px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
+    #btnShowAutofill { background: rgba(34,197,94,0.1); color: var(--primary); border: 1px dashed var(--primary); }
+    .upload-btn { background: rgba(59,130,246,0.1); color: var(--secondary); border: 1px dashed var(--secondary); }
 
-/* Autofill button */
-#btnShowAutofill {
-  background: rgba(34,197,94,0.1);
-  color: var(--primary);
-  border: 1px dashed var(--primary);
-}
-
-/* Upload button */
-.upload-btn {
-  background: rgba(59,130,246,0.1);
-  color: var(--secondary);
-  border: 1px dashed var(--secondary);
-}
+    /* Toast UI */
+    #toast {
+      position:fixed; bottom:40px; left:50%; transform:translate(-50%,40px) scale(0.95);
+      background:var(--primary); color:white; padding:12px 20px; border-radius:14px;
+      font-size:14px; font-weight:600; letter-spacing:0.2px; box-shadow:0 10px 30px rgba(0,0,0,0.25);
+      z-index:20000; text-align:center; max-width:85%; min-width:120px; opacity:0; pointer-events:none;
+      transition:transform 0.35s cubic-bezier(.22,1,.36,1),opacity 0.35s ease;
+    }
+    #toast.show { opacity:1; transform:translate(-50%,0) scale(1); }
   </style>
 </head>
 
 <body>
+
+<!-- Toast -->
+<div id="toast" class="hidden"></div>
+
+<!-- Confirm Popup -->
+<div id="confirmPopup" class="modal hidden" style="z-index: 20001;">
+  <div class="confirm-card" style="max-width: 350px;">
+      <h3 id="confirmTitle" style="text-align:center;">Confirm</h3>
+      <div style="padding:15px;text-align:center;font-size:13px;" id="confirmMsg"></div>
+      <div class="btn-group">
+          <button id="confirmYes" class="btn-confirm">Yes</button>
+          <button id="confirmNo" class="btn-cancel">Cancel</button>
+      </div>
+  </div>
+</div>
+
+<!-- SIDEWALL DRAGGABLE BALL -->
+<div id="dragDashBall" title="Drag vertically. Tap to view today's log">
+    <span class="ball-icon">📊</span>
+    <div class="ball-text">
+        <span class="ball-income" id="ballIncomeVal">+₹0</span>
+        <span class="ball-spent" id="ballSpentVal">-₹0</span>
+    </div>
+</div>
 
 <form id="loanForm" novalidate>
   <div class="header-row-top">
@@ -381,6 +353,7 @@
   </div>
 </form>
 
+<!-- CONFIRM MODAL -->
 <div id="confirmModal" class="modal hidden">
   <div class="confirm-card">
     <h3 style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Confirm Details</h3>
@@ -389,6 +362,41 @@
       <button type="button" id="btnConfirmFinal" class="btn-confirm">Proceed</button>
       <button type="button" id="btnConfirmCancel" class="btn-cancel">Edit</button>
     </div>
+  </div>
+</div>
+
+<!-- EDIT COMPARE MODAL -->
+<div id="editCompareModal" class="modal hidden">
+  <div class="confirm-card" style="max-width:95%;width:600px;padding:18px;">
+      <h3 style="margin-bottom:5px;border-bottom:1px solid var(--border-color);padding-bottom:8px;font-size:15px;text-align:center;">Confirm Edit Changes</h3>
+      <p style="text-align:center;font-size:11px;margin-top:0;color:var(--text-label);margin-bottom:15px;">Review the differences before saving the updated transaction.</p>
+      <div id="editCompareGrid" class="edit-compare-grid"></div>
+      <div class="btn-group" style="margin-top:0;">
+          <button type="button" id="btnConfirmEditSave" class="btn-confirm" style="height:38px;font-size:12px;">✔ Save Updated</button>
+          <button type="button" id="btnCancelEditSave" class="btn-cancel" style="height:38px;font-size:12px;">✖ Cancel</button>
+      </div>
+  </div>
+</div>
+
+<!-- Local Daily Transactions Log Modal -->
+<div id="todayTxnModal" class="modal hidden">
+  <div class="confirm-card" style="max-width:95%;width:450px;padding:18px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);padding-bottom:10px;margin-bottom:12px;">
+          <h3 style="margin:0;font-size:15px;">Today's Local Log</h3>
+          <span style="cursor:pointer;font-size:18px;" onclick="document.getElementById('todayTxnModal').classList.add('hidden')">✕</span>
+      </div>
+      <div id="todayTxnList" style="max-height:75vh;overflow-y:auto;font-size:12px;padding-right:5px;"></div>
+  </div>
+</div>
+
+<!-- Transaction Details Modal -->
+<div id="dailyTxnDetailsModal" class="modal hidden">
+  <div class="confirm-card" style="max-width:90%;width:450px;padding:20px;">
+      <h3 style="margin-bottom:15px;border-bottom:1px solid var(--border-color);padding-bottom:10px;font-size:15px;">Transaction Details</h3>
+      <div id="dailyTxnDetailsContent" style="font-size:13px;max-height:75vh;overflow-y:auto;padding-right:5px;"></div>
+      <div class="btn-group" style="margin-top:15px;">
+          <button type="button" class="btn-cancel" style="grid-column:1 / -1;" onclick="document.getElementById('dailyTxnDetailsModal').classList.add('hidden')">Close</button>
+      </div>
   </div>
 </div>
 
@@ -410,12 +418,38 @@
 </div>
 
 <script>
-// DATE FORMATTER HELPER
+// --- UI Helpers ---
+function showToast(msg, color) {
+    const toast = document.getElementById("toast");
+    toast.textContent = msg;
+    toast.style.background = color || "var(--primary)";
+    toast.classList.remove("hidden");
+    requestAnimationFrame(() => toast.classList.add("show"));
+    setTimeout(() => { toast.classList.remove("show");
+        setTimeout(() => toast.classList.add("hidden"), 350); }, 2200);
+}
+
+function showConfirm(message) {
+    return new Promise(resolve => {
+        const modal = document.getElementById("confirmPopup");
+        document.getElementById("confirmMsg").innerText = message;
+        modal.classList.remove("hidden");
+        document.getElementById("confirmYes").onclick = () => { modal.classList.add("hidden"); resolve(true); };
+        document.getElementById("confirmNo").onclick = () => { modal.classList.add("hidden"); resolve(false); };
+    });
+}
+
 function formatDisplayDate(dateStr) {
   if (!dateStr) return "";
   const d = new Date(dateStr);
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   return `${d.getDate()}-${months[d.getMonth()]}-${d.getFullYear()}`;
+}
+
+function getTodayIST() {
+  const d = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+  const yyyy = d.getFullYear(), mm = String(d.getMonth() + 1).padStart(2, '0'), dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 function toggleSmartOther(sel, otherId, parentId) {
@@ -434,10 +468,11 @@ function toggleSmartOther(sel, otherId, parentId) {
     if (parent) parent.classList.toggle('has-other', isOther);
 }
 
-
 document.addEventListener('DOMContentLoaded', () => {
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqPjzifT1pGTVRBv9zPT7KtbTqthUunk1zNEPuS_-4gHPghWfGonbndTnZXFsSgbe-vQ/exec";
   const IMAGE_PROCESS_URL="https://script.google.com/macros/s/AKfycbx7CrlFktwGnHXRvdcovoXrZAjEGlg5axKnK5a7udfT-NdRwLcQ1xyqOsJ7vW7PUyPj3A/exec";
+  const DELETE_URL = "https://script.google.com/macros/s/AKfycbz5jwjriTJB2rqI7G66VmtdLTBGR0tQ4j_2iRKDubEERdR-pHI-Sg5OiORQxqgXsg_G/exec";
+
   const denoms = [500,200,100,50,20,10,5,2,1];
   const bankAccounts = ["FI","HDFC Old","HDFC New","ICICI","IndusInd","Kotak","RBL","SBI"];
   const creditCards = ["Axis Flipkart","Axis MyZone","Axis Neo","HDFC PhonePe","HDFC Tata Neu","HDFC Millennia","HSBC","IDFC First Millenia","ICICI Amazon","ICICI Coral","ICICI Expressions","Indusind Plat Aura EDGE","Indusind Legend","Yes Finbooster","Kotak League","Kotak Image","SBI BPCL","Standard Chartered"];
@@ -445,6 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let db, currentPayloads = [];
   let syncAborted = false;
+  let editingLogId = null; 
   const STORE_NAME = "loanQueue";
 
   const initUI = () => {
@@ -458,410 +494,552 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => themeToggle.classList.remove('theme-rotate'), 500);
     };
   };
-function mapReceiptText(text) {
-  const getVal = (key) => { 
-    const r = new RegExp(`${key}:\\s*(.*)`, 'i'); 
-    const m = text.match(r); 
-    return m ? m[1].trim() : ""; 
+
+  // --- Daily Logger Dashboard Functions ---
+  function getDailyTxns() {
+    let data = JSON.parse(localStorage.getItem('loan_daily_txns') || '{"date":"","txns":[]}');
+    if (data.date !== getTodayIST()) {
+      data = { date: getTodayIST(), txns: [] };
+      localStorage.setItem('loan_daily_txns', JSON.stringify(data));
+    }
+    return data;
+  }
+
+  function renderSessionDashboard() {
+    const data = getDailyTxns();
+    let spent = 0, income = 0;
+    data.txns.forEach(t => {
+      if (t.flow === 'loan_given') spent += t.amount;       
+      else if (t.flow === 'loan_received') income += t.amount; 
+    });
+    document.getElementById('ballSpentVal').textContent = '-₹' + Math.round(spent).toLocaleString('en-IN');
+    document.getElementById('ballIncomeVal').textContent = '+₹' + Math.round(income).toLocaleString('en-IN');
+  }
+
+  function addDailyTxn(narration, amount, flow, details, fullHtml, ref, formState) {
+    const data = getDailyTxns();
+    data.txns.push({ id: Date.now(), narration, amount, flow, details, fullHtml, ref, formState: formState || null });
+    localStorage.setItem('loan_daily_txns', JSON.stringify(data));
+    renderSessionDashboard();
+  }
+
+  window.removeDailyTxn = async function(id) {
+    const ok = await showConfirm("Are you sure you want to delete this transaction locally and from the backend?");
+    if (!ok) return;
+    const data = getDailyTxns();
+    const txn = data.txns.find(t => t.id === id);
+    if (!txn) return;
+    
+    data.txns = data.txns.filter(t => t.id !== id);
+    localStorage.setItem('loan_daily_txns', JSON.stringify(data));
+    renderSessionDashboard();
+    window.renderDailyTxnsModal();
+
+    if (txn.ref) {
+      try {
+        await fetch(`${DELETE_URL}?action=delete&value=${encodeURIComponent(txn.ref)}`, { method: "GET", mode: "no-cors" });
+        showToast("🗑️ Delete command sent", "var(--primary)");
+      } catch (e) {
+        console.error("Failed to trigger delete hook", e);
+        showToast("Failed to connect to backend", "var(--danger)");
+      }
+    } else {
+      showToast("🗑️ Removed locally", "var(--primary)");
+    }
   };
 
-  const name = getVal('👤 Name'),
-        rawDate = getVal('📅 Date'),
-        msg = getVal('📝 Msg'),
-        amt = getVal('💰 Amount'),
-        ref = getVal('🔗 Ref'),
-        rawType = getVal('⇄ Type'),
-        rawAcc = getVal('🏢 Account'),
-        rawDirection = getVal('📊 Direction');
-
-  const isBorrowerTarget = document.getElementById('nameRoutingToggle').checked;
-
-  if (rawDate) {
-    const p = rawDate.split('-');
-    if (p.length === 3)
-      document.getElementById('date').value = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
-  }
-
-  const flowField = document.getElementById('trtype');
-  if (rawDirection.toUpperCase().includes("OUT")) {
-    flowField.value = "loan_given";
-  } else if (rawDirection.toUpperCase().includes("IN")) {
-    flowField.value = "loan_received";
-  }
-  flowField.dispatchEvent(new Event('change'));
-
-  // 👤 ROUTING LOGIC (TEXT)
-  if (name) {
-    const isReceived = flowField.value === "loan_received";
-    const prefix = isReceived ? "Received from " : "Paid to ";
-
-    if (isBorrowerTarget) {
-      // 1. Set Borrower Dropdown
-      const bSel = document.getElementById('borrower');
-      let found = false;
-      Array.from(bSel.options).forEach(opt => {
-        if (opt.text.toLowerCase() === name.toLowerCase()) { bSel.value = opt.value; found = true; }
-      });
-      if (!found) {
-        bSel.value = "Other";
-        const otherInp = document.getElementById('borrower_other');
-        otherInp.value = name;
-        otherInp.classList.remove('hidden');
-        otherInp.disabled = false;
-      }
-      toggleSmartOther(bSel, 'borrower_other', 'borrowerSmartRow');
-      // 2. Narration ONLY contains Msg
-      document.getElementById('narration').value = msg || "";
-    } else {
-      // Name Routing OFF: Narration includes Name + Msg
-      document.getElementById('narration').value = `${prefix}${name}${msg ? " - " + msg : ""}`;
-      document.getElementById('borrower').value = "";
-      toggleSmartOther(document.getElementById('borrower'), 'borrower_other', 'borrowerSmartRow');
+  async function removeDailyTxnSilent(id) {
+    const data = getDailyTxns();
+    const txn = data.txns.find(t => t.id === id);
+    if (!txn) return;
+    data.txns = data.txns.filter(t => t.id !== id);
+    localStorage.setItem('loan_daily_txns', JSON.stringify(data));
+    renderSessionDashboard();
+    if (txn.ref) {
+      try { await fetch(`${DELETE_URL}?action=delete&value=${encodeURIComponent(txn.ref)}`, { method: "GET", mode: "no-cors" }); } catch (e) {}
     }
   }
 
-  // Payment Breakdown
-  let firstRow = document.querySelector('.payment-row-wrapper') || createPaymentRow();
-  const typeSelect = firstRow.querySelector('.row-type');
-  const accSelect  = firstRow.querySelector('.row-acc');
-
-  if (rawType) {
-    const t = rawType.toLowerCase();
-    if (t.includes("upi")) typeSelect.value = "upi";
-    else if (t.includes("credit")) typeSelect.value = "credit";
-    else if (t.includes("debit")) typeSelect.value = "debit";
-    typeSelect.dispatchEvent(new Event('change'));
-  }
-
-  if (rawAcc) {
-    const accText = rawAcc.toLowerCase();
-    const opts = Array.from(accSelect.options);
-    let match = opts.find(o => o.value.toLowerCase() === accText) || opts.find(o => accText.includes(o.value.toLowerCase()));
-    if (match) {
-      accSelect.value = match.value;
-    } else {
-      accSelect.value = "Other";
-      accSelect.dispatchEvent(new Event('change'));
-      firstRow.querySelector('.row-acc-other').value = rawAcc;
-    }
-  }
-
-  if (amt) document.querySelector('.row-amt').value = amt.replace(/[^\d.\-]/g, '');
-  if (ref) {
-    document.getElementById('referenceWrapper').classList.remove('hidden');
-    document.getElementById('reference').value = ref;
-  }
-  updateGrandTotal();
-}
-
-  document.getElementById('btnShowAutofill').onclick = async () => {
-
-  try {
-    const text = await navigator.clipboard.readText();
-
-    if (!text.trim()) {
-      alert("Clipboard is empty");
+  window.renderDailyTxnsModal = function() {
+    const data = getDailyTxns();
+    const listDiv = document.getElementById('todayTxnList');
+    listDiv.innerHTML = '';
+    if (data.txns.length === 0) {
+      listDiv.innerHTML = '<div style="text-align:center;color:var(--text-label);padding:15px;">No transactions logged today locally.</div>';
       return;
     }
-
-    mapReceiptText(text);
-
-  } catch (err) {
-    alert("Clipboard access denied. Please allow permission.");
-  }
-};
-function mapReceiptJSON(d) {
-  const isBorrowerTarget = document.getElementById('nameRoutingToggle').checked;
-
-  if (d.date) {
-    const p = d.date.split('-');
-    if (p.length === 3)
-      document.getElementById('date').value = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
-  }
-
-  const trTypeField = document.getElementById('trtype');
-  const backendDir = (d.direction || "").toString().toUpperCase();
-
-  if (backendDir === "IN" || combinedData.includes("received") || combinedData.includes("credited")) {
-    trTypeField.value = "loan_received";
-  } else if (backendDir === "OUT" || combinedData.includes("paid") || combinedData.includes("debited") || combinedData.includes("sent")) {
-    trTypeField.value = "loan_given";
-  }
-  trTypeField.dispatchEvent(new Event('change'));
-
-  // 👤 ROUTING LOGIC (IMAGE)
-  if (d.name) {
-    const isReceived = trTypeField.value === "loan_received";
-    const prefix = isReceived ? "Received from " : "Paid to ";
-    const msg = d.imageMessage || "";
-
-    if (isBorrowerTarget) {
-      // 1. Set Borrower Dropdown
-      const bSel = document.getElementById('borrower');
-      let found = false;
-      Array.from(bSel.options).forEach(opt => {
-        if (opt.text.toLowerCase() === d.name.toLowerCase()) { bSel.value = opt.value; found = true; }
-      });
-      if (!found) {
-        bSel.value = "Other";
-        const otherInp = document.getElementById('borrower_other');
-        otherInp.value = d.name;
-        otherInp.classList.remove('hidden');
-        otherInp.disabled = false;
-      }
-      toggleSmartOther(bSel, 'borrower_other', 'borrowerSmartRow');
-      // 2. Narration ONLY contains Msg
-      document.getElementById('narration').value = msg;
-    } else {
-      // Name Routing OFF: Narration includes Name + Msg
-      document.getElementById('narration').value = `${prefix}${d.name}${msg ? " - " + msg : ""}`;
-      document.getElementById('borrower').value = "";
-      toggleSmartOther(document.getElementById('borrower'), 'borrower_other', 'borrowerSmartRow');
-    }
-  }
-
-  // Mode and Amount
-  let firstRow = document.querySelector('.payment-row-wrapper') || createPaymentRow();
-  const typeSelect = firstRow.querySelector('.row-type');
-  const accSelect  = firstRow.querySelector('.row-acc');
-  const amtInput   = firstRow.querySelector('.row-amt');
-
-  if (d.type) {
-    const t = d.type.toLowerCase();
-    if (t.includes("upi")) typeSelect.value = "upi";
-    else if (t.includes("credit")) typeSelect.value = "credit";
-    else if (t.includes("debit")) typeSelect.value = "debit";
-    typeSelect.dispatchEvent(new Event('change'));
-  }
-
-  if (d.account) {
-    const accountText = d.account.toLowerCase();
-    const options = Array.from(accSelect.options);
-    let match = options.find(opt => opt.value.toLowerCase() === accountText) ||
-                options.find(opt => accountText.includes(opt.value.toLowerCase()));
-    if (match) {
-      accSelect.value = match.value;
-    } else {
-      accSelect.value = "Other";
-      accSelect.dispatchEvent(new Event('change'));
-      firstRow.querySelector('.row-acc-other').value = d.account;
-    }
-  }
-
-  if (d.amount) amtInput.value = parseFloat(d.amount.toString().replace(/[^\d.\-]/g, '')) || "";
-  if (d.refId || d.txnId) {
-    document.getElementById('referenceWrapper').classList.remove('hidden');
-    document.getElementById('reference').value = d.refId || d.txnId;
-  }
-  updateGrandTotal();
-}
-document.getElementById('receiptUpload').addEventListener('change', function(e) {
-
-  
-const file = e.target.files[0];
-  
-if (!file) return;
-
-  
-document.getElementById('btnShowAutofill').textContent = "🔍 Processing...";
-
-  
-const reader = new FileReader();
-
-  
-reader.onload = function () {
-    
-const base64 = reader.result.split(",")[1];
-
-    
-fetch(IMAGE_PROCESS_URL, {
-      
-method: "POST",
-      
-body: JSON.stringify({ image: base64 })
-    
-})
-    
-.then(res => res.json())
-
-.then(response => {
-
-  
-document.getElementById('btnShowAutofill').textContent = "✨ Use Receipt Auto-Fill";
-
-  
-if (response.status !== "success") {
-    
-alert("Extraction failed");
-    
-return;
-  
-}
-      // 🔥 DIRECT MAPPING (No textarea)
-      mapReceiptJSON(response.data);
-
-    })
-    .catch(() => {
-      btn.textContent = "✨ Use Receipt Auto-Fill";
-      alert("Upload failed");
+    const sorted = [...data.txns].reverse();
+    sorted.forEach(t => {
+      const color = t.flow === 'loan_given' ? 'var(--danger)' : 'var(--primary)';
+      listDiv.innerHTML += `
+        <div class="daily-txn-row" onclick="viewDailyTxnDetails(${t.id})" style="cursor:pointer;" title="Tap to view details">
+          <div style="flex:1;min-width:0;">
+            <strong style="color:var(--text-main);">${t.narration}</strong><br>
+            <span style="color:var(--text-label);font-size:10px;">${t.details}</span>
+          </div>
+          <div style="font-weight:700;color:${color};padding-right:8px;flex-shrink:0;">
+            ₹${t.amount.toFixed(2)}
+          </div>
+          <div class="txn-actions">
+            <span onclick="event.stopPropagation(); editDailyTxn(${t.id})" title="Edit">✏️</span>
+            <span onclick="event.stopPropagation(); removeDailyTxn(${t.id})" title="Delete">🗑️</span>
+          </div>
+        </div>
+      `;
     });
+  }
+
+  window.viewDailyTxnDetails = function(id) {
+    const data = getDailyTxns();
+    const txn = data.txns.find(t => t.id === id);
+    if (txn && txn.fullHtml) {
+      document.getElementById('dailyTxnDetailsContent').innerHTML = txn.fullHtml;
+      document.getElementById('dailyTxnDetailsModal').classList.remove('hidden');
+    }
   };
 
-  reader.readAsDataURL(file);
-});
+  window.editDailyTxn = function(id) {
+    const data = getDailyTxns();
+    const txn = data.txns.find(t => t.id === id);
+    if (!txn || !txn.formState) return showToast("Log not found or not editable", "var(--danger)");
+
+    document.getElementById('todayTxnModal').classList.add('hidden');
+
+    const fs = txn.formState;
+    resetForm(); 
+
+    editingLogId = id; // MUST SET AFTER resetForm()
+
+    document.getElementById('date').value = fs.date || getTodayIST();
+    document.getElementById('narration').value = fs.narration || '';
+    document.getElementById('invoice').value = fs.invoice || '';
+    
+    // Resolve proper reference to load
+    let refToLoad = fs.reference;
+    if (!refToLoad || refToLoad === "Auto-filled Ref") {
+        refToLoad = txn.ref;
+    }
+
+    if (refToLoad) {
+        document.getElementById('referenceWrapper').classList.remove('hidden');
+        document.getElementById('reference').value = refToLoad;
+    }
+    
+    document.getElementById('trtype').value = fs.trtype || '';
+
+    const bSel = document.getElementById('borrower');
+    if (Array.from(bSel.options).some(o => o.value === fs.borrower)) {
+        bSel.value = fs.borrower;
+    } else {
+        bSel.value = "Other";
+        document.getElementById('borrower_other').value = fs.borrower_other || fs.borrower || '';
+    }
+    toggleSmartOther(bSel, 'borrower_other', 'borrowerSmartRow');
+
+    // Payments
+    document.getElementById('paymentContainer').innerHTML = '';
+    if (fs.payments && fs.payments.length) {
+      fs.payments.forEach(p => {
+        createPaymentRow({ type: p.type, acc: p.account, amt: p.amount });
+        if (p.type === 'cash' && p.denominations) {
+          document.querySelectorAll('.denom-input').forEach(input => {
+            const val = input.dataset.val;
+            if (p.denominations[val] !== undefined) {
+              input.value = p.denominations[val] || '';
+            }
+          });
+          recalcCash();
+        }
+      });
+    } else {
+        createPaymentRow();
+    }
+    updateGrandTotal();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showToast("✏️ Editing local log", "var(--secondary)");
+  };
+
+  // --- DRAGGABLE BALL SETUP ---
+  function setupDraggableBall() {
+    const ball = document.getElementById('dragDashBall');
+    if(!ball) return;
+    let isDragging = false;
+    let startY = 0;
+    let initialTop = 180;
+    let hasMoved = false;
+
+    const onStart = (e) => {
+        isDragging = true;
+        hasMoved = false;
+        startY = e.touches ? e.touches[0].clientY : e.clientY;
+        initialTop = ball.offsetTop;
+    };
+
+    const onMove = (e) => {
+        if (!isDragging) return;
+        const currentY = e.touches ? e.touches[0].clientY : e.clientY;
+        const deltaY = currentY - startY;
+        if (Math.abs(deltaY) > 4) hasMoved = true;
+        let newTop = initialTop + deltaY;
+        const maxTop = window.innerHeight - ball.offsetHeight - 10;
+        newTop = Math.max(10, Math.min(newTop, maxTop));
+        ball.style.top = newTop + 'px';
+    };
+
+    const onEnd = (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        if (!hasMoved) {
+            window.renderDailyTxnsModal();
+            document.getElementById('todayTxnModal').classList.remove('hidden');
+        }
+    };
+
+    ball.addEventListener('touchstart', onStart, { passive: true });
+    window.addEventListener('touchmove', onMove, { passive: true });
+    window.addEventListener('touchend', onEnd);
+    ball.addEventListener('mousedown', onStart);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onEnd);
+  }
+
+  function mapReceiptText(text) {
+    const getVal = (key) => { 
+      const r = new RegExp(`${key}:\\s*(.*)`, 'i'); 
+      const m = text.match(r); 
+      return m ? m[1].trim() : ""; 
+    };
+
+    const name = getVal('👤 Name'),
+          rawDate = getVal('📅 Date'),
+          msg = getVal('📝 Msg'),
+          amt = getVal('💰 Amount'),
+          ref = getVal('🔗 Ref'),
+          rawType = getVal('⇄ Type'),
+          rawAcc = getVal('🏢 Account'),
+          rawDirection = getVal('📊 Direction');
+
+    const isBorrowerTarget = document.getElementById('nameRoutingToggle').checked;
+
+    if (rawDate) {
+      const p = rawDate.split('-');
+      if (p.length === 3)
+        document.getElementById('date').value = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+    }
+
+    const flowField = document.getElementById('trtype');
+    if (rawDirection.toUpperCase().includes("OUT")) {
+      flowField.value = "loan_given";
+    } else if (rawDirection.toUpperCase().includes("IN")) {
+      flowField.value = "loan_received";
+    }
+    flowField.dispatchEvent(new Event('change'));
+
+    if (name) {
+      const isReceived = flowField.value === "loan_received";
+      const prefix = isReceived ? "Received from " : "Paid to ";
+
+      if (isBorrowerTarget) {
+        const bSel = document.getElementById('borrower');
+        let found = false;
+        Array.from(bSel.options).forEach(opt => {
+          if (opt.text.toLowerCase() === name.toLowerCase()) { bSel.value = opt.value; found = true; }
+        });
+        if (!found) {
+          bSel.value = "Other";
+          const otherInp = document.getElementById('borrower_other');
+          otherInp.value = name;
+          otherInp.classList.remove('hidden');
+          otherInp.disabled = false;
+        }
+        toggleSmartOther(bSel, 'borrower_other', 'borrowerSmartRow');
+        document.getElementById('narration').value = msg || "";
+      } else {
+        document.getElementById('narration').value = `${prefix}${name}${msg ? " - " + msg : ""}`;
+        document.getElementById('borrower').value = "";
+        toggleSmartOther(document.getElementById('borrower'), 'borrower_other', 'borrowerSmartRow');
+      }
+    }
+
+    let firstRow = document.querySelector('.payment-row-wrapper') || createPaymentRow();
+    const typeSelect = firstRow.querySelector('.row-type');
+    const accSelect  = firstRow.querySelector('.row-acc');
+
+    if (rawType) {
+      const t = rawType.toLowerCase();
+      if (t.includes("upi")) typeSelect.value = "upi";
+      else if (t.includes("credit")) typeSelect.value = "credit";
+      else if (t.includes("debit")) typeSelect.value = "debit";
+      typeSelect.dispatchEvent(new Event('change'));
+    }
+
+    if (rawAcc) {
+      const accText = rawAcc.toLowerCase();
+      const opts = Array.from(accSelect.options);
+      let match = opts.find(o => o.value.toLowerCase() === accText) || opts.find(o => accText.includes(o.value.toLowerCase()));
+      if (match) {
+        accSelect.value = match.value;
+      } else {
+        accSelect.value = "Other";
+        accSelect.dispatchEvent(new Event('change'));
+        firstRow.querySelector('.row-acc-other').value = rawAcc;
+      }
+    }
+
+    if (amt) document.querySelector('.row-amt').value = amt.replace(/[^\d.\-]/g, '');
+    if (ref) {
+      document.getElementById('referenceWrapper').classList.remove('hidden');
+      document.getElementById('reference').value = ref;
+    }
+    updateGrandTotal();
+  }
+
+  document.getElementById('btnShowAutofill').onclick = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (!text.trim()) { showToast("Clipboard is empty", "var(--danger)"); return; }
+      mapReceiptText(text);
+    } catch (err) { showToast("Clipboard access denied", "var(--danger)"); }
+  };
+
+  function mapReceiptJSON(d) {
+    const isBorrowerTarget = document.getElementById('nameRoutingToggle').checked;
+
+    if (d.date) {
+      const p = d.date.split('-');
+      if (p.length === 3)
+        document.getElementById('date').value = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+    }
+
+    const trTypeField = document.getElementById('trtype');
+    const backendDir = (d.direction || "").toString().toUpperCase();
+
+    if (backendDir === "IN") {
+      trTypeField.value = "loan_received";
+    } else if (backendDir === "OUT") {
+      trTypeField.value = "loan_given";
+    }
+    trTypeField.dispatchEvent(new Event('change'));
+
+    if (d.name) {
+      const isReceived = trTypeField.value === "loan_received";
+      const prefix = isReceived ? "Received from " : "Paid to ";
+      const msg = d.imageMessage || "";
+
+      if (isBorrowerTarget) {
+        const bSel = document.getElementById('borrower');
+        let found = false;
+        Array.from(bSel.options).forEach(opt => {
+          if (opt.text.toLowerCase() === d.name.toLowerCase()) { bSel.value = opt.value; found = true; }
+        });
+        if (!found) {
+          bSel.value = "Other";
+          const otherInp = document.getElementById('borrower_other');
+          otherInp.value = d.name;
+          otherInp.classList.remove('hidden');
+          otherInp.disabled = false;
+        }
+        toggleSmartOther(bSel, 'borrower_other', 'borrowerSmartRow');
+        document.getElementById('narration').value = msg;
+      } else {
+        document.getElementById('narration').value = `${prefix}${d.name}${msg ? " - " + msg : ""}`;
+        document.getElementById('borrower').value = "";
+        toggleSmartOther(document.getElementById('borrower'), 'borrower_other', 'borrowerSmartRow');
+      }
+    }
+
+    let firstRow = document.querySelector('.payment-row-wrapper') || createPaymentRow();
+    const typeSelect = firstRow.querySelector('.row-type');
+    const accSelect  = firstRow.querySelector('.row-acc');
+    const amtInput   = firstRow.querySelector('.row-amt');
+
+    if (d.type) {
+      const t = d.type.toLowerCase();
+      if (t.includes("upi")) typeSelect.value = "upi";
+      else if (t.includes("credit")) typeSelect.value = "credit";
+      else if (t.includes("debit")) typeSelect.value = "debit";
+      typeSelect.dispatchEvent(new Event('change'));
+    }
+
+    if (d.account) {
+      const accountText = d.account.toLowerCase();
+      const options = Array.from(accSelect.options);
+      let match = options.find(opt => opt.value.toLowerCase() === accountText) ||
+                  options.find(opt => accountText.includes(opt.value.toLowerCase()));
+      if (match) {
+        accSelect.value = match.value;
+      } else {
+        accSelect.value = "Other";
+        accSelect.dispatchEvent(new Event('change'));
+        firstRow.querySelector('.row-acc-other').value = d.account;
+      }
+    }
+
+    if (d.amount) amtInput.value = parseFloat(d.amount.toString().replace(/[^\d.\-]/g, '')) || "";
+    if (d.refId || d.txnId) {
+      document.getElementById('referenceWrapper').classList.remove('hidden');
+      document.getElementById('reference').value = d.refId || d.txnId;
+    }
+    updateGrandTotal();
+  }
+
+  document.getElementById('receiptUpload').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const btn = document.getElementById('btnShowAutofill');
+    btn.textContent = "🔍 Processing...";
+    const reader = new FileReader();
+
+    reader.onload = function () {
+        const base64 = reader.result.split(",")[1];
+        fetch(IMAGE_PROCESS_URL, {
+          method: "POST",
+          body: JSON.stringify({ image: base64 })
+        })
+        .then(res => res.json())
+        .then(response => {
+            btn.textContent = "✨ Use Receipt Auto-Fill";
+            if (response.status !== "success") {
+                showToast("Extraction failed", "var(--danger)");
+                return;
+            }
+            mapReceiptJSON(response.data);
+        })
+        .catch(() => {
+          btn.textContent = "✨ Use Receipt Auto-Fill";
+          showToast("Upload failed", "var(--danger)");
+        });
+      };
+      reader.readAsDataURL(file);
+  });
 
   (function initDB(){
     const req = indexedDB.open("LoanAppDB_v14", 1);
     req.onupgradeneeded = e => e.target.result.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
-    req.onsuccess = e => { db = e.target.result; updatePendingCount(); updateNetStatus(); initUI(); };
-    // --- Contact Picker Logic ---
-const btnPickContact = document.getElementById('btnPickContact');
-const borrowerOtherInp = document.getElementById('borrower_other');
-
-if (!('contacts' in navigator && 'ContactsManager' in window)) {
-  btnPickContact.style.display = 'none'; // Hide if browser doesn't support it
-}
-
-btnPickContact.addEventListener('click', async () => {
-  const props = ['name'];
-  try {
-    const contacts = await navigator.contacts.select(props, { multiple: false });
-    if (contacts.length > 0 && contacts[0].name) {
-      borrowerOtherInp.value = contacts[0].name[0];
-    }
-  } catch (err) {
-    console.error("Contact picker error:", err);
-  }
-});
-
-// Update your existing toggleSmartOther to handle the new wrapper
-window.toggleSmartOther = function(sel, otherId, parentId) {
-    const isOther = sel.value === "Other";
-    const wrapper = document.getElementById('otherInputWrapper');
-    const otherInp = document.getElementById(otherId);
-    const parent = document.getElementById(parentId);
+    req.onsuccess = e => { db = e.target.result; updatePendingCount(); updateNetStatus(); initUI(); setupDraggableBall(); renderSessionDashboard(); };
     
-    if (wrapper) {
-        wrapper.classList.toggle('hidden', !isOther);
-        otherInp.disabled = !isOther;
-        otherInp.required = isOther;
-        if (isOther) otherInp.focus();
+    const btnPickContact = document.getElementById('btnPickContact');
+    const borrowerOtherInp = document.getElementById('borrower_other');
+
+    if (!('contacts' in navigator && 'ContactsManager' in window)) {
+      btnPickContact.style.display = 'none'; 
     }
-    if (parent) parent.classList.toggle('has-other', isOther);
-};
-// --- Auto-Flow Logic based on Narration Keywords ---
-const narrationInp = document.getElementById('narration');
-const trTypeField = document.getElementById('trtype');
 
-narrationInp.addEventListener('input', () => {
-  const text = narrationInp.value.toLowerCase();
-  
-  // Keywords for "Loan Given" (Money going OUT)
-  const givenKeywords = ['paid', 'gave', 'sent', 'transfer to', 'giving', 'lent', 'out'];
-  
-  // Keywords for "Loan Received" (Money coming IN)
-  const receivedKeywords = ['received', 'got', 'taken', 'borrowed', 'from', 'credited', 'in'];
+    btnPickContact.addEventListener('click', async () => {
+      const props = ['name'];
+      try {
+        const contacts = await navigator.contacts.select(props, { multiple: false });
+        if (contacts.length > 0 && contacts[0].name) {
+          borrowerOtherInp.value = contacts[0].name[0];
+        }
+      } catch (err) {
+        console.error("Contact picker error:", err);
+      }
+    });
 
-  const matchesGiven = givenKeywords.some(key => text.includes(key));
-  const matchesReceived = receivedKeywords.some(key => text.includes(key));
+    window.toggleSmartOther = function(sel, otherId, parentId) {
+        const isOther = sel.value === "Other";
+        const wrapper = document.getElementById('otherInputWrapper');
+        const otherInp = document.getElementById(otherId);
+        const parent = document.getElementById(parentId);
+        
+        if (wrapper) {
+            wrapper.classList.toggle('hidden', !isOther);
+            otherInp.disabled = !isOther;
+            otherInp.required = isOther;
+            if (isOther) otherInp.focus();
+        }
+        if (parent) parent.classList.toggle('has-other', isOther);
+    };
 
-  if (matchesGiven && !matchesReceived) {
-    trTypeField.value = "loan_given";
-    trTypeField.dispatchEvent(new Event('change'));
-  } else if (matchesReceived && !matchesGiven) {
-    trTypeField.value = "loan_received";
-    trTypeField.dispatchEvent(new Event('change'));
-  }
-});
+    const narrationInp = document.getElementById('narration');
+    const trTypeField = document.getElementById('trtype');
 
+    narrationInp.addEventListener('input', () => {
+      const text = narrationInp.value.toLowerCase();
+      const givenKeywords = ['paid', 'gave', 'sent', 'transfer to', 'giving', 'lent', 'out'];
+      const receivedKeywords = ['received', 'got', 'taken', 'borrowed', 'from', 'credited', 'in'];
 
+      const matchesGiven = givenKeywords.some(key => text.includes(key));
+      const matchesReceived = receivedKeywords.some(key => text.includes(key));
+
+      if (matchesGiven && !matchesReceived) {
+        trTypeField.value = "loan_given";
+        trTypeField.dispatchEvent(new Event('change'));
+      } else if (matchesReceived && !matchesGiven) {
+        trTypeField.value = "loan_received";
+        trTypeField.dispatchEvent(new Event('change'));
+      }
+    });
   })();
-window.addEventListener('online', updateNetStatus);
-window.addEventListener('offline', updateNetStatus);
-function updateNetStatus() {
-  const el = document.getElementById("netStatus");
 
-  if (!el) return;
-
-  if (navigator.onLine) {
-    el.classList.add("online");
-    el.title = "Online";
-  } else {
-    el.classList.remove("online");
-    el.title = "Offline";
+  window.addEventListener('online', updateNetStatus);
+  window.addEventListener('offline', updateNetStatus);
+  
+  function updateNetStatus() {
+    const el = document.getElementById("netStatus");
+    if (!el) return;
+    if (navigator.onLine) {
+      el.classList.add("online");
+      el.title = "Online";
+    } else {
+      el.classList.remove("online");
+      el.title = "Offline";
+    }
   }
-}
+
   function createPaymentRow(initial = null) {
     const wrapper = document.createElement('div');
     wrapper.className = 'payment-row-wrapper swipe-wrapper';
     wrapper.innerHTML = `
-  <div class="swipe-content">
-    <div class="payment-row">
-      <div>
-        <select class="row-type" required>
-          <option value="">Type</option>
-          <option value="cash">Cash</option>
-          <option value="debit">Debit</option>
-          <option value="upi">UPI</option>
-          <option value="net">Net</option>
-          <option value="credit">Credit Card</option>
-          <option value="Rewards">Rewards</option>
-          <option value="Share">Share</option>
-        </select>
+      <div class="swipe-content">
+        <div class="payment-row">
+          <div>
+            <select class="row-type" required>
+              <option value="">Type</option>
+              <option value="cash">Cash</option>
+              <option value="debit">Debit</option>
+              <option value="upi">UPI</option>
+              <option value="net">Net</option>
+              <option value="credit">Credit Card</option>
+              <option value="Rewards">Rewards</option>
+              <option value="Share">Share</option>
+            </select>
+          </div>
+          <div>
+            <select class="row-acc" required>
+              <option value="">Account</option>
+            </select>
+          </div>
+          <div>
+            <input type="number" class="row-amt" placeholder="Amt" step="0.01" required>
+          </div>
+        </div>
       </div>
+      <input type="text" class="row-acc-other hidden" style="margin-top:6px;height:36px;width:100%; border-radius:10px;border:1px solid var(--border-color); padding:0 10px;" placeholder="Specify Account" required disabled>
+    `;
 
-      <div>
-        <select class="row-acc" required>
-          <option value="">Account</option>
-        </select>
-      </div>
-
-      <div>
-        <input type="number"
-               class="row-amt"
-               placeholder="Amt"
-               step="0.01"
-               required>
-      </div>
-    </div>
-  </div>
-
-  <input type="text"
-         class="row-acc-other hidden"
-         style="margin-top:6px;height:36px;width:100%;
-                border-radius:10px;border:1px solid var(--border-color);
-                padding:0 10px;"
-         placeholder="Specify Account"
-         required
-         disabled>
-`;
     const tSel = wrapper.querySelector('.row-type'), aSel = wrapper.querySelector('.row-acc'), amtInp = wrapper.querySelector('.row-amt'), otherAcc = wrapper.querySelector('.row-acc-other');
     tSel.onchange = () => {
-  aSel.innerHTML = '<option value="">Select</option>';
-  
-  if (tSel.value === 'cash' || tSel.value === 'Share') { 
-    // Logic for both Cash and Share
-    const label = tSel.value === 'cash' ? "Cash" : "Share";
-    aSel.add(new Option(label, label)); 
-    aSel.value = label; 
-    aSel.disabled = true; 
-    
-    // Cash still needs read-only amount because it uses the denomination grid
-    amtInp.readOnly = (tSel.value === 'cash'); 
-    if(tSel.value === 'cash') recalcCash(); 
-  } 
-  else { 
-    // Logic for all other types
-    aSel.disabled = false; 
-    amtInp.readOnly = false; 
-    let list = (tSel.value === "credit") ? creditCards : (tSel.value === "Rewards" ? rewardPlatforms : bankAccounts); 
-    list.forEach(a => aSel.add(new Option(a, a))); 
-    aSel.add(new Option("Other", "Other")); 
-  }
-  
-  aSel.dispatchEvent(new Event('change')); 
-  toggleCashBlock();
-};
+      aSel.innerHTML = '<option value="">Select</option>';
+      if (tSel.value === 'cash' || tSel.value === 'Share') { 
+        const label = tSel.value === 'cash' ? "Cash" : "Share";
+        aSel.add(new Option(label, label)); 
+        aSel.value = label; 
+        aSel.disabled = true; 
+        amtInp.readOnly = (tSel.value === 'cash'); 
+        if(tSel.value === 'cash') recalcCash(); 
+      } else { 
+        aSel.disabled = false; 
+        amtInp.readOnly = false; 
+        let list = (tSel.value === "credit") ? creditCards : (tSel.value === "Rewards" ? rewardPlatforms : bankAccounts); 
+        list.forEach(a => aSel.add(new Option(a, a))); 
+        aSel.add(new Option("Other", "Other")); 
+      }
+      aSel.dispatchEvent(new Event('change')); 
+      toggleCashBlock();
+    };
 
     aSel.onchange = () => { const isOther = aSel.value === 'Other'; otherAcc.classList.toggle('hidden', !isOther); otherAcc.disabled = !isOther; otherAcc.required = isOther; };
     amtInp.oninput = updateGrandTotal;
@@ -876,100 +1054,78 @@ function updateNetStatus() {
     }
     updateGrandTotal();
   }
+
   function enableSwipeToDelete(wrapper) {
-  if (!wrapper) return;
+    if (!wrapper) return;
+    let startX = 0;
+    let currentX = 0;
+    let isDragging = false;
+    const content = wrapper.querySelector('.swipe-content');
 
-  let startX = 0;
-  let currentX = 0;
-  let isDragging = false;
-  const content = wrapper.querySelector('.swipe-content');
+    function onStart(clientX) {
+      startX = clientX;
+      isDragging = true;
+      content.style.transition = "none";
+      document.body.style.userSelect = 'none';
+    }
 
-  // Shared start handler
-  function onStart(clientX) {
-    startX = clientX;
-    isDragging = true;
-    content.style.transition = "none";
-    // Prevent text selection while dragging
-    document.body.style.userSelect = 'none';
+    function onMove(clientX) {
+      if (!isDragging) return;
+      currentX = clientX - startX;
+      if (currentX < 0) {
+        content.style.transform = `translateX(${currentX}px)`;
+      }
+    }
+
+    function onEnd() {
+      if (!isDragging) return;
+      isDragging = false;
+      document.body.style.userSelect = '';
+
+      const allRows = document.querySelectorAll('.payment-row-wrapper');
+
+      if (currentX < -80 && allRows.length > 1) {
+        content.style.transition = "transform 0.2s ease, opacity 0.2s ease";
+        content.style.transform = "translateX(-100%)";
+        content.style.opacity = "0";
+
+        setTimeout(() => {
+          wrapper.remove();
+          toggleCashBlock();
+          updateGrandTotal();
+        }, 200);
+      } else if (currentX < -80 && allRows.length === 1) {
+        content.style.transition = "transform 0.15s ease";
+        content.style.transform = "translateX(-20px)";
+        setTimeout(() => content.style.transform = "translateX(0)", 150);
+      } else {
+        content.style.transition = "transform 0.2s ease";
+        content.style.transform = "translateX(0)";
+      }
+      currentX = 0;
+    }
+
+    wrapper.addEventListener('touchstart', (e) => { onStart(e.touches[0].clientX); });
+    wrapper.addEventListener('touchmove', (e) => { onMove(e.touches[0].clientX); });
+    wrapper.addEventListener('touchend', onEnd);
+    wrapper.addEventListener('mousedown', (e) => {
+      const target = e.target;
+      if (target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.closest('.row-type') || target.closest('.row-acc') || target.closest('.row-amt')) return;
+      onStart(e.clientX);
+      e.preventDefault();
+    });
+    window.addEventListener('mousemove', (e) => { if (isDragging) { onMove(e.clientX); } });
+    window.addEventListener('mouseup', onEnd);
   }
 
-  // Shared move handler
-  function onMove(clientX) {
-    if (!isDragging) return;
-    currentX = clientX - startX;
-    if (currentX < 0) {
-      content.style.transform = `translateX(${currentX}px)`;
-    }
-  }
-
-  // Shared end handler
-  function onEnd() {
-    if (!isDragging) return;
-    isDragging = false;
-    document.body.style.userSelect = '';
-
-    const allRows = document.querySelectorAll('.payment-row-wrapper');
-
-    if (currentX < -80 && allRows.length > 1) {
-      // Delete the row
-      content.style.transition = "transform 0.2s ease, opacity 0.2s ease";
-      content.style.transform = "translateX(-100%)";
-      content.style.opacity = "0";
-
-      setTimeout(() => {
-        wrapper.remove();
-        toggleCashBlock();
-        updateGrandTotal();
-      }, 200);
-    } else if (currentX < -80 && allRows.length === 1) {
-      // Cannot delete the last row, just nudge
-      content.style.transition = "transform 0.15s ease";
-      content.style.transform = "translateX(-20px)";
-      setTimeout(() => content.style.transform = "translateX(0)", 150);
-    } else {
-      // Reset position
-      content.style.transition = "transform 0.2s ease";
-      content.style.transform = "translateX(0)";
-    }
-
-    currentX = 0;
-  }
-
-  // Touch events
-  wrapper.addEventListener('touchstart', (e) => {
-    onStart(e.touches[0].clientX);
-  });
-  wrapper.addEventListener('touchmove', (e) => {
-    onMove(e.touches[0].clientX);
-  });
-  wrapper.addEventListener('touchend', onEnd);
-
-  // Mouse events
-  wrapper.addEventListener('mousedown', (e) => {
-    // Prevent accidental deletion when clicking on inputs or selects inside the row
-    const target = e.target;
-    if (target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.closest('.row-type') || target.closest('.row-acc') || target.closest('.row-amt')) {
-      return; // Don't start swipe when interacting with form elements
-    }
-    onStart(e.clientX);
-    // Prevent default to avoid text selection
-    e.preventDefault();
-  });
-
-  window.addEventListener('mousemove', (e) => {
-    if (isDragging) {
-      onMove(e.clientX);
-    }
-  });
-
-  window.addEventListener('mouseup', onEnd);
-}
- function toggleCashBlock() { document.getElementById('cashBlock').classList.toggle('hidden', !Array.from(document.querySelectorAll('.row-type')).some(s => s.value === 'cash')); }
+  function toggleCashBlock() { document.getElementById('cashBlock').classList.toggle('hidden', !Array.from(document.querySelectorAll('.row-type')).some(s => s.value === 'cash')); }
+  
   function recalcCash() {
     let tot = 0; document.querySelectorAll('.denom-input').forEach(i => tot += (i.value || 0) * i.dataset.val);
     document.querySelectorAll('.payment-row-wrapper').forEach(w => { if(w.querySelector('.row-type').value === 'cash') w.querySelector('.row-amt').value = tot || ""; });
     updateGrandTotal();
   }
+  
   function updateGrandTotal() { let total = 0; document.querySelectorAll('.row-amt').forEach(i => total += parseFloat(i.value) || 0); document.getElementById('grandTotal').textContent = `₹${total.toFixed(2)}`; }
   
   denoms.forEach(d => { 
@@ -979,6 +1135,87 @@ function updateNetStatus() {
     document.getElementById('cashGrid').appendChild(card);
   });
 
+  function buildFormState() {
+      const payments = [];
+      document.querySelectorAll('.payment-row-wrapper').forEach(row => {
+          const type = row.querySelector('.row-type').value;
+          const accSel = row.querySelector('.row-acc');
+          const acc = accSel.value === 'Other' ? row.querySelector('.row-acc-other').value : accSel.value;
+          const amt = parseFloat(row.querySelector('.row-amt').value) || 0;
+          const payment = { type, account: acc, amount: amt };
+          if (type === 'cash') {
+              const denomObj = {};
+              document.querySelectorAll('.denom-input').forEach(i => { denomObj[i.dataset.val] = i.value || 0; });
+              payment.denominations = denomObj;
+          }
+          payments.push(payment);
+      });
+
+      let refVal = document.getElementById('reference').value.trim();
+
+      return {
+          date: document.getElementById('date').value,
+          borrower: document.getElementById('borrower').value,
+          borrower_other: document.getElementById('borrower_other').value,
+          narration: document.getElementById('narration').value.trim(),
+          invoice: document.getElementById('invoice').value.trim(),
+          reference: refVal,
+          trtype: document.getElementById('trtype').value,
+          payments: payments
+      };
+  }
+
+  function buildEditCompareHtml(oldState, newState) {
+      let html = `
+        <div class="col-header" style="color:var(--danger);">Existing</div>
+        <div class="col-header" style="color:var(--text-label);">Field</div>
+        <div class="col-header" style="color:var(--primary);">Updated</div>
+      `;
+
+      function addRow(label, oldVal, newVal) {
+          const oldStr = (oldVal !== undefined && oldVal !== null && oldVal !== "") ? String(oldVal) : "-";
+          const newStr = (newVal !== undefined && newVal !== null && newVal !== "") ? String(newVal) : "-";
+          const diff = oldStr !== newStr;
+          const oldCls = diff ? 'old-val' : 'old-val dim';
+          const newCls = diff ? 'new-val' : 'new-val dim';
+          html += `
+            <div class="${oldCls}">${oldStr}</div>
+            <div class="field-label">${label}</div>
+            <div class="${newCls}">${newStr}</div>
+          `;
+      }
+
+      function addHeading(text) {
+          html += `<div class="diff-heading">${text}</div>`;
+      }
+
+      const oldBorrower = oldState.borrower === 'Other' ? oldState.borrower_other : oldState.borrower;
+      const newBorrower = newState.borrower === 'Other' ? newState.borrower_other : newState.borrower;
+
+      addRow("Date", oldState.date, newState.date);
+      addRow("Borrower", oldBorrower, newBorrower);
+      addRow("Narration", oldState.narration, newState.narration);
+      addRow("Invoice", oldState.invoice, newState.invoice);
+      addRow("Reference", oldState.reference, newState.reference);
+      addRow("Flow", oldState.trtype ? oldState.trtype.replace('_',' ') : '-', newState.trtype ? newState.trtype.replace('_',' ') : '-');
+
+      const oldTotal = (oldState.payments || []).reduce((s, p) => s + (p.amount || 0), 0);
+      const newTotal = (newState.payments || []).reduce((s, p) => s + (p.amount || 0), 0);
+      addRow("Total Amount", `₹${oldTotal.toFixed(2)}`, `₹${newTotal.toFixed(2)}`);
+
+      addHeading("Payments");
+      const allPay = new Set();
+      (oldState.payments || []).forEach(p => allPay.add(`${p.account} (${p.type})`));
+      (newState.payments || []).forEach(p => allPay.add(`${p.account} (${p.type})`));
+      allPay.forEach(key => {
+          const oldP = (oldState.payments || []).find(p => `${p.account} (${p.type})` === key);
+          const newP = (newState.payments || []).find(p => `${p.account} (${p.type})` === key);
+          addRow(key, oldP ? `₹${oldP.amount}` : "-", newP ? `₹${newP.amount}` : "-");
+      });
+
+      return html;
+  }
+
   document.getElementById("loanForm").onsubmit = function(e) {
     e.preventDefault();
     const form = e.target;
@@ -986,18 +1223,65 @@ function updateNetStatus() {
     const cashTotal = Array.from(document.querySelectorAll('.denom-input')).reduce((sum, i) => sum + (i.value * i.dataset.val), 0);
     if(hasCash && cashTotal === 0) { document.getElementById('cashBlock').classList.add('cash-invalid'); return; }
     else document.getElementById('cashBlock').classList.remove('cash-invalid');
+    
     form.classList.add('was-validated');
     const gTotal = parseFloat(document.getElementById('grandTotal').textContent.replace('₹',''));
     if(!form.checkValidity() || gTotal <= 0) return;
+    
     const bFinal = document.getElementById('borrower').value === "Other" ? document.getElementById('borrower_other').value : document.getElementById('borrower').value;
     const flowFinal = document.getElementById('trtype').value;
-   let refVal = document.getElementById('reference').value.trim();
-if (!refVal) {
-    const now = new Date();
-    const datePart = now.toISOString().split('T')[0].replace(/-/g, ''); // e.g., 20260205
-    const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase(); // 4 random chars
-    refVal = `REF-${datePart}-${randomPart}`;
-}
+
+    let refVal = document.getElementById('reference').value.trim();
+    
+    // Logic to enforce / carry-over references
+    if (!refVal || refVal === "Auto-filled Ref") {
+        if (editingLogId !== null) {
+            const data = getDailyTxns();
+            const oldTxn = data.txns.find(t => t.id === editingLogId);
+            if (oldTxn && oldTxn.ref) {
+                refVal = oldTxn.ref;
+            }
+        }
+        
+        if (!refVal || refVal === "Auto-filled Ref") {
+            const now = new Date();
+            const datePart = now.toISOString().split('T')[0].replace(/-/g, ''); 
+            const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase(); 
+            refVal = `REF-${datePart}-${randomPart}`;
+        }
+        document.getElementById('reference').value = refVal; 
+    }
+
+    const newFormState = buildFormState();
+
+    if (editingLogId !== null) {
+        const data = getDailyTxns();
+        const oldTxn = data.txns.find(t => t.id === editingLogId);
+        if (!oldTxn || !oldTxn.formState) {
+            showToast("Original log data not found", "var(--danger)");
+            return;
+        }
+        const oldState = oldTxn.formState;
+
+        // Preserve original reference ID for replacement
+        newFormState.reference = oldTxn.ref || refVal;
+
+        const oldStr = JSON.stringify(oldState);
+        const newStr = JSON.stringify(newFormState);
+        if (oldStr === newStr) {
+            showToast("No changes detected", "#f59e0b");
+            return;
+        }
+
+        document.getElementById('editCompareGrid').innerHTML = buildEditCompareHtml(oldState, newFormState);
+        document.getElementById('editCompareModal').classList.remove('hidden');
+
+        window._editRef = oldTxn.ref || refVal;
+        window._oldLogId = editingLogId;
+        window._newFormState = newFormState;
+        return;
+    }
+    
     currentPayloads = [];
     document.querySelectorAll('.payment-row-wrapper').forEach(row => {
       const type = row.querySelector('.row-type').value, acc = row.querySelector('.row-acc').value, amt = row.querySelector('.row-amt').value;
@@ -1008,9 +1292,106 @@ if (!refVal) {
       if(type === 'cash') denoms.forEach(d => p["c"+d] = document.querySelector(`input[data-val="${d}"]`).value || 0);
       currentPayloads.push(p);
     });
+    
     localStorage.setItem("lastLoanPackage", JSON.stringify(currentPayloads));
+    
+    let paymentDetailsArray = [];
+    currentPayloads.forEach(p => paymentDetailsArray.push(`${p.account} (${p.mode})`));
+
+    window.currentSaveStats = {
+        amount: gTotal,
+        flow: flowFinal,
+        narration: `${document.getElementById('narration').value.trim()} (${bFinal})`,
+        details: paymentDetailsArray.join(', '),
+        ref: refVal,
+        fullHtml: '',
+        formState: newFormState
+    };
+
     if (document.getElementById("batchToggle").checked || !navigator.onLine) saveToDB();
     else { renderConfirmation(bFinal, flowFinal, refVal); document.getElementById('confirmModal').classList.remove('hidden'); }
+  };
+
+  // Edit Compare Confirmation Handlers (NO DOUBLE CONFIRMATION)
+  document.getElementById('btnConfirmEditSave').onclick = async function() {
+      const oldLogId = window._oldLogId;
+      const ref = window._editRef;
+      const newState = window._newFormState;
+      if (!oldLogId || !newState) { showToast("Edit data missing", "var(--danger)"); return; }
+
+      document.getElementById('editCompareModal').classList.add('hidden');
+
+      await removeDailyTxnSilent(oldLogId);
+
+      const bFinal = newState.borrower === "Other" ? newState.borrower_other : newState.borrower;
+      const flowFinal = newState.trtype;
+
+      currentPayloads = [];
+      newState.payments.forEach(payment => {
+        const p = {
+          date: newState.date, 
+          borrower: bFinal, 
+          narration: newState.narration, 
+          reference: ref, 
+          invoice: newState.invoice, 
+          trtype: flowFinal, 
+          mode: payment.type,
+          account: payment.account, 
+          withdrawn: flowFinal === "loan_given" ? payment.amount : 0, 
+          deposit: flowFinal === "loan_received" ? payment.amount : 0
+        };
+        if(payment.type === 'cash' && payment.denominations) {
+            Object.entries(payment.denominations).forEach(([d, val]) => { p["c"+d] = val; });
+        }
+        currentPayloads.push(p);
+      });
+
+      let paymentDetailsArray = [];
+      currentPayloads.forEach(p => paymentDetailsArray.push(`${p.account} (${p.mode})`));
+      const gTotal = currentPayloads.reduce((sum, p) => sum + parseFloat(p.withdrawn || p.deposit || 0), 0);
+
+      window.currentSaveStats = {
+          amount: gTotal,
+          flow: flowFinal,
+          narration: `${newState.narration} (${bFinal})`,
+          details: paymentDetailsArray.join(', '),
+          ref: ref,
+          fullHtml: '',
+          formState: newState
+      };
+
+      // We still build the HTML so the daily logger can show the receipt
+      let html = `<div class="confirm-item"><span class="confirm-label">Date</span><span class="confirm-val">${formatDisplayDate(newState.date)}</span></div>
+                  <div class="confirm-item"><span class="confirm-label">Borrower</span><span class="confirm-val">${bFinal}</span></div>
+                  <div class="confirm-item"><span class="confirm-label">Narration</span><span class="confirm-val">${newState.narration}</span></div>
+                  <div class="confirm-item"><span class="confirm-label">Ref</span><span class="confirm-val">${ref}</span></div>
+                  <div class="confirm-item"><span class="confirm-label">Flow</span><span class="confirm-val">${flowFinal.replace('_', ' ')}</span></div>
+                  <div class="confirm-item" style="border:none"><span class="confirm-label" style="color:var(--primary)">Grand Total</span><span class="confirm-val" style="color:var(--primary); font-weight:bold">₹${gTotal.toFixed(2)}</span></div>
+                  <div class="confirm-section-title">Payments</div>`;
+      currentPayloads.forEach(p => {
+        html += `<div class="confirm-item" style="border-bottom:none"><span class="confirm-label">${p.account} (${p.mode})</span><span class="confirm-val">₹${p.withdrawn || p.deposit}</span></div>`;
+        if(p.mode === 'cash') html += `<div class="confirm-matrix-grid">` + denoms.map(d => `<div class="confirm-matrix-card"><span>₹${d}</span><strong>${p["c"+d]}</strong></div>`).join('') + `</div>`;
+      });
+      window.currentSaveStats.fullHtml = html;
+
+      // Jump straight to save. No secondary confirm Modal!
+      if (document.getElementById("batchToggle").checked || !navigator.onLine) {
+          saveToDB();
+      } else {
+          processSave();
+      }
+
+      editingLogId = null;
+      window._oldLogId = null;
+      window._editRef = null;
+      window._newFormState = null;
+  };
+
+  document.getElementById('btnCancelEditSave').onclick = function() {
+      document.getElementById('editCompareModal').classList.add('hidden');
+      window._oldLogId = null;
+      window._editRef = null;
+      window._newFormState = null;
   };
 
   function renderConfirmation(borrower, flow, ref) {
@@ -1026,35 +1407,89 @@ if (!refVal) {
       if(p.mode === 'cash') html += `<div class="confirm-matrix-grid">` + denoms.map(d => `<div class="confirm-matrix-card"><span>₹${d}</span><strong>${p["c"+d]}</strong></div>`).join('') + `</div>`;
     });
     document.getElementById('confirmDetails').innerHTML = html;
+    if (window.currentSaveStats) window.currentSaveStats.fullHtml = html;
   }
 
   async function processSave() {
     document.getElementById('confirmModal').classList.add('hidden');
     const btn = document.getElementById('mainSubmitBtn'), originalText = btn.textContent;
     btn.disabled = true; btn.innerHTML = `<span class="saving-text">Saving...</span>`;
+    
     try {
       for (let p of currentPayloads) await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(p) });
-      alert("Saved Online!"); resetForm();
-    } catch (err) { saveToDB(); alert("Added to queue."); }
+      
+      if (editingLogId) {
+          await removeDailyTxnSilent(editingLogId);
+          editingLogId = null;
+      }
+
+      if (window.currentSaveStats) {
+          addDailyTxn(
+              window.currentSaveStats.narration,
+              window.currentSaveStats.amount,
+              window.currentSaveStats.flow,
+              window.currentSaveStats.details,
+              window.currentSaveStats.fullHtml,
+              window.currentSaveStats.ref,
+              window.currentSaveStats.formState
+          );
+          window.currentSaveStats = null;
+      }
+
+      showToast("✔ Saved Online!", "var(--primary)"); 
+      resetForm();
+    } catch (err) { 
+      saveToDB(); 
+      showToast("📦 Added to queue", "var(--secondary)"); 
+    }
     finally { btn.disabled = false; btn.textContent = originalText; }
   }
 
   function saveToDB() {
     const tx = db.transaction(STORE_NAME, "readwrite");
     currentPayloads.forEach(p => tx.objectStore(STORE_NAME).add(p));
-    tx.oncomplete = () => { resetForm(); updatePendingCount(); };
+    tx.oncomplete = () => { 
+        if (editingLogId) {
+            removeDailyTxnSilent(editingLogId); 
+            editingLogId = null;
+        }
+
+        if (window.currentSaveStats) {
+            addDailyTxn(
+                window.currentSaveStats.narration,
+                window.currentSaveStats.amount,
+                window.currentSaveStats.flow,
+                window.currentSaveStats.details,
+                window.currentSaveStats.fullHtml,
+                window.currentSaveStats.ref,
+                window.currentSaveStats.formState
+            );
+            window.currentSaveStats = null;
+        }
+        
+        resetForm(); 
+        updatePendingCount(); 
+        showToast("📦 Saved to local queue", "var(--secondary)");
+    };
   }
 
   function resetForm() {
     const batchActive = document.getElementById("batchToggle").checked;
-    loanForm.reset(); loanForm.classList.remove('was-validated');
+    const nameRoutingActive = document.getElementById("nameRoutingToggle").checked;
+    loanForm.reset(); 
+    loanForm.classList.remove('was-validated');
     document.getElementById("batchToggle").checked = batchActive;
+    document.getElementById("nameRoutingToggle").checked = nameRoutingActive;
+    
     document.getElementById('paymentContainer').innerHTML = "";
     document.getElementById('borrowerSmartRow').classList.remove('has-other');
     document.getElementById('borrower_other').classList.add('hidden');
     document.getElementById('referenceWrapper').classList.add('hidden');
     document.getElementById('cashBlock').classList.remove('cash-invalid');
-    document.getElementById("date").value = new Date().toISOString().split("T")[0];
+    document.getElementById("date").value = getTodayIST();
+    
+    editingLogId = null; 
+    
     createPaymentRow();
   }
 
@@ -1082,7 +1517,10 @@ if (!refVal) {
     };
   }
 
-  window.deleteItem = id => { if(confirm("Delete?")) db.transaction(STORE_NAME,"readwrite").objectStore(STORE_NAME).delete(id).onsuccess = updatePendingCount; };
+  window.deleteItem = async id => { 
+      const ok = await showConfirm("Delete from queue?");
+      if(ok) db.transaction(STORE_NAME,"readwrite").objectStore(STORE_NAME).delete(id).onsuccess = updatePendingCount; 
+  };
 
   window.editItem = id => {
     const tx = db.transaction(STORE_NAME, "readonly").objectStore(STORE_NAME).get(id);
@@ -1111,8 +1549,9 @@ if (!refVal) {
   };
 
   async function syncAllData(){
-    if (!navigator.onLine) return alert("No internet");
-    if(!confirm("Start sync?")) return;
+    if (!navigator.onLine) return showToast("No internet", "var(--danger)");
+    const ok = await showConfirm("Start sync?");
+    if(!ok) return;
     const btnSync = document.getElementById('btnSyncAll'), btnStop = document.getElementById('btnStopSync');
     syncAborted = false; btnSync.classList.add('hidden'); btnStop.classList.remove('hidden');
     const items = await new Promise(res => db.transaction(STORE_NAME).objectStore(STORE_NAME).getAll().onsuccess = e => res(e.target.result));
@@ -1126,11 +1565,13 @@ if (!refVal) {
       } catch(e) { break; }
     }
     btnStop.classList.add('hidden'); btnSync.classList.remove('hidden');
-  if(syncAborted) toast("Sync stopped.");
-}
+    if(syncAborted) showToast("Sync stopped", "#f59e0b");
+    else showToast("✔ All data synced to Drive", "var(--primary)");
+  }
 
   document.getElementById("btnRepeat").onclick = () => {
-    const last = localStorage.getItem("lastLoanPackage"); if(!last) return alert("Nothing to repeat");
+    const last = localStorage.getItem("lastLoanPackage"); 
+    if(!last) return showToast("Nothing to repeat", "#f59e0b");
     const data = JSON.parse(last); document.getElementById('paymentContainer').innerHTML = "";
     data.forEach((p, i) => {
         if(i === 0) {
@@ -1155,11 +1596,11 @@ if (!refVal) {
   document.getElementById("btnViewQueue").onclick = () => document.getElementById("queueModal").classList.remove('hidden');
   document.getElementById('btnSyncAll').onclick = syncAllData;
   document.getElementById('btnStopSync').onclick = () => { syncAborted = true; };
-  document.getElementById("date").value = new Date().toISOString().split("T")[0];
+  document.getElementById("date").value = getTodayIST();
   createPaymentRow();
 });
 </script>
-  <script>
+<script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./sw.js')
