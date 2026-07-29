@@ -21,35 +21,14 @@
 
     body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); padding: 15px; margin: 0; min-height: 85vh; transition: background 0.5s ease, color 0.5s ease; }
 
-    form{ background: var(--bg-card); max-width: 400px; margin: auto; padding: 20px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.1); border: 1px solid var(--border-color); position: relative; transition: background 0.5s ease, border-color 0.5s ease; }
+    form { background: var(--bg-card); max-width: 400px; margin: auto; padding: 20px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.1); border: 1px solid var(--border-color); position: relative; transition: background 0.5s ease, border-color 0.5s ease; }
     
-    #confirmDetails {
-      max-height: 75vh;
-      overflow-y: auto;
-      padding-right: 8px;
-      margin-bottom: 15px;
-      flex-grow: 1; 
-    }
+    #confirmDetails { max-height: 75vh; overflow-y: auto; padding-right: 8px; margin-bottom: 15px; flex-grow: 1; }
     #confirmDetails::-webkit-scrollbar { width: 4px; }
     #confirmDetails::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
     
-    .confirm-card { 
-      background: var(--bg-card);
-      max-width: 550px; 
-      width: 95%; 
-      margin: auto; 
-      padding: 20px; 
-      border-radius: 16px; 
-      box-shadow: 0 10px 30px rgba(0,0,0,.1); 
-      border: 1px solid var(--border-color); 
-      position: relative; 
-      transition: background 0.5s ease;
-      display: flex;
-      flex-direction: column;
-      max-height: 90vh; 
-    }
+    .confirm-card { background: var(--bg-card); max-width: 550px; width: 95%; margin: auto; padding: 20px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.1); border: 1px solid var(--border-color); position: relative; transition: background 0.5s ease; display: flex; flex-direction: column; max-height: 90vh; }
 
-    /* HEADER CENTERING LOGIC */
     .header-row-top { display: grid; grid-template-columns: 40px 1fr 80px; align-items: center; margin-bottom: 15px; margin-top: -5px; }
     h3 { margin: 0; font-weight: 600; font-size: 18px; text-align: center; grid-column: 1 / -1; grid-row: 1; z-index: 1; padding-top: 5px; }
 
@@ -58,28 +37,16 @@
     #netStatus { grid-column: 1; grid-row: 1; justify-self: start; align-self: center; width: 10px; height: 10px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 6px #ef4444; z-index: 2; }
     #netStatus.online { background: var(--primary); box-shadow: 0 0 8px var(--primary); }
 
-    #themeToggle, #fabToggle {
-      width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border-color);
-      background: var(--bg-input); color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center;
-      font-size: 14px; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); flex-shrink: 0;
-    }
+    #themeToggle, #fabToggle { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); flex-shrink: 0; }
     .theme-rotate { transform: rotate(360deg); }
 
-    /* SIDEWALL DRAGGABLE BALL STYLES */
-    #dragDashBall {
-      position: fixed; right: 0px; top: 180px; z-index: 9999;
-      background: var(--bg-card); border: 1px solid var(--border-color); border-right: none;
-      border-radius: 24px 0 0 24px; padding: 6px 10px 6px 8px; box-shadow: -3px 4px 15px rgba(0,0,0,0.15);
-      display: flex; align-items: center; gap: 6px; cursor: grab; user-select: none; touch-action: none;
-      transition: background 0.3s ease, transform 0.1s ease; -webkit-tap-highlight-color: transparent;
-    }
+    #dragDashBall { position: fixed; right: 0px; top: 180px; z-index: 9999; background: var(--bg-card); border: 1px solid var(--border-color); border-right: none; border-radius: 24px 0 0 24px; padding: 6px 10px 6px 8px; box-shadow: -3px 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 6px; cursor: grab; user-select: none; touch-action: none; transition: background 0.3s ease, transform 0.1s ease; -webkit-tap-highlight-color: transparent; }
     #dragDashBall:active { cursor: grabbing; transform: scale(0.96); }
     .ball-icon { font-size: 14px; line-height: 1; }
     .ball-text { display: flex; flex-direction: column; font-size: 9px; font-weight: 700; line-height: 1.1; }
     .ball-income { color: var(--primary); }
     .ball-spent { color: var(--danger); }
 
-    /* Daily Row Styles */
     .daily-txn-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 10px; border-bottom: 1px solid var(--border-color); transition: background 0.2s ease; border-radius: 8px; -webkit-tap-highlight-color: transparent; }
     .daily-txn-row:hover, .daily-txn-row:active { background: var(--bg-input); }
     .daily-txn-row:last-child { border-bottom: none; }
@@ -87,33 +54,31 @@
     .daily-txn-row .txn-actions span { cursor: pointer; font-size: 16px; opacity: 0.7; transition: opacity 0.2s; padding: 4px; border-radius: 4px; }
     .daily-txn-row .txn-actions span:hover { opacity: 1; background: var(--bg-input); }
 
-    /* Edit Compare Grid Styles */
-    .edit-compare-grid {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      gap: 8px 10px;
-      align-items: center;
-      max-height: 75vh;
-      overflow-y: auto;
-      font-size: 12px;
-      margin-bottom: 15px;
-      text-align: center;
-    }
-    .edit-compare-grid .col-header {
-      font-weight: 700;
-      padding-bottom: 8px;
-      border-bottom: 2px solid var(--border-color);
-    }
-    .edit-compare-grid .old-val { background: rgba(248,113,113,0.08); padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-color); color: var(--danger); word-break: break-word; }
-    .edit-compare-grid .new-val { background: rgba(34,197,94,0.08); padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-color); color: var(--primary); word-break: break-word; }
-    .edit-compare-grid .field-label { font-weight: 600; color: var(--text-label); white-space: nowrap; padding: 0 8px; }
-    .edit-compare-grid .diff-heading { grid-column: 1 / -1; font-weight: 700; margin-top: 12px; color: var(--secondary); border-bottom: 1px dashed var(--border-color); padding-bottom: 4px; text-align: center; }
-    .edit-compare-grid .old-val.dim, .edit-compare-grid .new-val.dim { background: var(--bg-input); color: var(--text-label); }
+    /* Updated Edit Compare Grid CSS specifically to match Screenshot_20260729_182540.jpg */
+    .edit-compare-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px 4px; align-items: center; max-height: 60vh; overflow-y: auto; font-size: 13px; margin-bottom: 15px; }
+    .edit-compare-grid .col-header { font-weight: 700; padding-bottom: 4px; text-align: center; }
+    .edit-compare-grid .col-header.left { color: #f87171; }
+    .edit-compare-grid .col-header.center { color: var(--text-main); }
+    .edit-compare-grid .col-header.right { color: #22c55e; }
+    
+    .edit-compare-grid .val-box { padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-label); text-align: center; font-weight: 500; word-break: break-word; }
+
+    
+    .edit-compare-grid .val-box.old-diff { background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.3); color: #ef4444; }
+    .edit-compare-grid .val-box.new-diff { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.3); color: #22c55e; }
+    
+    .edit-compare-grid .field-label { font-weight: 700; color: var(--text-main); white-space: nowrap; text-align: center; }
+    
+    .edit-compare-grid .diff-heading { grid-column: 1 / -1; display: flex; align-items: center; color: var(--secondary); font-weight: 700; margin-top: 5px; text-align: center; font-size: 13px; }
+    .edit-compare-grid .diff-heading::before, .edit-compare-grid .diff-heading::after { content: ''; flex: 1; border-bottom: 1px dashed var(--border-color); }
+    .edit-compare-grid .diff-heading::before { margin-right: 15px; }
+    .edit-compare-grid .diff-heading::after { margin-left: 15px; }
 
     .nav-fab-container { position: relative; }
     .nav-options { position: absolute; right: 0; top: 40px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; opacity: 0; transform: translateY(-10px); pointer-events: none; transition: 0.2s ease-out; z-index: 10001; }
     .nav-fab-container.active .nav-options { opacity: 1; transform: translateY(0); pointer-events: auto; }
-    .nav-item { background: var(--bg-card); color: var(--text-main); padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: 600; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 1px solid var(--border-color); white-space: nowrap; text-align: right; width: fit-content; }
+    .nav-item { background: var(--bg-card); color: var(--text-main); padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: 600; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 1px solid var(--border-color); white-space: nowrap; text-align: right; width: fit-content; transition: background 0.5s ease, color 0.5s ease; }
+    .nav-item:hover { background: var(--primary); color: white; border-color: var(--primary); }
 
     .batch-control { display: flex; align-items: center; justify-content: space-between; background: rgba(99,102,241,0.1); padding: 8px 8px; border-radius: 10px; margin-bottom: 10px; border: 1px solid var(--primary); margin-top:5px;}
     
@@ -152,25 +117,20 @@
 
     .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 25px; }
     #mainSubmitBtn, .btn-confirm { background: var(--primary); color: #fff; border: none; font-weight: 700; cursor: pointer; }
-    #btnRepeat, .btn-cancel { background: var(--bg-input); color: var(--text-main); border: 1.5px solid var(--border-color); font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    #btnRepeat, .btn-cancel { background: var(--bg-card); color: var(--text-main); border: 1.5px solid var(--border-color); font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
-    .modal { 
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); 
-      z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; overflow-y: auto; 
-    }
-    
-    #todayTxnModal, #dailyTxnDetailsModal, #editCompareModal {
-      background: transparent !important;
-      backdrop-filter: none;
-      pointer-events: none !important;
-    }
-    #todayTxnModal .confirm-card, #dailyTxnDetailsModal .confirm-card, #editCompareModal .confirm-card {
-      pointer-events: auto !important;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.25);
-    }
+    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; overflow-y: auto; opacity:1; visibility:visible; transition:opacity 0.25s ease,visibility 0.25s ease; }
+    .modal.hidden { display:flex !important; opacity:0 !important; visibility:hidden !important; pointer-events:none !important; }
+
+    #todayTxnModal, #dailyTxnDetailsModal, #editCompareModal { background: transparent !important; backdrop-filter: none; pointer-events: none !important; }
+    #todayTxnModal .confirm-card, #dailyTxnDetailsModal .confirm-card, #editCompareModal .confirm-card { pointer-events: auto !important; box-shadow: 0 15px 40px rgba(0,0,0,0.25); }
+    #templateCompareModal { background: rgba(0,0,0,0.5) !important; backdrop-filter: blur(2px); pointer-events: auto !important; }
+    #templateCompareModal .confirm-card { pointer-events: auto !important; box-shadow: 0 15px 40px rgba(0,0,0,0.25); border-radius: 20px; }
 
     .modal-content { background: var(--bg-card); color: var(--text-main); width: 98%; max-width: 850px; max-height: 85vh; border-radius: 14px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--border-color); transition: background 0.5s ease; }
-    
+    .modal-content, .confirm-card { transform: scale(1) translateY(0); transition: transform 0.25s cubic-bezier(0.175,0.885,0.32,1.275); }
+    .modal.hidden .modal-content, .modal.hidden .confirm-card { transform: scale(0.95) translateY(10px); }
+
     .confirm-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); font-size: 13px; transition: border-color 0.5s ease; }
     .confirm-label { font-weight: 600; color: var(--text-label); }
     .confirm-val { color: var(--text-main); text-align: right; max-width: 60%; transition: color 0.5s ease; }
@@ -181,10 +141,10 @@
     .confirm-matrix-card span { display:block; font-size: 9px; font-weight:700; color: var(--text-label); }
     .confirm-matrix-card strong { font-size: 11px; color: var(--text-main); margin-top: 2px; }
 
-    .hidden { display: none !important; }
     @keyframes blink { 50% { opacity: 0.5; } }
     .saving-text { animation: blink 1s infinite; }
     
+    .table-container { overflow-x:auto; padding:10px; }
     table { width: 100%; border-collapse: collapse; font-size: 11px; min-width: 700px; }
     th { text-align: center; padding: 10px; border-bottom: 2px solid var(--border-color); color: var(--text-label); transition: color 0.5s ease; }
     td { padding: 10px; border-bottom: 1px solid var(--border-color); vertical-align: middle; text-align: center; transition: border-color 0.5s ease; }
@@ -203,6 +163,19 @@
 
     #btnShowAutofill { background: rgba(34,197,94,0.1); color: var(--primary); border: 1px dashed var(--primary); }
     .upload-btn { background: rgba(59,130,246,0.1); color: var(--secondary); border: 1px dashed var(--secondary); }
+
+    .autocomplete-items { position: absolute; background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; z-index: 1000; top: 100%; left: 0; right: 0; max-height: 160px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 4px; }
+    .autocomplete-items div { padding: 10px 12px; cursor: pointer; font-size: 13px; border-bottom: 1px solid var(--border-color); color: var(--text-main); transition: background 0.2s ease, color 0.2s ease; }
+    .autocomplete-items div:last-child { border-bottom: none; }
+    .autocomplete-items div:hover { background-color: rgba(34,197,94,0.1); color: var(--primary); font-weight: 600; }
+
+    .tmpl-actions-bar { display: flex; gap: 10px; padding: 12px 15px; background: var(--bg-input); border-bottom: 1px solid var(--border-color); }
+    .tmpl-btn-small { height: 34px; margin: 0; font-size: 12px; font-weight: 600; border-radius: 8px; cursor: pointer; }
+
+    /* Hide Class (Aggressive) */
+    .hidden { display: none !important; }
+    /* Flex helper to prevent inline styling conflicts with .hidden */
+    .flex-gap { display: flex; gap: 5px; margin-top: 5px; }
 
     /* Toast UI */
     #toast {
@@ -253,6 +226,7 @@
         <div class="nav-options">
           <a href="https://oprasannakumar.github.io/MonthlytransactionsGoogleSheets/" class="nav-item">🔄 Monthly Transaction</a>
           <a href="https://oprasannakumar.github.io/Self-TransferGoogleScripts/" class="nav-item">🔄 Self Transfer</a>
+          <a href="#" class="nav-item" onclick="event.preventDefault(); openTemplateManager()">📋 Custom Templates</a>
         </div>
       </div>
       <button type="button" id="themeToggle">🌙</button>
@@ -298,15 +272,19 @@
     <option value="">Select</option>
     <option>Chinnama</option><option>Grand Father</option><option>Mother</option><option>Pedhamma</option><option>Ravi Babai</option><option>Srinivas Babai</option><option>Vasavi</option><option value="Other">Other</option>
   </select>
-  <div id="otherInputWrapper" class="hidden" style="display: flex; gap: 5px;">
+  <!-- Dedicated flex-gap class to prevent inline flex overriding hidden class on load -->
+  <div id="otherInputWrapper" class="hidden flex-gap">
     <input type="text" id="borrower_other" placeholder="Enter name" required disabled>
-    <button type="button" id="btnPickContact" style="width: 45px; margin-top: 5px; flex-shrink: 0; background: var(--bg-input);">👤</button>
+    <button type="button" id="btnPickContact" style="width: 45px; flex-shrink: 0; background: var(--bg-input);">👤</button>
   </div>
 </div>
 
 
   <label>Narration</label>
-  <input type="text" id="narration" required placeholder="Reason for loan">
+  <div style="position:relative;">
+    <input type="text" id="narration" required placeholder="Reason for loan (or Template Name)" autocomplete="off">
+    <div id="narration-suggestions" class="autocomplete-items hidden"></div>
+  </div>
 
   <div id="referenceWrapper" class="hidden">
     <label>Reference</label>
@@ -344,6 +322,10 @@
     <button type="button" id="btnRepeat">↺ Repeat Last</button>
   </div>
   
+  <div style="margin-top:10px;">
+      <button type="button" onclick="saveAsCustomTemplate()" style="background:rgba(59,130,246,0.1);color:var(--secondary);border:1px solid var(--secondary);font-size:12px;font-weight:600;border-radius:10px;height:38px;cursor:pointer;width:100%;">⭐ Save as Template</button>
+  </div>
+
   <div id="footerSync" class="sync-wrapper hidden">
     <button type="button" id="btnSyncAll" style="background:var(--secondary); color:white; font-size:11px; font-weight:700; border:none; height:42px; display:flex; align-items:center; justify-content:center; gap:4px; cursor:pointer;">
       ☁️ Sync <span id="syncCount">(0)</span>
@@ -367,13 +349,13 @@
 
 <!-- EDIT COMPARE MODAL -->
 <div id="editCompareModal" class="modal hidden">
-  <div class="confirm-card" style="max-width:95%;width:600px;padding:18px;">
-      <h3 style="margin-bottom:5px;border-bottom:1px solid var(--border-color);padding-bottom:8px;font-size:15px;text-align:center;">Confirm Edit Changes</h3>
-      <p style="text-align:center;font-size:11px;margin-top:0;color:var(--text-label);margin-bottom:15px;">Review the differences before saving the updated transaction.</p>
+  <div class="confirm-card" style="max-width:95%;width:500px;padding:25px 10px;">
+      <h3 style="margin-bottom:10px;font-size:18px;text-align:center;">Confirm Edit Changes</h3>
+      <p style="text-align:center;font-size:13px;margin-top:0;color:var(--text-label);margin-bottom:20px;">Review the differences before saving the updated transaction.</p>
       <div id="editCompareGrid" class="edit-compare-grid"></div>
-      <div class="btn-group" style="margin-top:0;">
-          <button type="button" id="btnConfirmEditSave" class="btn-confirm" style="height:38px;font-size:12px;">✔ Save Updated</button>
-          <button type="button" id="btnCancelEditSave" class="btn-cancel" style="height:38px;font-size:12px;">✖ Cancel</button>
+      <div class="btn-group" style="margin-top:15px;">
+          <button type="button" id="btnConfirmEditSave" class="btn-confirm" style="height:42px;font-size:14px;border-radius:10px;">✔ Save Updated</button>
+          <button type="button" id="btnCancelEditSave" class="btn-cancel" style="height:42px;font-size:14px;border-radius:10px;">Cancel</button>
       </div>
   </div>
 </div>
@@ -406,7 +388,7 @@
       <h4 style="margin:0">Pending Sync Queue</h4>
       <span style="cursor:pointer; font-size: 20px;" onclick="document.getElementById('queueModal').classList.add('hidden')">✕</span>
     </div>
-    <div style="overflow-x: auto; padding: 10px;">
+    <div class="table-container">
       <table>
         <thead>
           <tr><th>Date</th><th>Borrower</th><th>Narration</th><th>Account</th><th>Flow</th><th>Amount</th><th>Action</th></tr>
@@ -417,8 +399,75 @@
   </div>
 </div>
 
+<!-- Template Modal -->
+<div id="templateModal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;padding:15px;background:var(--bg-input);border-bottom:1px solid var(--border-color);">
+            <h4 style="margin:0">Custom Templates</h4>
+            <span style="cursor:pointer;font-size:20px" onclick="closeTemplateManager()">✕</span>
+        </div>
+        <div class="tmpl-actions-bar">
+            <button type="button" class="tmpl-btn-small" style="background:var(--secondary);color:white;border:none;" onclick="syncTemplatesBackup()">☁️ Backup to Drive</button>
+            <button type="button" class="tmpl-btn-small" style="background:var(--bg-input);color:var(--text-main);border:1px solid var(--border-color);" onclick="restoreTemplatesFromDrive()">📥 Restore from Drive</button>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead><tr><th>Template Name</th><th>Borrower</th><th>Narration</th><th>Flow</th><th>Account</th><th>Amount</th><th>Action</th></tr></thead>
+                <tbody id="templateBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Template Name Modal -->
+<div id="templateNameModal" class="modal hidden">
+    <div class="confirm-card">
+        <h3 style="margin-bottom:15px;border-bottom:1px solid var(--border-color);padding-bottom:10px;">Save Custom Template</h3>
+        <label style="margin-top:0;">Template Name</label>
+        <input type="text" id="customTemplateNameInp" placeholder="Enter template name..." style="margin-bottom:15px;" autocomplete="off">
+        <div class="btn-group">
+            <button type="button" id="btnSaveTemplateName" class="btn-confirm">Save</button>
+            <button type="button" id="btnCancelTemplateName" class="btn-cancel">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Template Compare Modal -->
+<div id="templateCompareModal" class="modal hidden">
+    <div class="confirm-card" style="max-width:95%;width:600px;padding:25px 10px;">
+        <h3 style="margin-bottom:10px;font-size:18px;text-align:center;">Template Already Exists</h3>
+        <p style="text-align:center;font-size:13px;margin-top:0;color:var(--text-label);margin-bottom:20px;">Review the differences before replacing.</p>
+        
+        <div id="compareGrid" class="edit-compare-grid"></div>
+        
+        <div class="btn-group" style="margin-top:15px;">
+            <button type="button" id="btnConfirmReplaceTemplate" class="btn-confirm" style="height:42px;font-size:14px;border-radius:10px;">Replace Existing</button>
+            <button type="button" id="btnCancelReplaceTemplate" class="btn-cancel" style="height:42px;font-size:14px;border-radius:10px;">Cancel &amp; Rename</button>
+        </div>
+    </div>
+</div>
+
 <script>
-// --- UI Helpers ---
+// --- Core UI Variables ---
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqPjzifT1pGTVRBv9zPT7KtbTqthUunk1zNEPuS_-4gHPghWfGonbndTnZXFsSgbe-vQ/exec";
+const IMAGE_PROCESS_URL="https://script.google.com/macros/s/AKfycbx7CrlFktwGnHXRvdcovoXrZAjEGlg5axKnK5a7udfT-NdRwLcQ1xyqOsJ7vW7PUyPj3A/exec";
+const DELETE_URL = "https://script.google.com/macros/s/AKfycbz5jwjriTJB2rqI7G66VmtdLTBGR0tQ4j_2iRKDubEERdR-pHI-Sg5OiORQxqgXsg_G/exec";
+
+const denoms = [500,200,100,50,20,10,5,2,1];
+const bankAccounts = ["FI","HDFC Old","HDFC New","ICICI","IndusInd","Kotak","RBL","SBI"];
+const creditCards = ["Axis Flipkart","Axis MyZone","Axis Neo","HDFC PhonePe","HDFC Tata Neu","HDFC Millennia","HSBC","IDFC First Millenia","ICICI Amazon","ICICI Coral","ICICI Expressions","Indusind Plat Aura EDGE","Indusind Legend","Yes Finbooster","Kotak League","Kotak Image","SBI BPCL","Standard Chartered"];
+const rewardPlatforms = ["Amazon", "Flipkart", "Supermoney", "Payzapp", "MobiKwik", "Tata Neu"];
+
+let db, currentPayloads = [];
+let syncAborted = false;
+let editingLogId = null; 
+const STORE_NAME = "loanQueue";
+
+let tempReplaceIndex = -1;
+let tempNewTemplate = null;
+window.currentEditingTemplateName = null;
+
+// --- Global Handlers ---
 function showToast(msg, color) {
     const toast = document.getElementById("toast");
     toast.textContent = msg;
@@ -452,36 +501,68 @@ function getTodayIST() {
   return `${yyyy}-${mm}-${dd}`;
 }
 
-function toggleSmartOther(sel, otherId, parentId) {
+// Reset form strictly wiping browser history cache mismatching the DOM
+window.resetForm = function(keepModes = false) {
+    const form = document.getElementById('loanForm');
+    const batchActive = document.getElementById("batchToggle").checked;
+    const nameRoutingActive = document.getElementById("nameRoutingToggle").checked;
+    
+    if (form) {
+        form.reset();
+        form.classList.remove('was-validated');
+    }
+    
+    if (!keepModes) {
+        document.getElementById("batchToggle").checked = batchActive;
+        document.getElementById("nameRoutingToggle").checked = nameRoutingActive;
+    }
+
+    // Force hide wrappers safely
+    const otherWrapper = document.getElementById('otherInputWrapper');
+    if (otherWrapper) otherWrapper.classList.add('hidden');
+    
+    const otherInp = document.getElementById('borrower_other');
+    if (otherInp) { otherInp.value = ""; otherInp.disabled = true; otherInp.required = false; }
+    
+    const smartRow = document.getElementById('borrowerSmartRow');
+    if (smartRow) smartRow.classList.remove('has-other');
+
+    const refWrap = document.getElementById('referenceWrapper');
+    if (refWrap) refWrap.classList.add('hidden');
+    
+    const cb = document.getElementById('cashBlock');
+    if (cb) { cb.classList.add('hidden'); cb.classList.remove('cash-invalid'); }
+    
+    document.getElementById('paymentContainer').innerHTML = "";
+    document.getElementById("date").value = getTodayIST();
+    
+    editingLogId = null; 
+    
+    createPaymentRow();
+    updateGrandTotal();
+};
+
+window.toggleSmartOther = function(sel, otherId, parentId) {
     const isOther = sel.value === "Other";
     const wrapper = document.getElementById('otherInputWrapper');
     const otherInp = document.getElementById(otherId);
     const parent = document.getElementById(parentId);
     
     if (wrapper) {
-        wrapper.classList.toggle('hidden', !isOther);
+        if (isOther) wrapper.classList.remove('hidden');
+        else wrapper.classList.add('hidden');
         otherInp.disabled = !isOther;
         otherInp.required = isOther;
         if (!isOther) otherInp.value = ""; 
         if (isOther) otherInp.focus();
     }
-    if (parent) parent.classList.toggle('has-other', isOther);
-}
+    if (parent) {
+        if (isOther) parent.classList.add('has-other');
+        else parent.classList.remove('has-other');
+    }
+};
 
 document.addEventListener('DOMContentLoaded', () => {
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqPjzifT1pGTVRBv9zPT7KtbTqthUunk1zNEPuS_-4gHPghWfGonbndTnZXFsSgbe-vQ/exec";
-  const IMAGE_PROCESS_URL="https://script.google.com/macros/s/AKfycbx7CrlFktwGnHXRvdcovoXrZAjEGlg5axKnK5a7udfT-NdRwLcQ1xyqOsJ7vW7PUyPj3A/exec";
-  const DELETE_URL = "https://script.google.com/macros/s/AKfycbz5jwjriTJB2rqI7G66VmtdLTBGR0tQ4j_2iRKDubEERdR-pHI-Sg5OiORQxqgXsg_G/exec";
-
-  const denoms = [500,200,100,50,20,10,5,2,1];
-  const bankAccounts = ["FI","HDFC Old","HDFC New","ICICI","IndusInd","Kotak","RBL","SBI"];
-  const creditCards = ["Axis Flipkart","Axis MyZone","Axis Neo","HDFC PhonePe","HDFC Tata Neu","HDFC Millennia","HSBC","IDFC First Millenia","ICICI Amazon","ICICI Coral","ICICI Expressions","Indusind Plat Aura EDGE","Indusind Legend","Yes Finbooster","Kotak League","Kotak Image","SBI BPCL","Standard Chartered"];
-  const rewardPlatforms = ["Amazon", "Flipkart", "Supermoney", "Payzapp", "MobiKwik", "Tata Neu"];
-
-  let db, currentPayloads = [];
-  let syncAborted = false;
-  let editingLogId = null; 
-  const STORE_NAME = "loanQueue";
 
   const initUI = () => {
     const navFab = document.getElementById('navFab'), fabBtn = document.getElementById('fabToggle'), themeToggle = document.getElementById('themeToggle');
@@ -495,7 +576,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   };
 
-  // --- Daily Logger Dashboard Functions ---
   function getDailyTxns() {
     let data = JSON.parse(localStorage.getItem('loan_daily_txns') || '{"date":"","txns":[]}');
     if (data.date !== getTodayIST()) {
@@ -524,7 +604,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   window.removeDailyTxn = async function(id) {
-    const ok = await showConfirm("Are you sure you want to delete this transaction locally and from the backend?");
+    const ok = await showConfirm("Delete transaction locally and from the backend?");
     if (!ok) return;
     const data = getDailyTxns();
     const txn = data.txns.find(t => t.id === id);
@@ -540,7 +620,6 @@ document.addEventListener('DOMContentLoaded', () => {
         await fetch(`${DELETE_URL}?action=delete&value=${encodeURIComponent(txn.ref)}`, { method: "GET", mode: "no-cors" });
         showToast("🗑️ Delete command sent", "var(--primary)");
       } catch (e) {
-        console.error("Failed to trigger delete hook", e);
         showToast("Failed to connect to backend", "var(--danger)");
       }
     } else {
@@ -601,25 +680,20 @@ document.addEventListener('DOMContentLoaded', () => {
   window.editDailyTxn = function(id) {
     const data = getDailyTxns();
     const txn = data.txns.find(t => t.id === id);
-    if (!txn || !txn.formState) return showToast("Log not found or not editable", "var(--danger)");
+    if (!txn || !txn.formState) return showToast("Log not editable", "var(--danger)");
 
     document.getElementById('todayTxnModal').classList.add('hidden');
-
     const fs = txn.formState;
     resetForm(); 
 
-    editingLogId = id; // MUST SET AFTER resetForm()
+    editingLogId = id;
 
     document.getElementById('date').value = fs.date || getTodayIST();
     document.getElementById('narration').value = fs.narration || '';
     document.getElementById('invoice').value = fs.invoice || '';
     
-    // Resolve proper reference to load
     let refToLoad = fs.reference;
-    if (!refToLoad || refToLoad === "Auto-filled Ref") {
-        refToLoad = txn.ref;
-    }
-
+    if (!refToLoad || refToLoad === "Auto-filled Ref") refToLoad = txn.ref;
     if (refToLoad) {
         document.getElementById('referenceWrapper').classList.remove('hidden');
         document.getElementById('reference').value = refToLoad;
@@ -636,7 +710,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     toggleSmartOther(bSel, 'borrower_other', 'borrowerSmartRow');
 
-    // Payments
     document.getElementById('paymentContainer').innerHTML = '';
     if (fs.payments && fs.payments.length) {
       fs.payments.forEach(p => {
@@ -644,22 +717,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (p.type === 'cash' && p.denominations) {
           document.querySelectorAll('.denom-input').forEach(input => {
             const val = input.dataset.val;
-            if (p.denominations[val] !== undefined) {
-              input.value = p.denominations[val] || '';
-            }
+            if (p.denominations[val] !== undefined) input.value = p.denominations[val] || '';
           });
           recalcCash();
         }
       });
-    } else {
-        createPaymentRow();
-    }
+    } else { createPaymentRow(); }
+    
     updateGrandTotal();
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    showToast("✏️ Editing local log", "var(--secondary)");
+    showToast("✏️ Editing local log...", "var(--secondary)");
   };
 
-  // --- DRAGGABLE BALL SETUP ---
   function setupDraggableBall() {
     const ball = document.getElementById('dragDashBall');
     if(!ball) return;
@@ -704,54 +773,28 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function mapReceiptText(text) {
-    const getVal = (key) => { 
-      const r = new RegExp(`${key}:\\s*(.*)`, 'i'); 
-      const m = text.match(r); 
-      return m ? m[1].trim() : ""; 
-    };
-
-    const name = getVal('👤 Name'),
-          rawDate = getVal('📅 Date'),
-          msg = getVal('📝 Msg'),
-          amt = getVal('💰 Amount'),
-          ref = getVal('🔗 Ref'),
-          rawType = getVal('⇄ Type'),
-          rawAcc = getVal('🏢 Account'),
-          rawDirection = getVal('📊 Direction');
-
+    const getVal = (key) => { const r = new RegExp(`${key}:\\s*(.*)`, 'i'); const m = text.match(r); return m ? m[1].trim() : ""; };
+    const name = getVal('👤 Name'), rawDate = getVal('📅 Date'), msg = getVal('📝 Msg'), amt = getVal('💰 Amount'), ref = getVal('🔗 Ref'), rawType = getVal('⇄ Type'), rawAcc = getVal('🏢 Account'), rawDirection = getVal('📊 Direction');
     const isBorrowerTarget = document.getElementById('nameRoutingToggle').checked;
 
     if (rawDate) {
       const p = rawDate.split('-');
-      if (p.length === 3)
-        document.getElementById('date').value = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+      if (p.length === 3) document.getElementById('date').value = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
     }
 
     const flowField = document.getElementById('trtype');
-    if (rawDirection.toUpperCase().includes("OUT")) {
-      flowField.value = "loan_given";
-    } else if (rawDirection.toUpperCase().includes("IN")) {
-      flowField.value = "loan_received";
-    }
+    if (rawDirection.toUpperCase().includes("OUT")) flowField.value = "loan_given";
+    else if (rawDirection.toUpperCase().includes("IN")) flowField.value = "loan_received";
     flowField.dispatchEvent(new Event('change'));
 
     if (name) {
       const isReceived = flowField.value === "loan_received";
       const prefix = isReceived ? "Received from " : "Paid to ";
-
       if (isBorrowerTarget) {
         const bSel = document.getElementById('borrower');
         let found = false;
-        Array.from(bSel.options).forEach(opt => {
-          if (opt.text.toLowerCase() === name.toLowerCase()) { bSel.value = opt.value; found = true; }
-        });
-        if (!found) {
-          bSel.value = "Other";
-          const otherInp = document.getElementById('borrower_other');
-          otherInp.value = name;
-          otherInp.classList.remove('hidden');
-          otherInp.disabled = false;
-        }
+        Array.from(bSel.options).forEach(opt => { if (opt.text.toLowerCase() === name.toLowerCase()) { bSel.value = opt.value; found = true; } });
+        if (!found) { bSel.value = "Other"; document.getElementById('borrower_other').value = name; }
         toggleSmartOther(bSel, 'borrower_other', 'borrowerSmartRow');
         document.getElementById('narration').value = msg || "";
       } else {
@@ -762,8 +805,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let firstRow = document.querySelector('.payment-row-wrapper') || createPaymentRow();
-    const typeSelect = firstRow.querySelector('.row-type');
-    const accSelect  = firstRow.querySelector('.row-acc');
+    const typeSelect = firstRow.querySelector('.row-type'), accSelect  = firstRow.querySelector('.row-acc');
 
     if (rawType) {
       const t = rawType.toLowerCase();
@@ -777,20 +819,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const accText = rawAcc.toLowerCase();
       const opts = Array.from(accSelect.options);
       let match = opts.find(o => o.value.toLowerCase() === accText) || opts.find(o => accText.includes(o.value.toLowerCase()));
-      if (match) {
-        accSelect.value = match.value;
-      } else {
-        accSelect.value = "Other";
-        accSelect.dispatchEvent(new Event('change'));
-        firstRow.querySelector('.row-acc-other').value = rawAcc;
-      }
+      if (match) accSelect.value = match.value;
+      else { accSelect.value = "Other"; accSelect.dispatchEvent(new Event('change')); firstRow.querySelector('.row-acc-other').value = rawAcc; }
     }
 
     if (amt) document.querySelector('.row-amt').value = amt.replace(/[^\d.\-]/g, '');
-    if (ref) {
-      document.getElementById('referenceWrapper').classList.remove('hidden');
-      document.getElementById('reference').value = ref;
-    }
+    if (ref) { document.getElementById('referenceWrapper').classList.remove('hidden'); document.getElementById('reference').value = ref; }
     updateGrandTotal();
   }
 
@@ -807,18 +841,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (d.date) {
       const p = d.date.split('-');
-      if (p.length === 3)
-        document.getElementById('date').value = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+      if (p.length === 3) document.getElementById('date').value = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
     }
 
     const trTypeField = document.getElementById('trtype');
     const backendDir = (d.direction || "").toString().toUpperCase();
-
-    if (backendDir === "IN") {
-      trTypeField.value = "loan_received";
-    } else if (backendDir === "OUT") {
-      trTypeField.value = "loan_given";
-    }
+    if (backendDir === "IN") trTypeField.value = "loan_received";
+    else if (backendDir === "OUT") trTypeField.value = "loan_given";
     trTypeField.dispatchEvent(new Event('change'));
 
     if (d.name) {
@@ -829,16 +858,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (isBorrowerTarget) {
         const bSel = document.getElementById('borrower');
         let found = false;
-        Array.from(bSel.options).forEach(opt => {
-          if (opt.text.toLowerCase() === d.name.toLowerCase()) { bSel.value = opt.value; found = true; }
-        });
-        if (!found) {
-          bSel.value = "Other";
-          const otherInp = document.getElementById('borrower_other');
-          otherInp.value = d.name;
-          otherInp.classList.remove('hidden');
-          otherInp.disabled = false;
-        }
+        Array.from(bSel.options).forEach(opt => { if (opt.text.toLowerCase() === d.name.toLowerCase()) { bSel.value = opt.value; found = true; } });
+        if (!found) { bSel.value = "Other"; document.getElementById('borrower_other').value = d.name; }
         toggleSmartOther(bSel, 'borrower_other', 'borrowerSmartRow');
         document.getElementById('narration').value = msg;
       } else {
@@ -849,9 +870,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let firstRow = document.querySelector('.payment-row-wrapper') || createPaymentRow();
-    const typeSelect = firstRow.querySelector('.row-type');
-    const accSelect  = firstRow.querySelector('.row-acc');
-    const amtInput   = firstRow.querySelector('.row-amt');
+    const typeSelect = firstRow.querySelector('.row-type'), accSelect  = firstRow.querySelector('.row-acc'), amtInput = firstRow.querySelector('.row-amt');
 
     if (d.type) {
       const t = d.type.toLowerCase();
@@ -864,22 +883,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (d.account) {
       const accountText = d.account.toLowerCase();
       const options = Array.from(accSelect.options);
-      let match = options.find(opt => opt.value.toLowerCase() === accountText) ||
-                  options.find(opt => accountText.includes(opt.value.toLowerCase()));
-      if (match) {
-        accSelect.value = match.value;
-      } else {
-        accSelect.value = "Other";
-        accSelect.dispatchEvent(new Event('change'));
-        firstRow.querySelector('.row-acc-other').value = d.account;
-      }
+      let match = options.find(opt => opt.value.toLowerCase() === accountText) || options.find(opt => accountText.includes(opt.value.toLowerCase()));
+      if (match) accSelect.value = match.value;
+      else { accSelect.value = "Other"; accSelect.dispatchEvent(new Event('change')); firstRow.querySelector('.row-acc-other').value = d.account; }
     }
 
     if (d.amount) amtInput.value = parseFloat(d.amount.toString().replace(/[^\d.\-]/g, '')) || "";
-    if (d.refId || d.txnId) {
-      document.getElementById('referenceWrapper').classList.remove('hidden');
-      document.getElementById('reference').value = d.refId || d.txnId;
-    }
+    if (d.refId || d.txnId) { document.getElementById('referenceWrapper').classList.remove('hidden'); document.getElementById('reference').value = d.refId || d.txnId; }
     updateGrandTotal();
   }
 
@@ -893,28 +903,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     reader.onload = function () {
         const base64 = reader.result.split(",")[1];
-        fetch(IMAGE_PROCESS_URL, {
-          method: "POST",
-          body: JSON.stringify({ image: base64 })
-        })
+        fetch(IMAGE_PROCESS_URL, { method: "POST", body: JSON.stringify({ image: base64 }) })
         .then(res => res.json())
         .then(response => {
             btn.textContent = "✨ Use Receipt Auto-Fill";
-            if (response.status !== "success") {
-                showToast("Extraction failed", "var(--danger)");
-                return;
-            }
+            if (response.status !== "success") { showToast("Extraction failed", "var(--danger)"); return; }
             mapReceiptJSON(response.data);
         })
-        .catch(() => {
-          btn.textContent = "✨ Use Receipt Auto-Fill";
-          showToast("Upload failed", "var(--danger)");
-        });
+        .catch(() => { btn.textContent = "✨ Use Receipt Auto-Fill"; showToast("Upload failed", "var(--danger)"); });
       };
       reader.readAsDataURL(file);
   });
 
-  (function initDB(){
+  function initDB(){
     const req = indexedDB.open("LoanAppDB_v14", 1);
     req.onupgradeneeded = e => e.target.result.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
     req.onsuccess = e => { db = e.target.result; updatePendingCount(); updateNetStatus(); initUI(); setupDraggableBall(); renderSessionDashboard(); };
@@ -922,36 +923,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnPickContact = document.getElementById('btnPickContact');
     const borrowerOtherInp = document.getElementById('borrower_other');
 
-    if (!('contacts' in navigator && 'ContactsManager' in window)) {
-      btnPickContact.style.display = 'none'; 
-    }
+    if (!('contacts' in navigator && 'ContactsManager' in window)) btnPickContact.style.display = 'none'; 
 
     btnPickContact.addEventListener('click', async () => {
-      const props = ['name'];
       try {
-        const contacts = await navigator.contacts.select(props, { multiple: false });
-        if (contacts.length > 0 && contacts[0].name) {
-          borrowerOtherInp.value = contacts[0].name[0];
-        }
-      } catch (err) {
-        console.error("Contact picker error:", err);
-      }
+        const contacts = await navigator.contacts.select(['name'], { multiple: false });
+        if (contacts.length > 0 && contacts[0].name) borrowerOtherInp.value = contacts[0].name[0];
+      } catch (err) {}
     });
-
-    window.toggleSmartOther = function(sel, otherId, parentId) {
-        const isOther = sel.value === "Other";
-        const wrapper = document.getElementById('otherInputWrapper');
-        const otherInp = document.getElementById(otherId);
-        const parent = document.getElementById(parentId);
-        
-        if (wrapper) {
-            wrapper.classList.toggle('hidden', !isOther);
-            otherInp.disabled = !isOther;
-            otherInp.required = isOther;
-            if (isOther) otherInp.focus();
-        }
-        if (parent) parent.classList.toggle('has-other', isOther);
-    };
 
     const narrationInp = document.getElementById('narration');
     const trTypeField = document.getElementById('trtype');
@@ -960,19 +939,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const text = narrationInp.value.toLowerCase();
       const givenKeywords = ['paid', 'gave', 'sent', 'transfer to', 'giving', 'lent', 'out'];
       const receivedKeywords = ['received', 'got', 'taken', 'borrowed', 'from', 'credited', 'in'];
-
       const matchesGiven = givenKeywords.some(key => text.includes(key));
       const matchesReceived = receivedKeywords.some(key => text.includes(key));
 
-      if (matchesGiven && !matchesReceived) {
-        trTypeField.value = "loan_given";
-        trTypeField.dispatchEvent(new Event('change'));
-      } else if (matchesReceived && !matchesGiven) {
-        trTypeField.value = "loan_received";
-        trTypeField.dispatchEvent(new Event('change'));
-      }
+      if (matchesGiven && !matchesReceived) { trTypeField.value = "loan_given"; trTypeField.dispatchEvent(new Event('change')); } 
+      else if (matchesReceived && !matchesGiven) { trTypeField.value = "loan_received"; trTypeField.dispatchEvent(new Event('change')); }
     });
-  })();
+  }
 
   window.addEventListener('online', updateNetStatus);
   window.addEventListener('offline', updateNetStatus);
@@ -980,16 +953,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateNetStatus() {
     const el = document.getElementById("netStatus");
     if (!el) return;
-    if (navigator.onLine) {
-      el.classList.add("online");
-      el.title = "Online";
-    } else {
-      el.classList.remove("online");
-      el.title = "Offline";
-    }
+    if (navigator.onLine) { el.classList.add("online"); el.title = "Online"; } 
+    else { el.classList.remove("online"); el.title = "Offline"; }
   }
 
-  function createPaymentRow(initial = null) {
+  window.createPaymentRow = function(initial = null) {
     const wrapper = document.createElement('div');
     wrapper.className = 'payment-row-wrapper swipe-wrapper';
     wrapper.innerHTML = `
@@ -1025,14 +993,11 @@ document.addEventListener('DOMContentLoaded', () => {
       aSel.innerHTML = '<option value="">Select</option>';
       if (tSel.value === 'cash' || tSel.value === 'Share') { 
         const label = tSel.value === 'cash' ? "Cash" : "Share";
-        aSel.add(new Option(label, label)); 
-        aSel.value = label; 
-        aSel.disabled = true; 
+        aSel.add(new Option(label, label)); aSel.value = label; aSel.disabled = true; 
         amtInp.readOnly = (tSel.value === 'cash'); 
         if(tSel.value === 'cash') recalcCash(); 
       } else { 
-        aSel.disabled = false; 
-        amtInp.readOnly = false; 
+        aSel.disabled = false; amtInp.readOnly = false; 
         let list = (tSel.value === "credit") ? creditCards : (tSel.value === "Rewards" ? rewardPlatforms : bankAccounts); 
         list.forEach(a => aSel.add(new Option(a, a))); 
         aSel.add(new Option("Other", "Other")); 
@@ -1057,50 +1022,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function enableSwipeToDelete(wrapper) {
     if (!wrapper) return;
-    let startX = 0;
-    let currentX = 0;
-    let isDragging = false;
+    let startX = 0, currentX = 0, isDragging = false;
     const content = wrapper.querySelector('.swipe-content');
 
-    function onStart(clientX) {
-      startX = clientX;
-      isDragging = true;
-      content.style.transition = "none";
-      document.body.style.userSelect = 'none';
-    }
-
-    function onMove(clientX) {
-      if (!isDragging) return;
-      currentX = clientX - startX;
-      if (currentX < 0) {
-        content.style.transform = `translateX(${currentX}px)`;
-      }
-    }
-
+    function onStart(clientX) { startX = clientX; isDragging = true; content.style.transition = "none"; document.body.style.userSelect = 'none'; }
+    function onMove(clientX) { if (!isDragging) return; currentX = clientX - startX; if (currentX < 0) { content.style.transform = `translateX(${currentX}px)`; } }
     function onEnd() {
       if (!isDragging) return;
-      isDragging = false;
-      document.body.style.userSelect = '';
-
+      isDragging = false; document.body.style.userSelect = '';
       const allRows = document.querySelectorAll('.payment-row-wrapper');
 
       if (currentX < -80 && allRows.length > 1) {
-        content.style.transition = "transform 0.2s ease, opacity 0.2s ease";
-        content.style.transform = "translateX(-100%)";
-        content.style.opacity = "0";
-
-        setTimeout(() => {
-          wrapper.remove();
-          toggleCashBlock();
-          updateGrandTotal();
-        }, 200);
+        content.style.transition = "transform 0.2s ease, opacity 0.2s ease"; content.style.transform = "translateX(-100%)"; content.style.opacity = "0";
+        setTimeout(() => { wrapper.remove(); toggleCashBlock(); updateGrandTotal(); }, 200);
       } else if (currentX < -80 && allRows.length === 1) {
-        content.style.transition = "transform 0.15s ease";
-        content.style.transform = "translateX(-20px)";
+        content.style.transition = "transform 0.15s ease"; content.style.transform = "translateX(-20px)";
         setTimeout(() => content.style.transform = "translateX(0)", 150);
       } else {
-        content.style.transition = "transform 0.2s ease";
-        content.style.transform = "translateX(0)";
+        content.style.transition = "transform 0.2s ease"; content.style.transform = "translateX(0)";
       }
       currentX = 0;
     }
@@ -1111,22 +1050,21 @@ document.addEventListener('DOMContentLoaded', () => {
     wrapper.addEventListener('mousedown', (e) => {
       const target = e.target;
       if (target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.closest('.row-type') || target.closest('.row-acc') || target.closest('.row-amt')) return;
-      onStart(e.clientX);
-      e.preventDefault();
+      onStart(e.clientX); e.preventDefault();
     });
     window.addEventListener('mousemove', (e) => { if (isDragging) { onMove(e.clientX); } });
     window.addEventListener('mouseup', onEnd);
   }
 
-  function toggleCashBlock() { document.getElementById('cashBlock').classList.toggle('hidden', !Array.from(document.querySelectorAll('.row-type')).some(s => s.value === 'cash')); }
+  window.toggleCashBlock = function() { document.getElementById('cashBlock').classList.toggle('hidden', !Array.from(document.querySelectorAll('.row-type')).some(s => s.value === 'cash')); }
   
-  function recalcCash() {
+  window.recalcCash = function() {
     let tot = 0; document.querySelectorAll('.denom-input').forEach(i => tot += (i.value || 0) * i.dataset.val);
     document.querySelectorAll('.payment-row-wrapper').forEach(w => { if(w.querySelector('.row-type').value === 'cash') w.querySelector('.row-amt').value = tot || ""; });
     updateGrandTotal();
   }
   
-  function updateGrandTotal() { let total = 0; document.querySelectorAll('.row-amt').forEach(i => total += parseFloat(i.value) || 0); document.getElementById('grandTotal').textContent = `₹${total.toFixed(2)}`; }
+  window.updateGrandTotal = function() { let total = 0; document.querySelectorAll('.row-amt').forEach(i => total += parseFloat(i.value) || 0); document.getElementById('grandTotal').textContent = `₹${total.toFixed(2)}`; }
   
   denoms.forEach(d => { 
     const card = document.createElement('div'); card.className = 'cash-card';
@@ -1166,28 +1104,19 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function buildEditCompareHtml(oldState, newState) {
-      let html = `
-        <div class="col-header" style="color:var(--danger);">Existing</div>
-        <div class="col-header" style="color:var(--text-label);">Field</div>
-        <div class="col-header" style="color:var(--primary);">Updated</div>
-      `;
+      let html = `<div class="col-header left">Existing</div><div class="col-header center">Field</div><div class="col-header right">New</div>`;
 
       function addRow(label, oldVal, newVal) {
           const oldStr = (oldVal !== undefined && oldVal !== null && oldVal !== "") ? String(oldVal) : "-";
           const newStr = (newVal !== undefined && newVal !== null && newVal !== "") ? String(newVal) : "-";
           const diff = oldStr !== newStr;
-          const oldCls = diff ? 'old-val' : 'old-val dim';
-          const newCls = diff ? 'new-val' : 'new-val dim';
-          html += `
-            <div class="${oldCls}">${oldStr}</div>
-            <div class="field-label">${label}</div>
-            <div class="${newCls}">${newStr}</div>
-          `;
+          
+          const oldCls = diff ? 'val-box old-diff' : 'val-box';
+          const newCls = diff ? 'val-box new-diff' : 'val-box';
+          
+          html += `<div class="${oldCls}">${oldStr}</div><div class="field-label">${label}</div><div class="${newCls}">${newStr}</div>`;
       }
-
-      function addHeading(text) {
-          html += `<div class="diff-heading">${text}</div>`;
-      }
+      function addHeading(text) { html += `<div class="diff-heading"><span>${text}</span></div>`; }
 
       const oldBorrower = oldState.borrower === 'Other' ? oldState.borrower_other : oldState.borrower;
       const newBorrower = newState.borrower === 'Other' ? newState.borrower_other : newState.borrower;
@@ -1196,7 +1125,6 @@ document.addEventListener('DOMContentLoaded', () => {
       addRow("Borrower", oldBorrower, newBorrower);
       addRow("Narration", oldState.narration, newState.narration);
       addRow("Invoice", oldState.invoice, newState.invoice);
-      addRow("Reference", oldState.reference, newState.reference);
       addRow("Flow", oldState.trtype ? oldState.trtype.replace('_',' ') : '-', newState.trtype ? newState.trtype.replace('_',' ') : '-');
 
       const oldTotal = (oldState.payments || []).reduce((s, p) => s + (p.amount || 0), 0);
@@ -1210,8 +1138,12 @@ document.addEventListener('DOMContentLoaded', () => {
       allPay.forEach(key => {
           const oldP = (oldState.payments || []).find(p => `${p.account} (${p.type})` === key);
           const newP = (newState.payments || []).find(p => `${p.account} (${p.type})` === key);
-          addRow(key, oldP ? `₹${oldP.amount}` : "-", newP ? `₹${newP.amount}` : "-");
+          
+          // Force the mode to a new line
+          const formattedLabel = key.replace(' (', '<br>(');
+          addRow(formattedLabel, oldP ? `₹${oldP.amount}` : "-", newP ? `₹${newP.amount}` : "-");
       });
+
 
       return html;
   }
@@ -1232,17 +1164,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const flowFinal = document.getElementById('trtype').value;
 
     let refVal = document.getElementById('reference').value.trim();
-    
-    // Logic to enforce / carry-over references
     if (!refVal || refVal === "Auto-filled Ref") {
         if (editingLogId !== null) {
             const data = getDailyTxns();
             const oldTxn = data.txns.find(t => t.id === editingLogId);
-            if (oldTxn && oldTxn.ref) {
-                refVal = oldTxn.ref;
-            }
+            if (oldTxn && oldTxn.ref) refVal = oldTxn.ref;
         }
-        
         if (!refVal || refVal === "Auto-filled Ref") {
             const now = new Date();
             const datePart = now.toISOString().split('T')[0].replace(/-/g, ''); 
@@ -1257,21 +1184,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (editingLogId !== null) {
         const data = getDailyTxns();
         const oldTxn = data.txns.find(t => t.id === editingLogId);
-        if (!oldTxn || !oldTxn.formState) {
-            showToast("Original log data not found", "var(--danger)");
-            return;
-        }
+        if (!oldTxn || !oldTxn.formState) { showToast("Original log data not found", "var(--danger)"); return; }
+        
         const oldState = oldTxn.formState;
-
-        // Preserve original reference ID for replacement
         newFormState.reference = oldTxn.ref || refVal;
 
-        const oldStr = JSON.stringify(oldState);
-        const newStr = JSON.stringify(newFormState);
-        if (oldStr === newStr) {
-            showToast("No changes detected", "#f59e0b");
-            return;
-        }
+        if (JSON.stringify(oldState) === JSON.stringify(newFormState)) { showToast("No changes detected", "#f59e0b"); return; }
 
         document.getElementById('editCompareGrid').innerHTML = buildEditCompareHtml(oldState, newFormState);
         document.getElementById('editCompareModal').classList.remove('hidden');
@@ -1299,20 +1217,14 @@ document.addEventListener('DOMContentLoaded', () => {
     currentPayloads.forEach(p => paymentDetailsArray.push(`${p.account} (${p.mode})`));
 
     window.currentSaveStats = {
-        amount: gTotal,
-        flow: flowFinal,
-        narration: `${document.getElementById('narration').value.trim()} (${bFinal})`,
-        details: paymentDetailsArray.join(', '),
-        ref: refVal,
-        fullHtml: '',
-        formState: newFormState
+        amount: gTotal, flow: flowFinal, narration: `${document.getElementById('narration').value.trim()} (${bFinal})`,
+        details: paymentDetailsArray.join(', '), ref: refVal, fullHtml: '', formState: newFormState
     };
 
     if (document.getElementById("batchToggle").checked || !navigator.onLine) saveToDB();
     else { renderConfirmation(bFinal, flowFinal, refVal); document.getElementById('confirmModal').classList.remove('hidden'); }
   };
 
-  // Edit Compare Confirmation Handlers (NO DOUBLE CONFIRMATION)
   document.getElementById('btnConfirmEditSave').onclick = async function() {
       const oldLogId = window._oldLogId;
       const ref = window._editRef;
@@ -1320,7 +1232,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!oldLogId || !newState) { showToast("Edit data missing", "var(--danger)"); return; }
 
       document.getElementById('editCompareModal').classList.add('hidden');
-
       await removeDailyTxnSilent(oldLogId);
 
       const bFinal = newState.borrower === "Other" ? newState.borrower_other : newState.borrower;
@@ -1329,20 +1240,10 @@ document.addEventListener('DOMContentLoaded', () => {
       currentPayloads = [];
       newState.payments.forEach(payment => {
         const p = {
-          date: newState.date, 
-          borrower: bFinal, 
-          narration: newState.narration, 
-          reference: ref, 
-          invoice: newState.invoice, 
-          trtype: flowFinal, 
-          mode: payment.type,
-          account: payment.account, 
-          withdrawn: flowFinal === "loan_given" ? payment.amount : 0, 
-          deposit: flowFinal === "loan_received" ? payment.amount : 0
+          date: newState.date, borrower: bFinal, narration: newState.narration, reference: ref, invoice: newState.invoice, trtype: flowFinal, mode: payment.type,
+          account: payment.account, withdrawn: flowFinal === "loan_given" ? payment.amount : 0, deposit: flowFinal === "loan_received" ? payment.amount : 0
         };
-        if(payment.type === 'cash' && payment.denominations) {
-            Object.entries(payment.denominations).forEach(([d, val]) => { p["c"+d] = val; });
-        }
+        if(payment.type === 'cash' && payment.denominations) { Object.entries(payment.denominations).forEach(([d, val]) => { p["c"+d] = val; }); }
         currentPayloads.push(p);
       });
 
@@ -1351,16 +1252,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const gTotal = currentPayloads.reduce((sum, p) => sum + parseFloat(p.withdrawn || p.deposit || 0), 0);
 
       window.currentSaveStats = {
-          amount: gTotal,
-          flow: flowFinal,
-          narration: `${newState.narration} (${bFinal})`,
-          details: paymentDetailsArray.join(', '),
-          ref: ref,
-          fullHtml: '',
-          formState: newState
+          amount: gTotal, flow: flowFinal, narration: `${newState.narration} (${bFinal})`,
+          details: paymentDetailsArray.join(', '), ref: ref, fullHtml: '', formState: newState
       };
 
-      // We still build the HTML so the daily logger can show the receipt
       let html = `<div class="confirm-item"><span class="confirm-label">Date</span><span class="confirm-val">${formatDisplayDate(newState.date)}</span></div>
                   <div class="confirm-item"><span class="confirm-label">Borrower</span><span class="confirm-val">${bFinal}</span></div>
                   <div class="confirm-item"><span class="confirm-label">Narration</span><span class="confirm-val">${newState.narration}</span></div>
@@ -1374,24 +1269,15 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       window.currentSaveStats.fullHtml = html;
 
-      // Jump straight to save. No secondary confirm Modal!
-      if (document.getElementById("batchToggle").checked || !navigator.onLine) {
-          saveToDB();
-      } else {
-          processSave();
-      }
+      if (document.getElementById("batchToggle").checked || !navigator.onLine) saveToDB();
+      else processSave();
 
-      editingLogId = null;
-      window._oldLogId = null;
-      window._editRef = null;
-      window._newFormState = null;
+      editingLogId = null; window._oldLogId = null; window._editRef = null; window._newFormState = null;
   };
 
   document.getElementById('btnCancelEditSave').onclick = function() {
       document.getElementById('editCompareModal').classList.add('hidden');
-      window._oldLogId = null;
-      window._editRef = null;
-      window._newFormState = null;
+      window._oldLogId = null; window._editRef = null; window._newFormState = null;
   };
 
   function renderConfirmation(borrower, flow, ref) {
@@ -1418,24 +1304,12 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       for (let p of currentPayloads) await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(p) });
       
-      if (editingLogId) {
-          await removeDailyTxnSilent(editingLogId);
-          editingLogId = null;
-      }
+      if (editingLogId) { await removeDailyTxnSilent(editingLogId); editingLogId = null; }
 
       if (window.currentSaveStats) {
-          addDailyTxn(
-              window.currentSaveStats.narration,
-              window.currentSaveStats.amount,
-              window.currentSaveStats.flow,
-              window.currentSaveStats.details,
-              window.currentSaveStats.fullHtml,
-              window.currentSaveStats.ref,
-              window.currentSaveStats.formState
-          );
+          addDailyTxn(window.currentSaveStats.narration, window.currentSaveStats.amount, window.currentSaveStats.flow, window.currentSaveStats.details, window.currentSaveStats.fullHtml, window.currentSaveStats.ref, window.currentSaveStats.formState);
           window.currentSaveStats = null;
       }
-
       showToast("✔ Saved Online!", "var(--primary)"); 
       resetForm();
     } catch (err) { 
@@ -1449,48 +1323,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const tx = db.transaction(STORE_NAME, "readwrite");
     currentPayloads.forEach(p => tx.objectStore(STORE_NAME).add(p));
     tx.oncomplete = () => { 
-        if (editingLogId) {
-            removeDailyTxnSilent(editingLogId); 
-            editingLogId = null;
-        }
-
+        if (editingLogId) { removeDailyTxnSilent(editingLogId); editingLogId = null; }
         if (window.currentSaveStats) {
-            addDailyTxn(
-                window.currentSaveStats.narration,
-                window.currentSaveStats.amount,
-                window.currentSaveStats.flow,
-                window.currentSaveStats.details,
-                window.currentSaveStats.fullHtml,
-                window.currentSaveStats.ref,
-                window.currentSaveStats.formState
-            );
+            addDailyTxn(window.currentSaveStats.narration, window.currentSaveStats.amount, window.currentSaveStats.flow, window.currentSaveStats.details, window.currentSaveStats.fullHtml, window.currentSaveStats.ref, window.currentSaveStats.formState);
             window.currentSaveStats = null;
         }
-        
-        resetForm(); 
-        updatePendingCount(); 
-        showToast("📦 Saved to local queue", "var(--secondary)");
+        resetForm(); updatePendingCount(); showToast("📦 Saved to local queue", "var(--secondary)");
     };
-  }
-
-  function resetForm() {
-    const batchActive = document.getElementById("batchToggle").checked;
-    const nameRoutingActive = document.getElementById("nameRoutingToggle").checked;
-    loanForm.reset(); 
-    loanForm.classList.remove('was-validated');
-    document.getElementById("batchToggle").checked = batchActive;
-    document.getElementById("nameRoutingToggle").checked = nameRoutingActive;
-    
-    document.getElementById('paymentContainer').innerHTML = "";
-    document.getElementById('borrowerSmartRow').classList.remove('has-other');
-    document.getElementById('borrower_other').classList.add('hidden');
-    document.getElementById('referenceWrapper').classList.add('hidden');
-    document.getElementById('cashBlock').classList.remove('cash-invalid');
-    document.getElementById("date").value = getTodayIST();
-    
-    editingLogId = null; 
-    
-    createPaymentRow();
   }
 
   function getCashTextSummary(p) { return denoms.map(v => `${v}x${p["c"+v] || 0}`).join(", "); }
@@ -1596,16 +1435,302 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById("btnViewQueue").onclick = () => document.getElementById("queueModal").classList.remove('hidden');
   document.getElementById('btnSyncAll').onclick = syncAllData;
   document.getElementById('btnStopSync').onclick = () => { syncAborted = true; };
-  document.getElementById("date").value = getTodayIST();
-  createPaymentRow();
+
+  // ====== CUSTOM TEMPLATES LOGIC ======
+  window.openTemplateManager = function() {
+    renderCustomTemplates(); document.getElementById("templateModal").classList.remove("hidden");
+  };
+  window.closeTemplateManager = function() { document.getElementById("templateModal").classList.add("hidden"); };
+
+  window.saveAsCustomTemplate = function() {
+    const bFinal = document.getElementById('borrower').value === 'Other' ? document.getElementById('borrower_other').value : document.getElementById('borrower').value;
+    const flowFinal = document.getElementById('trtype').value;
+    const narrationVal = document.getElementById('narration').value.trim();
+    const invoiceVal = document.getElementById('invoice').value.trim();
+
+    const payments = [];
+    document.querySelectorAll('.payment-row-wrapper').forEach(row => {
+        const type = row.querySelector('.row-type').value;
+        const accSel = row.querySelector('.row-acc');
+        const acc = accSel.value === 'Other' ? row.querySelector('.row-acc-other').value : accSel.value;
+        const amt = parseFloat(row.querySelector('.row-amt').value) || 0;
+        const pmt = { type, account: acc, amount: amt };
+        if (type === 'cash') {
+            const denomObj = {};
+            document.querySelectorAll('.denom-input').forEach(i => { denomObj[i.dataset.val] = i.value || 0; });
+            pmt.denominations = denomObj;
+        }
+        payments.push(pmt);
+    });
+
+    const list = JSON.parse(localStorage.getItem("loanCustomTemplates") || "[]");
+    const isIdentical = list.some(t => {
+        if (t.borrower !== bFinal || t.flow !== flowFinal || t.narration !== narrationVal || t.invoice !== invoiceVal) return false;
+        if (!t.payments || t.payments.length !== payments.length) return false;
+        return t.payments.every((tp, i) => tp.type === payments[i].type && tp.account === payments[i].account && tp.amount === payments[i].amount);
+    });
+
+    if (isIdentical) { showToast("Identical template already exists", "var(--danger)"); return; }
+
+    const template = { name: window.currentEditingTemplateName || narrationVal || "New Template", borrower: bFinal, narration: narrationVal, invoice: invoiceVal, flow: flowFinal, payments: payments };
+    const existingIndex = list.findIndex(t => t.name.toLowerCase() === template.name.toLowerCase());
+
+    if (existingIndex !== -1) {
+        tempReplaceIndex = existingIndex; tempNewTemplate = template;
+        document.getElementById("compareGrid").innerHTML = buildTemplateCompareHtml(list[existingIndex], template);
+        document.getElementById("templateCompareModal").classList.remove("hidden");
+        return;
+    }
+
+    const modal = document.getElementById("templateNameModal");
+    const nameInp = document.getElementById("customTemplateNameInp");
+    nameInp.value = window.currentEditingTemplateName || narrationVal;
+    window.currentEditingTemplateName = null;
+    modal.classList.remove("hidden");
+    setTimeout(() => nameInp.focus(), 100);
+  };
+
+  document.getElementById("btnSaveTemplateName").onclick = () => {
+    const nameInp = document.getElementById("customTemplateNameInp").value.trim();
+    if (!nameInp) { showToast("Template name is required", "var(--danger)"); return; }
+    
+    const bFinal = document.getElementById('borrower').value === 'Other' ? document.getElementById('borrower_other').value : document.getElementById('borrower').value;
+    const flowFinal = document.getElementById('trtype').value;
+    const narrationVal = document.getElementById('narration').value.trim();
+    const invoiceVal = document.getElementById('invoice').value.trim();
+
+    const payments = [];
+    document.querySelectorAll('.payment-row-wrapper').forEach(row => {
+        const type = row.querySelector('.row-type').value;
+        const accSel = row.querySelector('.row-acc');
+        const acc = accSel.value === 'Other' ? row.querySelector('.row-acc-other').value : accSel.value;
+        const amt = parseFloat(row.querySelector('.row-amt').value) || 0;
+        const pmt = { type, account: acc, amount: amt };
+        if (type === 'cash') {
+            const denomObj = {};
+            document.querySelectorAll('.denom-input').forEach(i => { denomObj[i.dataset.val] = i.value || 0; });
+            pmt.denominations = denomObj;
+        }
+        payments.push(pmt);
+    });
+
+    const template = { name: nameInp, borrower: bFinal, narration: narrationVal, invoice: invoiceVal, flow: flowFinal, payments: payments };
+    let list = JSON.parse(localStorage.getItem("loanCustomTemplates") || "[]");
+    const existingIndex = list.findIndex(t => t.name.toLowerCase() === nameInp.toLowerCase());
+    
+    if (existingIndex !== -1) {
+        document.getElementById("templateNameModal").classList.add("hidden");
+        tempReplaceIndex = existingIndex; tempNewTemplate = template;
+        document.getElementById("compareGrid").innerHTML = buildTemplateCompareHtml(list[existingIndex], template);
+        document.getElementById("templateCompareModal").classList.remove("hidden");
+        return;
+    }
+
+    list.push(template); localStorage.setItem("loanCustomTemplates", JSON.stringify(list)); syncTemplatesBackup();
+    document.getElementById("templateNameModal").classList.add("hidden");
+    showToast("⭐ Template Saved!", "var(--primary)"); resetForm();
+  };
+
+  document.getElementById("btnCancelTemplateName").onclick = () => document.getElementById("templateNameModal").classList.add("hidden");
+
+  document.getElementById("btnCancelReplaceTemplate").onclick = () => {
+    document.getElementById("templateCompareModal").classList.add("hidden");
+    const modal = document.getElementById("templateNameModal");
+    const nameInp = document.getElementById("customTemplateNameInp");
+    nameInp.value = tempNewTemplate ? tempNewTemplate.name : "";
+    modal.classList.remove("hidden");
+    setTimeout(() => nameInp.focus(), 100);
+    tempReplaceIndex = -1; tempNewTemplate = null;
+  };
+
+  document.getElementById("btnConfirmReplaceTemplate").onclick = () => {
+    if (tempReplaceIndex > -1 && tempNewTemplate) {
+        let list = JSON.parse(localStorage.getItem("loanCustomTemplates") || "[]");
+        list[tempReplaceIndex] = tempNewTemplate;
+        localStorage.setItem("loanCustomTemplates", JSON.stringify(list));
+        syncTemplatesBackup();
+        document.getElementById("templateCompareModal").classList.add("hidden");
+        showToast("⭐ Template Replaced!", "var(--primary)"); resetForm();
+        tempReplaceIndex = -1; tempNewTemplate = null;
+    }
+  };
+
+  function buildTemplateCompareHtml(oldT, newT) {
+      let html = `<div class="col-header left">Existing</div><div class="col-header center">Field</div><div class="col-header right">New</div>`;
+      
+      function addRow(label, oldVal, newVal) {
+          const oldStr = (oldVal !== undefined && oldVal !== null && oldVal !== "") ? oldVal : "-";
+          const newStr = (newVal !== undefined && newVal !== null && newVal !== "") ? newVal : "-";
+          const diff = String(oldStr) !== String(newStr);
+          
+          const oldCls = diff ? 'val-box old-diff' : 'val-box'; 
+          const newCls = diff ? 'val-box new-diff' : 'val-box';
+          
+          html += `<div class="${oldCls}">${oldStr}</div><div class="field-label">${label}</div><div class="${newCls}">${newStr}</div>`;
+      }
+      
+      addRow("Name", oldT.name, newT.name); 
+      addRow("Narration", oldT.narration, newT.narration);
+      addRow("Borrower", oldT.borrower, newT.borrower); 
+      addRow("Flow", oldT.flow ? oldT.flow.replace('_',' ') : '-', newT.flow ? newT.flow.replace('_',' ') : '-');
+      
+      html += `<div class="diff-heading"><span>Payments</span></div>`;
+      
+      const payments = new Set();
+      (oldT.payments || []).forEach(p => payments.add(`${p.account} (${p.type})`));
+      (newT.payments || []).forEach(p => payments.add(`${p.account} (${p.type})`));
+      
+            payments.forEach(key => {
+          const oldP = (oldT.payments || []).find(p => `${p.account} (${p.type})` === key);
+          const newP = (newT.payments || []).find(p => `${p.account} (${p.type})` === key);
+          
+          // Force the mode to a new line
+          const formattedLabel = key.replace(' (', '<br>(');
+          addRow(formattedLabel, oldP ? `₹${oldP.amount}` : "-", newP ? `₹${newP.amount}` : "-");
+      });
+
+      return html;
+  }
+
+  function renderCustomTemplates() {
+    let list = [];
+    try {
+        list = JSON.parse(localStorage.getItem("loanCustomTemplates") || "[]");
+        if (!Array.isArray(list)) list = [];
+    } catch (e) {
+        list = [];
+        console.warn("Template cache reset due to invalid JSON data.");
+    }
+    
+    const body = document.getElementById("templateBody");
+    body.innerHTML = "";
+    
+    if (list.length === 0) { 
+        body.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:20px;">No templates saved yet.</td></tr>`; 
+        return; 
+    }
+    
+    list.forEach((t, index) => {
+        let account = "-", amount = "-";
+        if (t.payments && t.payments.length > 0) { 
+            account = t.payments[0].account || "-"; 
+            amount = t.payments[0].amount ? `₹${t.payments[0].amount}` : "-"; 
+        }
+        
+        // Safety checks prevent the UI from crashing if older templates are missing fields
+        const nameStr = t.name || "-";
+        const borrowerStr = t.borrower || "-";
+        const narrationStr = t.narration || "-";
+        const flowStr = t.flow ? t.flow.replace('_', ' ') : "-";
+
+        body.innerHTML += `<tr>
+            <td><strong>${nameStr}</strong></td>
+            <td>${borrowerStr}</td>
+            <td>${narrationStr}</td>
+            <td>${flowStr}</td>
+            <td>${account}</td>
+            <td>${amount}</td>
+            <td>
+                <div class="td-action-group">
+                    <button class="btn-action" onclick="editCustomTemplate(${index})" title="Edit">✏️</button>
+                    <button class="btn-action" onclick="loadCustomTemplate(${index})" title="Load">📥</button>
+                    <button class="btn-action" onclick="deleteCustomTemplate(${index})" title="Delete">🗑️</button>
+                </div>
+            </td>
+        </tr>`;
+    });
+  }
+
+  window.loadCustomTemplate = function(index) {
+    const list = JSON.parse(localStorage.getItem("loanCustomTemplates") || "[]");
+    const t = list[index]; if (!t) return;
+    resetForm();
+    const bSel = document.getElementById('borrower');
+    if (Array.from(bSel.options).some(o => o.value === t.borrower)) { bSel.value = t.borrower; } 
+    else { bSel.value = "Other"; document.getElementById('borrower_other').value = t.borrower || ''; }
+    toggleSmartOther(bSel, 'borrower_other', 'borrowerSmartRow');
+
+    document.getElementById("narration").value = t.narration || ''; document.getElementById("invoice").value = t.invoice || ''; document.getElementById("trtype").value = t.flow || '';
+    
+    document.getElementById('paymentContainer').innerHTML = "";
+    (t.payments || []).forEach(p => {
+        createPaymentRow({ type: p.type, acc: p.account, amt: p.amount });
+        if (p.type === 'cash' && p.denominations) {
+            document.querySelectorAll('.denom-input').forEach(input => { const val = input.dataset.val; if (p.denominations[val] !== undefined) input.value = p.denominations[val] || ''; });
+            recalcCash();
+        }
+    });
+    updateGrandTotal(); closeTemplateManager(); window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  window.editCustomTemplate = function(index) {
+    const list = JSON.parse(localStorage.getItem("loanCustomTemplates") || "[]");
+    window.currentEditingTemplateName = list[index].name;
+    loadCustomTemplate(index); showToast("✏️ Editing template...", "var(--secondary)");
+  };
+
+  window.deleteCustomTemplate = async function(index) {
+    const ok = await showConfirm("Delete this template?");
+    if (!ok) return;
+    let list = JSON.parse(localStorage.getItem("loanCustomTemplates") || "[]");
+    list.splice(index, 1); localStorage.setItem("loanCustomTemplates", JSON.stringify(list));
+    syncTemplatesBackup(); renderCustomTemplates(); showToast("🗑️ Template deleted", "var(--danger)");
+  };
+
+  window.syncTemplatesBackup = function() {
+    const data = localStorage.getItem("loanCustomTemplates");
+    fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ action: "backupCustomTemplates", data: data }) })
+    .then(r => r.text()).then(() => showToast("☁️ Templates backed up", "var(--primary)")).catch(() => showToast("Backup skipped (offline)", "#f59e0b"));
+  };
+
+  window.restoreTemplatesFromDrive = function() {
+    fetch(SCRIPT_URL + "?action=getCustomTemplatesBackup").then(r => r.json()).then(data => {
+        if (data && data.length) { localStorage.setItem("loanCustomTemplates", JSON.stringify(data)); renderCustomTemplates(); showToast("📥 Templates restored from Drive", "var(--primary)"); } 
+        else { showToast("No backup found on Drive", "#f59e0b"); }
+    }).catch(() => showToast("Failed to restore", "var(--danger)"));
+  };
+
+  const suggestBox = document.getElementById("narration-suggestions");
+  const narrationInp = document.getElementById("narration");
+  let autocompleteTimeout;
+
+  narrationInp.addEventListener("input", function() {
+      clearTimeout(autocompleteTimeout); const val = this.value.toLowerCase().trim();
+      if (!val) { suggestBox.classList.add("hidden"); return; }
+      autocompleteTimeout = setTimeout(() => {
+          suggestBox.innerHTML = ""; const templates = JSON.parse(localStorage.getItem("loanCustomTemplates") || "[]");
+          const matches = templates.filter(t => t.name.toLowerCase().includes(val));
+          if (matches.length === 0) { suggestBox.classList.add("hidden"); return; }
+          suggestBox.classList.remove("hidden");
+          matches.forEach(match => {
+              const item = document.createElement("div"); const regex = new RegExp(`(${val})`, "gi");
+              item.innerHTML = "⭐ " + match.name.replace(regex, "<strong style='color:var(--primary)'>$1</strong>");
+              item.addEventListener("click", function(e) { e.preventDefault(); narrationInp.value = match.name; suggestBox.classList.add("hidden"); checkAutoTemplateFill(); });
+              suggestBox.appendChild(item);
+          });
+      }, 200);
+  });
+
+  document.addEventListener("click", function(e) { if (e.target !== narrationInp) { suggestBox.classList.add("hidden"); } });
+
+  function checkAutoTemplateFill() {
+      const val = narrationInp.value.trim().toLowerCase();
+      if (!val) return false;
+      const list = JSON.parse(localStorage.getItem("loanCustomTemplates") || "[]");
+      const matchedIndex = list.findIndex(t => t.name.toLowerCase() === val);
+      if (matchedIndex !== -1) { loadCustomTemplate(matchedIndex); showToast(`✨ '${list[matchedIndex].name}' Template Loaded`, "var(--primary)"); return true; }
+      return false;
+  }
+  narrationInp.addEventListener("blur", function() { checkAutoTemplateFill(); });
+
+  initDB(); // Launch standard init sequence
+  resetForm(); // Absolutely guarantee page starts with uncompromised UI state
 });
 </script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('SW Registered'))
-        .catch(err => console.log('SW Registration Failed', err));
+      navigator.serviceWorker.register('./sw.js').then(reg => console.log('SW Registered')).catch(err => console.log('SW Registration Failed', err));
     });
   }
 </script>
