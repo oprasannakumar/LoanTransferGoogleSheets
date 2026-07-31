@@ -476,6 +476,24 @@ function getTodayIST() {
   return `${yyyy}-${mm}-${dd}`;
 }
 
+// Centralized function to generate detailed transaction HTML
+window.generateTransactionHtml = function(date, borrower, narration, ref, flow, gTotal, payloads) {
+    let html = `<div class="confirm-item"><span class="confirm-label">Date</span><span class="confirm-val">${formatDisplayDate(date)}</span></div>
+                <div class="confirm-item"><span class="confirm-label">Borrower</span><span class="confirm-val">${borrower}</span></div>
+                <div class="confirm-item"><span class="confirm-label">Narration</span><span class="confirm-val">${narration}</span></div>
+                ${ref ? `<div class="confirm-item"><span class="confirm-label">Ref</span><span class="confirm-val">${ref}</span></div>` : ''}
+                <div class="confirm-item"><span class="confirm-label">Flow</span><span class="confirm-val">${(flow || '').replace('_', ' ')}</span></div>
+                <div class="confirm-item" style="border:none"><span class="confirm-label" style="color:var(--primary)">Grand Total</span><span class="confirm-val" style="color:var(--primary); font-weight:bold">₹${parseFloat(gTotal).toFixed(2)}</span></div>
+                <div class="confirm-section-title">Payments</div>`;
+    payloads.forEach(p => {
+      html += `<div class="confirm-item" style="border-bottom:none"><span class="confirm-label">${p.account} (${p.mode})</span><span class="confirm-val">₹${p.withdrawn || p.deposit}</span></div>`;
+      if (p.mode === 'cash') {
+          html += `<div class="confirm-matrix-grid">` + denoms.map(d => `<div class="confirm-matrix-card"><span>₹${d}</span><strong>${p["c"+d] || 0}</strong></div>`).join('') + `</div>`;
+      }
+    });
+    return html;
+};
+
 window.resetForm = function(keepModes = false) {
     const form = document.getElementById('loanForm');
     const batchActive = document.getElementById("batchToggle").checked;
@@ -644,9 +662,31 @@ document.addEventListener('DOMContentLoaded', () => {
   window.viewDailyTxnDetails = function(id) {
     const data = getDailyTxns();
     const txn = data.txns.find(t => t.id === id);
-    if (txn && txn.fullHtml) {
-      document.getElementById('dailyTxnDetailsContent').innerHTML = txn.fullHtml;
+    if (!txn) return;
+    
+    let html = txn.fullHtml;
+    
+    // Fallback: Reconstruct HTML if missing (e.g. older logs or saved in batch mode previously)
+    if (!html && txn.formState) {
+        const bFinal = txn.formState.borrower === "Other" ? txn.formState.borrower_other : txn.formState.borrower;
+        const flow = txn.formState.trtype;
+        const gTotal = txn.formState.payments.reduce((s, p) => s + (p.amount || 0), 0);
+        const dummyPayloads = txn.formState.payments.map(p => {
+           const dp = { account: p.account, mode: p.type };
+           if (flow === 'loan_given') dp.withdrawn = p.amount; else dp.deposit = p.amount;
+           if (p.type === 'cash' && p.denominations) {
+               for (let k in p.denominations) dp["c"+k] = p.denominations[k];
+           }
+           return dp;
+        });
+        html = generateTransactionHtml(txn.formState.date, bFinal, txn.formState.narration, txn.ref || txn.formState.reference, flow, gTotal, dummyPayloads);
+    }
+    
+    if (html) {
+      document.getElementById('dailyTxnDetailsContent').innerHTML = html;
       document.getElementById('dailyTxnDetailsModal').classList.remove('hidden');
+    } else {
+      showToast("Detailed view not available for this log", "var(--danger)");
     }
   };
 
@@ -1189,11 +1229,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.currentSaveStats = {
         amount: gTotal, flow: flowFinal, narration: `${document.getElementById('narration').value.trim()} (${bFinal})`,
-        details: paymentDetailsArray.join(', '), ref: refVal, fullHtml: '', formState: newFormState
+        details: paymentDetailsArray.join(', '), ref: refVal, 
+        fullHtml: generateTransactionHtml(document.getElementById('date').value, bFinal, document.getElementById('narration').value, refVal, flowFinal, gTotal, currentPayloads),
+        formState: newFormState
     };
 
-    if (document.getElementById("batchToggle").checked || !navigator.onLine) saveToDB();
-    else { renderConfirmation(bFinal, flowFinal, refVal); document.getElementById('confirmModal').classList.remove('hidden'); }
+    if (document.getElementById("batchToggle").checked || !navigator.onLine) {
+        saveToDB();
+    } else { 
+        document.getElementById('confirmDetails').innerHTML = window.currentSaveStats.fullHtml;
+        document.getElementById('confirmModal').classList.remove('hidden'); 
+    }
   };
 
   document.getElementById('btnConfirmEditSave').onclick = async function() {
@@ -1224,21 +1270,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       window.currentSaveStats = {
           amount: gTotal, flow: flowFinal, narration: `${newState.narration} (${bFinal})`,
-          details: paymentDetailsArray.join(', '), ref: ref, fullHtml: '', formState: newState
+          details: paymentDetailsArray.join(', '), ref: ref, 
+          fullHtml: generateTransactionHtml(newState.date, bFinal, newState.narration, ref, flowFinal, gTotal, currentPayloads),
+          formState: newState
       };
-
-      let html = `<div class="confirm-item"><span class="confirm-label">Date</span><span class="confirm-val">${formatDisplayDate(newState.date)}</span></div>
-                  <div class="confirm-item"><span class="confirm-label">Borrower</span><span class="confirm-val">${bFinal}</span></div>
-                  <div class="confirm-item"><span class="confirm-label">Narration</span><span class="confirm-val">${newState.narration}</span></div>
-                  <div class="confirm-item"><span class="confirm-label">Ref</span><span class="confirm-val">${ref}</span></div>
-                  <div class="confirm-item"><span class="confirm-label">Flow</span><span class="confirm-val">${flowFinal.replace('_', ' ')}</span></div>
-                  <div class="confirm-item" style="border:none"><span class="confirm-label" style="color:var(--primary)">Grand Total</span><span class="confirm-val" style="color:var(--primary); font-weight:bold">₹${gTotal.toFixed(2)}</span></div>
-                  <div class="confirm-section-title">Payments</div>`;
-      currentPayloads.forEach(p => {
-        html += `<div class="confirm-item" style="border-bottom:none"><span class="confirm-label">${p.account} (${p.mode})</span><span class="confirm-val">₹${p.withdrawn || p.deposit}</span></div>`;
-        if(p.mode === 'cash') html += `<div class="confirm-matrix-grid">` + denoms.map(d => `<div class="confirm-matrix-card"><span>₹${d}</span><strong>${p["c"+d]}</strong></div>`).join('') + `</div>`;
-      });
-      window.currentSaveStats.fullHtml = html;
 
       if (document.getElementById("batchToggle").checked || !navigator.onLine) saveToDB();
       else processSave();
@@ -1250,22 +1285,6 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('editCompareModal').classList.add('hidden');
       window._oldLogId = null; window._editRef = null; window._newFormState = null;
   };
-
-  function renderConfirmation(borrower, flow, ref) {
-    let html = `<div class="confirm-item"><span class="confirm-label">Date</span><span class="confirm-val">${formatDisplayDate(document.getElementById('date').value)}</span></div>
-                <div class="confirm-item"><span class="confirm-label">Borrower</span><span class="confirm-val">${borrower}</span></div>
-                <div class="confirm-item"><span class="confirm-label">Narration</span><span class="confirm-val">${document.getElementById('narration').value}</span></div>
-                ${ref ? `<div class="confirm-item"><span class="confirm-label">Ref</span><span class="confirm-val">${ref}</span></div>` : ''}
-                <div class="confirm-item"><span class="confirm-label">Flow</span><span class="confirm-val">${flow.replace('_', ' ')}</span></div>
-                <div class="confirm-item" style="border:none"><span class="confirm-label" style="color:var(--primary)">Grand Total</span><span class="confirm-val" style="color:var(--primary); font-weight:bold">${document.getElementById('grandTotal').textContent}</span></div>
-                <div class="confirm-section-title">Payments</div>`;
-    currentPayloads.forEach(p => {
-      html += `<div class="confirm-item" style="border-bottom:none"><span class="confirm-label">${p.account} (${p.mode})</span><span class="confirm-val">₹${p.withdrawn || p.deposit}</span></div>`;
-      if(p.mode === 'cash') html += `<div class="confirm-matrix-grid">` + denoms.map(d => `<div class="confirm-matrix-card"><span>₹${d}</span><strong>${p["c"+d]}</strong></div>`).join('') + `</div>`;
-    });
-    document.getElementById('confirmDetails').innerHTML = html;
-    if (window.currentSaveStats) window.currentSaveStats.fullHtml = html;
-  }
 
   async function processSave() {
     document.getElementById('confirmModal').classList.add('hidden');
