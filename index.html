@@ -11,6 +11,10 @@
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
     :root { 
+      * {
+  -webkit-tap-highlight-color: transparent;
+}
+
       --h: 42px; --r: 10px; --primary: #22c55e; --secondary: #3b82f6; --danger: #ef4444; 
       --bg-body: linear-gradient(135deg,#eef2f7,#f9fafb);
       --bg-card: #ffffff; --text-main: #1f2937; --text-label: #374151; --border-color: #d1d5db; --bg-input: #ffffff;
@@ -47,12 +51,19 @@
     .ball-income { color: var(--primary); }
     .ball-spent { color: var(--danger); }
 
-    .daily-txn-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 10px; border-bottom: 1px solid var(--border-color); transition: background 0.2s ease; border-radius: 8px; -webkit-tap-highlight-color: transparent; }
-    .daily-txn-row:hover, .daily-txn-row:active { background: var(--bg-input); }
-    .daily-txn-row:last-child { border-bottom: none; }
-    .daily-txn-row .txn-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; margin-left: 8px; }
-    .daily-txn-row .txn-actions span { cursor: pointer; font-size: 16px; opacity: 0.7; transition: opacity 0.2s; padding: 4px; border-radius: 4px; }
-    .daily-txn-row .txn-actions span:hover { opacity: 1; background: var(--bg-input); }
+    /* New Swipeable Daily Txn Styles */
+    .daily-txn-container { position: relative; overflow: hidden; border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--border-color); background: var(--bg-card); }
+    .daily-txn-actions { position: absolute; right: 0; top: 0; bottom: 0; display: flex; width: 100px; z-index: 0; }
+    
+    /* Updated action-btn styles: removed 'color: white', added transparent background, increased font size */
+    .action-btn { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; background: transparent; transition: transform 0.2s, opacity 0.2s; }
+    .action-btn:hover { opacity: 0.8; transform: scale(1.15); } /* Added a slight pop effect on hover */
+    .btn-edit { background: transparent; }
+    .btn-delete { background: transparent; }
+    
+    .daily-txn-content { position: relative; background: var(--bg-card); z-index: 1; display: flex; justify-content: space-between; align-items: center; padding: 12px 10px; touch-action: pan-y; cursor: pointer; transition: transform 0.25s ease; border-radius: 8px; -webkit-tap-highlight-color: transparent; }
+    .daily-txn-content:hover, .daily-txn-content:active { background: var(--bg-input); }
+
 
     .edit-compare-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px 4px; align-items: center; max-height: 60vh; overflow-y: auto; font-size: 13px; margin-bottom: 15px; }
     .edit-compare-grid .col-header { font-weight: 700; padding-bottom: 4px; text-align: center; }
@@ -94,7 +105,7 @@
     form.was-validated :invalid, .is-invalid, .cash-invalid { border-color: var(--danger) !important; background: rgba(239, 68, 68, 0.03) !important; }
 
     .smart-row { display: block; width: 100%; }
-    .smart-row.has-other { display: grid; grid-template-columns: 1fr 1.2fr; gap: 10px; }
+    .smart-row.has-other { display: grid; grid-template-columns: 1fr 1.2fr; gap: 10px; align-items: start; }
 
     .payment-row-wrapper { margin-bottom: 12px; border-bottom: 1px dashed var(--border-color); padding-bottom: 12px; }
     .payment-row { display: grid; grid-template-columns: 1fr 1.2fr 80px; gap: 6px; align-items: end; }
@@ -171,7 +182,7 @@
     .tmpl-btn-small { height: 34px; margin: 0; font-size: 12px; font-weight: 600; border-radius: 8px; cursor: pointer; }
 
     .hidden { display: none !important; }
-    .flex-gap { display: flex; gap: 5px; margin-top: 5px; }
+    .flex-gap { display: flex; gap: 5px; margin-top: 0; }
 
     #toast {
       position:fixed; bottom:40px; left:50%; transform:translate(-50%,40px) scale(0.95);
@@ -348,7 +359,7 @@
           <h3 style="margin:0;font-size:15px;">Today's Local Log</h3>
           <span style="cursor:pointer;font-size:18px;" onclick="document.getElementById('todayTxnModal').classList.add('hidden')">✕</span>
       </div>
-      <div id="todayTxnList" style="max-height:75vh;overflow-y:auto;font-size:12px;padding-right:5px;"></div>
+      <div id="todayTxnList" style="max-height:75vh;overflow-y:auto;font-size:12px;padding-right:5px;overflow-x:hidden;"></div>
   </div>
 </div>
 
@@ -641,8 +652,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const sorted = [...data.txns].reverse();
     sorted.forEach(t => {
       const color = t.flow === 'loan_given' ? 'var(--danger)' : 'var(--primary)';
-      listDiv.innerHTML += `
-        <div class="daily-txn-row" onclick="viewDailyTxnDetails(${t.id})" style="cursor:pointer;" title="Tap to view details">
+      
+      const wrapper = document.createElement('div');
+      wrapper.className = 'daily-txn-container';
+      wrapper.innerHTML = `
+        <div class="daily-txn-actions">
+          <div class="action-btn btn-edit" title="Edit">✏️</div>
+          <div class="action-btn btn-delete" title="Delete">🗑️</div>
+        </div>
+        <div class="daily-txn-content" title="Tap to view details">
           <div style="flex:1;min-width:0;">
             <strong style="color:var(--text-main);">${t.narration}</strong><br>
             <span style="color:var(--text-label);font-size:10px;">${t.details}</span>
@@ -650,12 +668,78 @@ document.addEventListener('DOMContentLoaded', () => {
           <div style="font-weight:700;color:${color};padding-right:8px;flex-shrink:0;">
             ₹${t.amount.toFixed(2)}
           </div>
-          <div class="txn-actions">
-            <span onclick="event.stopPropagation(); editDailyTxn(${t.id})" title="Edit">✏️</span>
-            <span onclick="event.stopPropagation(); removeDailyTxn(${t.id})" title="Delete">🗑️</span>
-          </div>
         </div>
       `;
+      
+      listDiv.appendChild(wrapper);
+      
+      const content = wrapper.querySelector('.daily-txn-content');
+      const btnEdit = wrapper.querySelector('.btn-edit');
+      const btnDelete = wrapper.querySelector('.btn-delete');
+      
+      btnEdit.onclick = (e) => { e.stopPropagation(); editDailyTxn(t.id); };
+      btnDelete.onclick = (e) => { e.stopPropagation(); removeDailyTxn(t.id); };
+      
+      // Swipe Logic
+      let startX = 0, currentX = 0, isDragging = false, hasDragged = false;
+      
+      function onStart(x) {
+        document.querySelectorAll('.daily-txn-content.swiped').forEach(c => {
+            if (c !== content) { c.style.transform = 'translateX(0)'; c.classList.remove('swiped'); }
+        });
+        startX = x; isDragging = true; hasDragged = false; currentX = 0;
+        content.style.transition = 'none';
+      }
+      
+      function onMove(x) {
+        if (!isDragging) return;
+        currentX = x - startX;
+        if (content.classList.contains('swiped')) currentX -= 100;
+        if (Math.abs(currentX) > 5) hasDragged = true;
+        if (currentX > 0) currentX = 0;
+        if (currentX < -120) currentX = -120;
+        content.style.transform = `translateX(${currentX}px)`;
+      }
+      
+      function onEnd() {
+        if (!isDragging) return;
+        isDragging = false;
+        content.style.transition = 'transform 0.25s ease';
+        if (currentX < -40) {
+            content.style.transform = 'translateX(-100px)';
+            content.classList.add('swiped');
+        } else {
+            content.style.transform = 'translateX(0)';
+            content.classList.remove('swiped');
+        }
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+      }
+      
+      content.addEventListener('touchstart', e => onStart(e.touches[0].clientX), {passive: true});
+      content.addEventListener('touchmove', e => onMove(e.touches[0].clientX), {passive: true});
+      content.addEventListener('touchend', onEnd);
+      
+      const handleMouseMove = e => { if (isDragging) onMove(e.clientX); };
+      const handleMouseUp = () => { if (isDragging) onEnd(); };
+      
+      content.addEventListener('mousedown', e => {
+        if (e.target.closest('.action-btn')) return;
+        onStart(e.clientX);
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+      });
+      
+      content.addEventListener('click', e => {
+        if (hasDragged) { e.preventDefault(); e.stopPropagation(); return; }
+        if (content.classList.contains('swiped')) {
+            content.style.transform = 'translateX(0)';
+            content.classList.remove('swiped');
+            e.stopPropagation();
+            return;
+        }
+        viewDailyTxnDetails(t.id);
+      });
     });
   }
 
@@ -745,9 +829,20 @@ document.addEventListener('DOMContentLoaded', () => {
   function setupDraggableBall() {
     const ball = document.getElementById('dragDashBall');
     if(!ball) return;
+
+    // 1. Load the saved position when the app starts
+    const savedTop = localStorage.getItem('dashBallTop');
+    if (savedTop) {
+        // Ensure it doesn't load off-screen if the user resizes their window
+        const maxTop = window.innerHeight - 50; // approximate ball height fallback
+        let newTop = parseInt(savedTop, 10);
+        newTop = Math.max(10, Math.min(newTop, maxTop));
+        ball.style.top = newTop + 'px';
+    }
+
     let isDragging = false;
     let startY = 0;
-    let initialTop = 180;
+    let initialTop = ball.offsetTop;
     let hasMoved = false;
 
     const onStart = (e) => {
@@ -774,6 +869,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!hasMoved) {
             window.renderDailyTxnsModal();
             document.getElementById('todayTxnModal').classList.remove('hidden');
+        } else {
+            // 2. Save the new position to local storage after dragging finishes
+            localStorage.setItem('dashBallTop', ball.offsetTop);
         }
     };
 
@@ -784,6 +882,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onEnd);
   }
+
 
   function mapReceiptText(text) {
     const getVal = (key) => { const r = new RegExp(`${key}:\\s*(.*)`, 'i'); const m = text.match(r); return m ? m[1].trim() : ""; };
