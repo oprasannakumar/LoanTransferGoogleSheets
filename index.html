@@ -466,6 +466,47 @@ function showConfirm(message) {
     });
 }
 
+const parseToStrictDate = d => {
+    try {
+        const dt = new Date(d);
+        if(isNaN(dt)) return d;
+        return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+    } catch (e) {
+        return d;
+    }
+};
+
+function isLoanStateEqual(oldSt, newSt) {
+    if (parseToStrictDate(oldSt.date) !== parseToStrictDate(newSt.date)) return false;
+    
+    const bOld = oldSt.borrower === 'Other' ? oldSt.borrower_other : oldSt.borrower;
+    const bNew = newSt.borrower === 'Other' ? newSt.borrower_other : newSt.borrower;
+    if (String(bOld || '').trim() !== String(bNew || '').trim()) return false;
+    
+    if (String(oldSt.narration || '').trim() !== String(newSt.narration || '').trim()) return false;
+    if (String(oldSt.invoice || '').trim() !== String(newSt.invoice || '').trim()) return false;
+    if (String(oldSt.trtype || '').trim() !== String(newSt.trtype || '').trim()) return false;
+    
+    const pOld = oldSt.payments || [];
+    const pNew = newSt.payments || [];
+    if (pOld.length !== pNew.length) return false;
+
+    for (let i = 0; i < pOld.length; i++) {
+        if (String(pOld[i].type || '').toLowerCase() !== String(pNew[i].type || '').toLowerCase()) return false;
+        if (String(pOld[i].account || '').toLowerCase() !== String(pNew[i].account || '').toLowerCase()) return false;
+        if (Number(pOld[i].amount || 0) !== Number(pNew[i].amount || 0)) return false;
+
+        if (String(pOld[i].type || '').toLowerCase() === 'cash') {
+            const dOld = pOld[i].denominations || {};
+            const dNew = pNew[i].denominations || {};
+            for (let d of denoms) {
+                if (Number(dOld[d] || 0) !== Number(dNew[d] || 0)) return false;
+            }
+        }
+    }
+    return true;
+}
+
 function formatDisplayDate(dateStr) {
   if (!dateStr) return "";
   const d = new Date(dateStr);
@@ -1196,11 +1237,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('paymentContainer').appendChild(wrapper);
     enableSwipeToDelete(wrapper);
         if(initial) { 
-        // --- NEW: Case-insensitive match for the payment type ---
         const matchedType = Array.from(tSel.options).find(o => o.value.toLowerCase() === String(initial.type || "").toLowerCase());
         tSel.value = matchedType ? matchedType.value : initial.type; 
         tSel.dispatchEvent(new Event('change')); 
-        // --------------------------------------------------------
 
         if(initial.acc === 'Other' || !Array.from(aSel.options).some(o => o.value === initial.acc)) { 
             aSel.value = 'Other'; 
@@ -1302,10 +1341,16 @@ document.addEventListener('DOMContentLoaded', () => {
   function buildEditCompareHtml(oldState, newState) {
       let html = `<div class="col-header left">Existing</div><div class="col-header center">Field</div><div class="col-header right">New</div>`;
 
-      function addRow(label, oldVal, newVal) {
-          const oldStr = (oldVal !== undefined && oldVal !== null && oldVal !== "") ? String(oldVal) : "-";
-          const newStr = (newVal !== undefined && newVal !== null && newVal !== "") ? String(newVal) : "-";
-          const diff = oldStr !== newStr;
+      function addRow(label, oldVal, newVal, isDate = false) {
+          let oldStr = (oldVal !== undefined && oldVal !== null && oldVal !== "") ? String(oldVal) : "-";
+          let newStr = (newVal !== undefined && newVal !== null && newVal !== "") ? String(newVal) : "-";
+          let diff = oldStr !== newStr;
+
+          if (isDate && oldVal && newVal) {
+              oldStr = formatDisplayDate(oldVal);
+              newStr = formatDisplayDate(newVal);
+              diff = oldStr !== newStr;
+          }
           
           const oldCls = diff ? 'val-box old-diff' : 'val-box';
           const newCls = diff ? 'val-box new-diff' : 'val-box';
@@ -1317,7 +1362,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const oldBorrower = oldState.borrower === 'Other' ? oldState.borrower_other : oldState.borrower;
       const newBorrower = newState.borrower === 'Other' ? newState.borrower_other : newState.borrower;
 
-      addRow("Date", oldState.date, newState.date);
+      addRow("Date", oldState.date, newState.date, true);
       addRow("Borrower", oldBorrower, newBorrower);
       addRow("Narration", oldState.narration, newState.narration);
       addRow("Invoice", oldState.invoice, newState.invoice);
@@ -1393,7 +1438,10 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         newFormState.reference = oldTxn.ref || refVal;
 
-        if (JSON.stringify(oldState) === JSON.stringify(newFormState)) { showToast("No changes detected", "#f59e0b"); return; }
+        if (isLoanStateEqual(oldState, newFormState)) { 
+            showToast("No changes detected", "#f59e0b"); 
+            return; 
+        }
 
         document.getElementById('editCompareGrid').innerHTML = buildEditCompareHtml(oldState, newFormState);
         document.getElementById('editCompareModal').classList.remove('hidden');
