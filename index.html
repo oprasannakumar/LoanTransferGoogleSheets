@@ -1428,7 +1428,7 @@
             document.getElementById("date").value = getTodayIST();
 
             editingLogId = null;
-
+            window._editingOriginalTxn = null;
             createPaymentRow();
             updateGrandTotal();
         }
@@ -2000,9 +2000,11 @@
 
             const newFormState = buildFormState();
 
-            if (editingLogId !== null) {
-                const oldTxn = window.fetchedGroupedTxns.find(t => t.id === editingLogId);
+               if (editingLogId !== null) {
+                // Check cached original transaction first, fallback to groupedTxns
+                const oldTxn = window._editingOriginalTxn || window.fetchedGroupedTxns.find(t => t.id === editingLogId);
                 if (!oldTxn) { showToast("Original log data not found", "var(--danger)"); return; }
+
                 const bSel = document.getElementById('borrower');
                 let isOther = !Array.from(bSel.options).some(o => o.value === oldTxn.borrower);
                 const oldState = {
@@ -2484,6 +2486,7 @@
             document.getElementById('todayTxnModal').classList.add('hidden');
             resetForm(true);
             editingLogId = refId;
+            window._editingOriginalTxn = txn;
             document.getElementById('date').value = txn.date || getTodayIST();
             document.getElementById('narration').value = txn.narration || '';
             document.getElementById('invoice').value = txn.invoice || '';
