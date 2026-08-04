@@ -1380,8 +1380,9 @@
                 <div class="confirm-item" style="border:none"><span class="confirm-label" style="color:var(--primary)">Grand Total</span><span class="confirm-val" style="color:var(--primary);font-weight:bold">₹${parseFloat(gTotal).toFixed(2)}</span></div>
                 <div class="confirm-section-title">Payments</div>`;
             payloads.forEach(p => {
+                const val = p.withdrawn ?? p.deposit ?? 0;
                 html +=
-                    `<div class="confirm-item" style="border-bottom:none"><span class="confirm-label">${p.account} (${p.mode})</span><span class="confirm-val">₹${p.withdrawn || p.deposit}</span></div>`;
+                    `<div class="confirm-item" style="border-bottom:none"><span class="confirm-label">${p.account} (${p.mode})</span><span class="confirm-val">₹${val}</span></div>`;
                 if (p.mode === 'cash') {
                     html += `<div class="confirm-matrix-grid">` + denoms.map(d =>
                         `<div class="confirm-matrix-card"><span>₹${d}</span><strong>${p["c"+d] || 0}</strong></div>`).join(
@@ -2108,7 +2109,7 @@
 
             let paymentDetailsArray = [];
             currentPayloads.forEach(p => paymentDetailsArray.push(`${p.account} (${p.mode})`));
-            const gTotal = currentPayloads.reduce((sum, p) => sum + parseFloat(p.withdrawn || p.deposit || 0), 0);
+            const gTotal = currentPayloads.reduce((sum, p) => sum + parseFloat(p.withdrawn ?? p.deposit ?? 0), 0);
 
             window.currentSaveStats = {
                 amount: gTotal,
@@ -2237,6 +2238,7 @@
             data.forEach(row => {
                 const ref = row.refId || row.reference;
                 if (!grouped[ref]) {
+                    const isGiven = row.trtype ? row.trtype === 'loan_given' : (parseFloat(row.withdrawn || 0) !== 0 || parseFloat(row.deposit || 0) === 0);
                     grouped[ref] = {
                         id: ref,
                         ref: ref,
@@ -2244,13 +2246,14 @@
                         borrower: row.borrower,
                         narration: row.narration,
                         invoice: row.invoice || '',
-                        flow: (parseFloat(row.withdrawn) > 0 || row.trtype === 'loan_given') ? 'loan_given' :
-                            'loan_received',
+                        flow: isGiven ? 'loan_given' : 'loan_received',
                         amount: 0,
                         payments: []
                     };
                 }
-                const amt = parseFloat(row.withdrawn || 0) > 0 ? parseFloat(row.withdrawn) : parseFloat(row.deposit || 0);
+                const w = parseFloat(row.withdrawn);
+                const d = parseFloat(row.deposit);
+                const amt = !isNaN(w) && w !== 0 ? w : (!isNaN(d) ? d : 0);
                 grouped[ref].amount += amt;
                 grouped[ref].payments.push({
                     type: row.mode,
@@ -2596,7 +2599,7 @@
                 <td>${item.narration}</td>
                 <td><strong>${item.account}</strong>${denomsText}</td>
                 <td>${item.trtype.replace('loan_','')}</td>
-                <td>₹${item.withdrawn || item.deposit}</td>
+                <td>₹${item.withdrawn ?? item.deposit ?? 0}</td>
                 <td><div class="td-action-group"><button class="btn-action" onclick="editItem(${item.id})">✏️</button><button class="btn-action" onclick="deleteItem(${item.id})">🗑️</button></div></td>
               </tr>`;
                 }).join("");
